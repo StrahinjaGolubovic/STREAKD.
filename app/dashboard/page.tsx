@@ -115,15 +115,15 @@ export default function DashboardPage() {
       const result = await response.json();
 
       if (response.ok) {
-        showToast(Date.now().toString(), 'Upload successful!', 'success');
+        showToast('Upload successful!', 'success');
         await fetchDashboard();
         e.target.value = ''; // Reset input
       } else {
         const errorMsg = result.error || 'Upload failed';
         if (errorMsg.includes('already exists')) {
-          showToast(Date.now().toString(), 'Upload already exists for this date', 'error');
+          showToast('Upload already exists for this date', 'error');
         } else {
-          showToast(Date.now().toString(), errorMsg, 'error');
+          showToast(errorMsg, 'error');
         }
         setError(errorMsg);
       }
