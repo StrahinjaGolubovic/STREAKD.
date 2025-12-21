@@ -21,3 +21,25 @@ body {
   @apply bg-gray-900 text-gray-100;
 }
 
+/* Mobile optimizations */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Better mobile text rendering */
+@media (max-width: 640px) {
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+

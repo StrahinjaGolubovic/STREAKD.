@@ -313,10 +313,10 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Header */}
-      <header className="bg-gray-800 border-b border-gray-700 shadow-sm">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 flex justify-between items-center">
-          <h1 className="text-xl sm:text-2xl font-bold text-primary-400">Gymble</h1>
-          <div className="flex items-center gap-3">
+      <header className="bg-gray-800 border-b border-gray-700 shadow-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-3 md:py-4 flex justify-between items-center">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-primary-400">Gymble</h1>
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Profile Picture */}
             <div className="relative group">
               <label className="cursor-pointer">
@@ -386,37 +386,37 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6 lg:py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-6">
-            <div className="text-xs sm:text-sm font-medium text-gray-400">Debt</div>
-            <div className={`mt-2 text-2xl sm:text-3xl font-bold ${data.debt > 0 ? 'text-red-400' : 'text-gray-100'}`}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
+          <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
+            <div className="text-xs sm:text-sm font-medium text-gray-400 mb-1">Debt</div>
+            <div className={`text-xl sm:text-2xl md:text-3xl font-bold ${data.debt > 0 ? 'text-red-400' : 'text-gray-100'}`}>
               {data.debt}
             </div>
           </div>
-          <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-6">
-            <div className="text-xs sm:text-sm font-medium text-gray-400">Current Streak</div>
-            <div className="mt-2 text-2xl sm:text-3xl font-bold text-primary-400">{data.streak.current_streak} days</div>
+          <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
+            <div className="text-xs sm:text-sm font-medium text-gray-400 mb-1">Current Streak</div>
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-400">{data.streak.current_streak} days</div>
           </div>
-          <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-6 sm:col-span-2 lg:col-span-1">
-            <div className="text-xs sm:text-sm font-medium text-gray-400">Longest Streak</div>
-            <div className="mt-2 text-2xl sm:text-3xl font-bold text-gray-100">{data.streak.longest_streak} days</div>
+          <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-5 md:p-6 sm:col-span-2 lg:col-span-1">
+            <div className="text-xs sm:text-sm font-medium text-gray-400 mb-1">Longest Streak</div>
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-100">{data.streak.longest_streak} days</div>
           </div>
         </div>
 
         {/* Weekly Challenge Card */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-3">
+        <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-5 md:p-6 mb-4 sm:mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4 md:mb-6 gap-3">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-100">Weekly Challenge</h2>
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-100">Weekly Challenge</h2>
               <p className="text-xs sm:text-sm text-gray-400 mt-1">
                 {new Date(data.challenge.start_date).toLocaleDateString()} -{' '}
                 {new Date(data.challenge.end_date).toLocaleDateString()}
               </p>
             </div>
             <div className="text-left sm:text-right">
-              <div className="text-xl sm:text-2xl font-bold text-primary-400">
+              <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-400">
                 {data.progress.completedDays}/{data.progress.totalDays}
               </div>
               <div className="text-xs sm:text-sm text-gray-400">days completed</div>
@@ -451,7 +451,7 @@ export default function DashboardPage() {
           )}
 
           {/* Upload Section */}
-          <div className="border-t border-gray-700 pt-4 sm:pt-6">
+          <div className="border-t border-gray-700 pt-4 sm:pt-5 md:pt-6">
             <h3 className="text-base sm:text-lg font-semibold text-gray-100 mb-3 sm:mb-4">Upload Today's Photo</h3>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
               <label className="flex-1">
@@ -462,22 +462,67 @@ export default function DashboardPage() {
                   disabled={uploading}
                   className="hidden"
                 />
-                <div className="cursor-pointer bg-primary-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-md hover:bg-primary-700 text-center text-sm sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                <div className="cursor-pointer bg-primary-600 text-white px-5 sm:px-6 py-3 sm:py-3.5 rounded-md hover:bg-primary-700 active:bg-primary-800 text-center text-base sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation min-h-[44px] flex items-center justify-center">
                   {uploading ? 'Uploading...' : 'Choose Photo'}
                 </div>
               </label>
-              {error && <div className="text-red-400 text-xs sm:text-sm">{error}</div>}
+              {error && <div className="text-red-400 text-sm sm:text-base">{error}</div>}
             </div>
-            <p className="text-xs sm:text-sm text-gray-400 mt-2">
+            <p className="text-xs sm:text-sm text-gray-400 mt-2 sm:mt-3">
               Upload one photo per day as proof of your gym visit
             </p>
           </div>
         </div>
 
         {/* Days Grid */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-100 mb-4 sm:mb-6">This Week's Progress</h2>
-          <div className="grid grid-cols-7 gap-2 sm:gap-3 md:gap-4 overflow-x-auto">
+        <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-3 sm:p-4 md:p-6 mb-4 sm:mb-6 md:mb-8">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-100 mb-3 sm:mb-4 md:mb-6">This Week's Progress</h2>
+          {/* Mobile: Horizontal scroll, Desktop: Grid */}
+          <div className="block sm:hidden">
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-3 sm:mx-0 px-3 sm:px-0 scrollbar-hide">
+              {data.progress.days.map((day, index) => {
+                const dayName = new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' });
+                const dayNumber = new Date(day.date).getDate();
+                const isToday = day.date === new Date().toISOString().split('T')[0];
+                const isPast = new Date(day.date) < new Date();
+
+                return (
+                  <div
+                    key={day.date}
+                    className={`border-2 rounded-lg p-3 text-center flex-shrink-0 w-[85px] ${
+                      day.uploaded
+                        ? 'border-green-500 bg-green-900/20'
+                        : isToday
+                        ? 'border-primary-500 bg-primary-900/20'
+                        : isPast
+                        ? 'border-red-700 bg-red-900/20'
+                        : 'border-gray-700 bg-gray-700/50'
+                    }`}
+                  >
+                    <div className="text-xs font-medium text-gray-400">{dayName}</div>
+                    <div className="text-xl font-bold text-gray-100 mt-1">{dayNumber}</div>
+                    {day.uploaded ? (
+                      <div className="mt-2">
+                        <div className="text-green-400 text-[10px] font-medium">✓</div>
+                        {day.verification_status === 'pending' && (
+                          <div className="text-yellow-400 text-[10px]">⏳</div>
+                        )}
+                        {day.verification_status === 'rejected' && (
+                          <div className="text-red-400 text-[10px]">✗</div>
+                        )}
+                      </div>
+                    ) : isPast ? (
+                      <div className="mt-2 text-red-400 text-[10px] font-medium">✗</div>
+                    ) : (
+                      <div className="mt-2 text-gray-500 text-[10px]">-</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          {/* Desktop: Grid layout */}
+          <div className="hidden sm:grid grid-cols-7 gap-2 sm:gap-3 md:gap-4">
             {data.progress.days.map((day, index) => {
               const dayName = new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' });
               const dayNumber = new Date(day.date).getDate();
@@ -487,7 +532,7 @@ export default function DashboardPage() {
               return (
                 <div
                   key={day.date}
-                  className={`border-2 rounded-lg p-2 sm:p-3 md:p-4 text-center min-w-[60px] sm:min-w-0 ${
+                  className={`border-2 rounded-lg p-2 sm:p-3 md:p-4 text-center ${
                     day.uploaded
                       ? 'border-green-500 bg-green-900/20'
                       : isToday
@@ -530,32 +575,32 @@ export default function DashboardPage() {
         </div>
 
         {/* Friends Section */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-100 mb-4 sm:mb-6">Friends</h2>
+        <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-100 mb-4 sm:mb-5 md:mb-6">Friends</h2>
 
           {/* Invite Code Section */}
-          <div className="mb-6 sm:mb-8 p-3 sm:p-4 bg-gray-700/50 rounded-lg">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-100 mb-3 sm:mb-4">Your Invite Code</h3>
+          <div className="mb-4 sm:mb-6 md:mb-8 p-3 sm:p-4 bg-gray-700/50 rounded-lg">
+            <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-100 mb-3 sm:mb-4">Your Invite Code</h3>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-              <div className="flex-1 bg-gray-900 border border-gray-600 rounded-md px-3 sm:px-4 py-2.5 sm:py-3 font-mono text-base sm:text-lg font-bold text-primary-400 break-all">
+              <div className="flex-1 bg-gray-900 border border-gray-600 rounded-md px-3 sm:px-4 py-3 sm:py-3.5 font-mono text-sm sm:text-base md:text-lg font-bold text-primary-400 break-all min-h-[44px] flex items-center">
                 {inviteCode || 'Loading...'}
               </div>
               <button
                 onClick={handleCopyInviteCode}
                 disabled={!inviteCode}
-                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base whitespace-nowrap"
+                className="px-5 sm:px-6 py-3 sm:py-3.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 active:bg-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-base sm:text-base whitespace-nowrap touch-manipulation min-h-[44px]"
               >
                 Copy
               </button>
             </div>
-            <p className="text-xs sm:text-sm text-gray-400 mt-2">
+            <p className="text-xs sm:text-sm text-gray-400 mt-2 sm:mt-3">
               Share this code with friends so they can add you!
             </p>
           </div>
 
           {/* Accept Invite Section */}
-          <div className="mb-6 sm:mb-8 p-3 sm:p-4 bg-gray-700/50 rounded-lg">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-100 mb-3 sm:mb-4">Add Friend by Invite Code</h3>
+          <div className="mb-4 sm:mb-6 md:mb-8 p-3 sm:p-4 bg-gray-700/50 rounded-lg">
+            <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-100 mb-3 sm:mb-4">Add Friend by Invite Code</h3>
             <form onSubmit={handleAcceptInvite} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
               <input
                 type="text"
@@ -563,12 +608,12 @@ export default function DashboardPage() {
                 onChange={(e) => setInviteInput(e.target.value.toUpperCase())}
                 placeholder="Enter invite code"
                 maxLength={8}
-                className="flex-1 bg-gray-900 border border-gray-600 rounded-md px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-primary-500 focus:border-primary-500 font-mono uppercase"
+                className="flex-1 bg-gray-900 border border-gray-600 rounded-md px-4 sm:px-4 py-3 sm:py-3.5 text-base sm:text-base text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono uppercase min-h-[44px]"
               />
               <button
                 type="submit"
                 disabled={!inviteInput.trim() || inviteLoading}
-                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base whitespace-nowrap"
+                className="px-5 sm:px-6 py-3 sm:py-3.5 bg-primary-600 text-white rounded-md hover:bg-primary-700 active:bg-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-base sm:text-base whitespace-nowrap touch-manipulation min-h-[44px]"
               >
                 {inviteLoading ? 'Adding...' : 'Add Friend'}
               </button>
@@ -594,24 +639,24 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={friend.id}
-                      className="bg-gray-700/50 border border-gray-600 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+                      className="bg-gray-700/50 border border-gray-600 rounded-lg p-3 sm:p-4 md:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
                     >
                       <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-                          <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                          <div className="flex items-center gap-2 sm:gap-3">
                             {friend.profile_picture ? (
                               <img
                                 src={getImageUrl(friend.profile_picture) || ''}
                                 alt={friend.username}
-                                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-gray-600 object-cover"
+                                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-gray-600 object-cover flex-shrink-0"
                                 onError={(e) => {
                                   // Hide image and show fallback if it fails to load
                                   e.currentTarget.style.display = 'none';
                                 }}
                               />
                             ) : (
-                              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center">
-                                <span className="text-gray-400 text-xs sm:text-sm font-semibold">
+                              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center flex-shrink-0">
+                                <span className="text-gray-400 text-sm sm:text-base font-semibold">
                                   {friend.username.charAt(0).toUpperCase()}
                                 </span>
                               </div>
@@ -619,12 +664,12 @@ export default function DashboardPage() {
                             <h4 className="text-base sm:text-lg font-semibold text-gray-100 truncate">@{friend.username}</h4>
                           </div>
                           {friend.debt > 0 && (
-                            <span className="px-2 py-1 bg-red-900/50 border border-red-700 text-red-300 text-xs rounded whitespace-nowrap">
+                            <span className="px-2.5 py-1.5 bg-red-900/50 border border-red-700 text-red-300 text-xs sm:text-sm rounded whitespace-nowrap">
                               {friend.debt} in debt
                             </span>
                           )}
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
+                        <div className="grid grid-cols-2 gap-3 sm:gap-4 text-sm sm:text-base">
                           <div>
                             <span className="text-gray-400">Current Streak: </span>
                             <span className="text-primary-400 font-semibold">

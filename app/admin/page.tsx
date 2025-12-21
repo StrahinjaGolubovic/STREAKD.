@@ -141,12 +141,12 @@ export default function AdminPanel() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <header className="bg-gray-800 border-b border-gray-700 shadow-sm">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 flex justify-between items-center">
-          <h1 className="text-xl sm:text-2xl font-bold text-primary-400">Admin Panel - Photo Verification</h1>
+      <header className="bg-gray-800 border-b border-gray-700 shadow-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-3 md:py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+          <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-primary-400">Admin Panel - Photo Verification</h1>
           <button
             onClick={() => router.push('/dashboard')}
-            className="text-gray-300 hover:text-gray-100 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-gray-700 transition-colors text-sm sm:text-base"
+            className="text-gray-300 hover:text-gray-100 px-4 py-2.5 rounded-md hover:bg-gray-700 active:bg-gray-600 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px] w-full sm:w-auto"
           >
             Back to Dashboard
           </button>
