@@ -27,6 +27,8 @@ interface DashboardData {
     longest_streak: number;
   };
   debt: number;
+  username?: string;
+  profilePicture?: string | null;
 }
 
 interface Friend {
