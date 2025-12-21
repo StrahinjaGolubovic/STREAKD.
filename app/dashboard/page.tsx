@@ -20,6 +20,7 @@ interface DashboardData {
       date: string;
       uploaded: boolean;
       photo_path?: string;
+      verification_status?: string;
     }>;
   };
   streak: {
@@ -33,7 +34,7 @@ interface DashboardData {
 
 interface Friend {
   id: number;
-  email: string;
+  username: string;
   debt: number;
   current_streak: number;
   longest_streak: number;
