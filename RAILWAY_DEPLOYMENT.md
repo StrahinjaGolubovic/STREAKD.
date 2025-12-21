@@ -80,14 +80,24 @@ The database will be stored in the persistent volume at `/data/gymble.db`. The c
 
 ## Troubleshooting
 
+### Build Failures
+
+#### Error: "npm ci" failed / "better-sqlite3" build error
+This is usually due to native module compilation. Solutions:
+
+1. **Check build logs** in Railway dashboard for specific error
+2. **Ensure nixpacks.toml exists** - This file configures the build environment
+3. **Try rebuilding** - Sometimes the first build fails, try redeploying
+4. **Check Node version** - Railway should use Node 18+ automatically
+
+If build still fails:
+- Railway might need to compile `better-sqlite3` from source
+- The `nixpacks.toml` file includes Python and build tools needed
+- Make sure `package-lock.json` is committed to git
+
 ### Database Issues
 - Make sure the persistent volume is mounted correctly
 - Check that `DATABASE_PATH` is set to `/data/gymble.db`
-
-### Build Failures
-- Check the build logs in Railway dashboard
-- Ensure all dependencies are in `package.json`
-- Make sure Node.js version is compatible (Railway uses Node 18+ by default)
 
 ### File Upload Issues
 - Ensure the persistent volume is mounted
