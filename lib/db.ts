@@ -18,12 +18,13 @@ function ensureDirectories() {
     mkdirSync(dataDir, { recursive: true });
   }
 
-  const uploadsDir = join(process.cwd(), 'public', 'uploads');
+  // Use persistent volume for uploads and profiles (same location as database)
+  const uploadsDir = join(dataDir, 'uploads');
   if (!existsSync(uploadsDir)) {
     mkdirSync(uploadsDir, { recursive: true });
   }
 
-  const profilesDir = join(process.cwd(), 'public', 'profiles');
+  const profilesDir = join(dataDir, 'profiles');
   if (!existsSync(profilesDir)) {
     mkdirSync(profilesDir, { recursive: true });
   }

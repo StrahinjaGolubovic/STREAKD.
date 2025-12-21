@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ToastContainer, Toast } from '@/components/Toast';
 import { ConfirmModal } from '@/components/ConfirmModal';
+import { getImageUrl } from '@/lib/image-utils';
 
 interface PendingUpload {
   id: number;
@@ -194,7 +195,7 @@ export default function AdminPanel() {
 
                 <div className="mb-4">
                   <img
-                    src={upload.photo_path}
+                    src={getImageUrl(upload.photo_path) || ''}
                     alt={`Upload from ${upload.username}`}
                     className="w-full h-auto rounded-lg border border-gray-700 max-h-64 object-contain bg-gray-900"
                   />

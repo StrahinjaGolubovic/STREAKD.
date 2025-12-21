@@ -18,7 +18,20 @@ export interface UploadForVerification {
 // Extract metadata from image
 export async function extractImageMetadata(photoPath: string): Promise<any> {
   try {
-    const fullPath = join(process.cwd(), 'public', photoPath);
+    // Convert API path back to file system path
+    let actualPath = photoPath;
+    if (photoPath.startsWith('/api/files/')) {
+      actualPath = photoPath.replace('/api/files/', '');
+    } else if (photoPath.startsWith('/uploads/') || photoPath.startsWith('/profiles/')) {
+      actualPath = photoPath.substring(1); // Remove leading /
+    }
+    
+    // Determine base directory (use persistent volume on Railway)
+    const baseDir = process.env.DATABASE_PATH 
+      ? join(process.env.DATABASE_PATH, '..')
+      : join(process.cwd(), 'data');
+    
+    const fullPath = join(baseDir, actualPath);
     const imageBuffer = await readFile(fullPath);
     
     // Extract EXIF data

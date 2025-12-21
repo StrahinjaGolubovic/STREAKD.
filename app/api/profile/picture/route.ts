@@ -49,8 +49,13 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    // Determine base directory (use persistent volume on Railway)
+    const baseDir = process.env.DATABASE_PATH 
+      ? join(process.env.DATABASE_PATH, '..')
+      : join(process.cwd(), 'data');
+    
     // Create profile pictures directory if it doesn't exist
-    const profilesDir = join(process.cwd(), 'public', 'profiles', userId.toString());
+    const profilesDir = join(baseDir, 'profiles', userId.toString());
     if (!existsSync(profilesDir)) {
       await mkdir(profilesDir, { recursive: true });
     }
@@ -60,14 +65,26 @@ export async function POST(request: NextRequest) {
     const extension = file.name.split('.').pop() || 'jpg';
     const filename = `profile.${extension}`;
     const filepath = join(profilesDir, filename);
-    const relativePath = `/profiles/${userId}/${filename}`;
+    // Use API route to serve the file
+    const relativePath = `/api/files/profiles/${userId}/${filename}`;
 
     await writeFile(filepath, buffer);
 
     // Delete old profile picture if it exists
-    if (oldPicturePath && oldPicturePath.startsWith('/profiles/')) {
+    if (oldPicturePath) {
       try {
-        const oldFilePath = join(process.cwd(), 'public', oldPicturePath);
+        // Handle both old format (/profiles/...) and new format (/api/files/profiles/...)
+        let oldFilePath: string;
+        if (oldPicturePath.startsWith('/api/files/profiles/')) {
+          const pathPart = oldPicturePath.replace('/api/files/profiles/', '');
+          oldFilePath = join(baseDir, 'profiles', pathPart);
+        } else if (oldPicturePath.startsWith('/profiles/')) {
+          const pathPart = oldPicturePath.replace('/profiles/', '');
+          oldFilePath = join(baseDir, 'profiles', pathPart);
+        } else {
+          oldFilePath = join(baseDir, 'profiles', oldPicturePath);
+        }
+        
         if (existsSync(oldFilePath)) {
           await unlink(oldFilePath);
         }
@@ -112,9 +129,23 @@ export async function DELETE(request: NextRequest) {
     const picturePath = user?.profile_picture;
 
     // Delete file if it exists
-    if (picturePath && picturePath.startsWith('/profiles/')) {
+    if (picturePath) {
       try {
-        const filePath = join(process.cwd(), 'public', picturePath);
+        const baseDir = process.env.DATABASE_PATH 
+          ? join(process.env.DATABASE_PATH, '..')
+          : join(process.cwd(), 'data');
+        
+        let filePath: string;
+        if (picturePath.startsWith('/api/files/profiles/')) {
+          const pathPart = picturePath.replace('/api/files/profiles/', '');
+          filePath = join(baseDir, 'profiles', pathPart);
+        } else if (picturePath.startsWith('/profiles/')) {
+          const pathPart = picturePath.replace('/profiles/', '');
+          filePath = join(baseDir, 'profiles', pathPart);
+        } else {
+          filePath = join(baseDir, 'profiles', picturePath);
+        }
+        
         if (existsSync(filePath)) {
           await unlink(filePath);
         }

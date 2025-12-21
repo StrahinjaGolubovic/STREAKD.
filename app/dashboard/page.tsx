@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ToastContainer, Toast } from '@/components/Toast';
 import { ConfirmModal } from '@/components/ConfirmModal';
+import { getImageUrl } from '@/lib/image-utils';
 
 interface DashboardData {
   challenge: {
@@ -510,7 +511,7 @@ export default function DashboardPage() {
                       {day.photo_path && (
                         <div className="mt-2 relative w-full aspect-square rounded overflow-hidden bg-gray-700">
                           <img
-                            src={day.photo_path}
+                            src={getImageUrl(day.photo_path) || ''}
                             alt={`Photo for ${day.date}`}
                             className="w-full h-full object-cover"
                           />
@@ -600,7 +601,7 @@ export default function DashboardPage() {
                           <div className="flex items-center gap-2">
                             {friend.profile_picture ? (
                               <img
-                                src={friend.profile_picture}
+                                src={getImageUrl(friend.profile_picture) || ''}
                                 alt={friend.username}
                                 className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-gray-600 object-cover"
                                 onError={(e) => {

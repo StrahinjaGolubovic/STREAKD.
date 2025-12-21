@@ -55,8 +55,13 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    // Determine base directory (use persistent volume on Railway)
+    const baseDir = process.env.DATABASE_PATH 
+      ? join(process.env.DATABASE_PATH, '..')
+      : join(process.cwd(), 'data');
+    
     // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), 'public', 'uploads', userId.toString());
+    const uploadsDir = join(baseDir, 'uploads', userId.toString());
     if (!existsSync(uploadsDir)) {
       await mkdir(uploadsDir, { recursive: true });
     }
@@ -66,7 +71,8 @@ export async function POST(request: NextRequest) {
     const extension = file.name.split('.').pop() || 'jpg';
     const filename = `${timestamp}.${extension}`;
     const filepath = join(uploadsDir, filename);
-    const relativePath = `/uploads/${userId}/${filename}`;
+    // Use API route to serve the file
+    const relativePath = `/api/files/uploads/${userId}/${filename}`;
 
     await writeFile(filepath, buffer);
 
