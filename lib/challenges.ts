@@ -179,9 +179,11 @@ export function getChallengeProgress(challengeId: number): {
     
     const dateStr = formatDate(date);
     const upload = uploadMap.get(dateStr);
+    // uploaded is true if there's any upload (pending, approved, or rejected)
+    // We check verification_status separately in the UI
     days.push({
       date: dateStr,
-      uploaded: upload?.status === 'approved',
+      uploaded: !!upload, // true if upload exists, regardless of status
       photo_path: upload?.path,
       verification_status: upload?.status,
     });
