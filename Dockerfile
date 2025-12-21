@@ -1,5 +1,5 @@
-# Use Node.js 18
-FROM node:18-slim
+# Use Node.js 20 (required by Next.js 16)
+FROM node:20-slim
 
 # Install build dependencies for better-sqlite3
 RUN apt-get update && apt-get install -y \

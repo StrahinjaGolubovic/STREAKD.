@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["nodejs-18_x", "python3", "sqlite", "nodePackages.node-gyp", "gcc", "make"]
+nixPkgs = ["nodejs-20_x", "python3", "sqlite", "nodePackages.node-gyp", "gcc", "make"]
 
 [phases.install]
 cmds = [
