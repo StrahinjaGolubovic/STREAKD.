@@ -155,27 +155,27 @@ export default function AdminUsers() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-400"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      <header className="bg-gray-800 border-b border-gray-700 shadow-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-black">
+      <header className="bg-purple-900 border-b border-purple-800 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-3 md:py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
           <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-primary-400">User Management</h1>
           <div className="flex gap-2">
             <Link
               href="/admin/dashboard"
-              className="text-gray-300 hover:text-gray-100 px-4 py-2.5 rounded-md hover:bg-gray-700 active:bg-gray-600 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
+              className="text-purple-200 hover:text-purple-100 px-4 py-2.5 rounded-md hover:bg-purple-800 active:bg-purple-700 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
             >
               Dashboard
             </Link>
             <button
               onClick={() => router.push('/dashboard')}
-              className="text-gray-300 hover:text-gray-100 px-4 py-2.5 rounded-md hover:bg-gray-700 active:bg-gray-600 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
+              className="text-purple-200 hover:text-purple-100 px-4 py-2.5 rounded-md hover:bg-purple-800 active:bg-purple-700 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
             >
               Back to Dashboard
             </button>
@@ -189,7 +189,7 @@ export default function AdminUsers() {
           <nav className="flex flex-wrap gap-2 sm:gap-3">
             <Link
               href="/admin/dashboard"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               Dashboard
             </Link>
@@ -201,19 +201,19 @@ export default function AdminUsers() {
             </Link>
             <Link
               href="/admin/verification"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               Photo Verification
             </Link>
             <Link
               href="/admin/chat"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               Chat Moderation
             </Link>
             <Link
               href="/admin/system"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               System
             </Link>
@@ -221,14 +221,14 @@ export default function AdminUsers() {
         </div>
 
         {/* Search and Sort */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 sm:p-5 md:p-6 mb-4 sm:mb-6">
+        <div className="bg-purple-900 border border-purple-800 rounded-lg p-4 sm:p-5 md:p-6 mb-4 sm:mb-6">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <input
               type="text"
               placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 bg-gray-900 border border-gray-600 rounded-md px-4 py-2.5 text-base text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-h-[44px]"
+              className="flex-1 bg-black border border-purple-700 rounded-md px-4 py-2.5 text-base text-purple-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-h-[44px]"
             />
             <select
               value={sortBy}
@@ -238,7 +238,7 @@ export default function AdminUsers() {
                   setSortBy(value);
                 }
               }}
-              className="bg-gray-900 border border-gray-600 rounded-md px-4 py-2.5 text-base text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-h-[44px]"
+              className="bg-black border border-purple-700 rounded-md px-4 py-2.5 text-base text-purple-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-h-[44px]"
             >
               <option value="username">Sort by Username</option>
               <option value="debt">Sort by Debt</option>
@@ -247,7 +247,7 @@ export default function AdminUsers() {
             </select>
             <button
               onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-              className="px-4 py-2.5 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-base min-h-[44px]"
+              className="px-4 py-2.5 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-base min-h-[44px]"
             >
               {sortOrder === 'asc' ? '↑' : '↓'}
             </button>
@@ -255,59 +255,59 @@ export default function AdminUsers() {
         </div>
 
         {/* Users List */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+        <div className="bg-purple-900 border border-purple-800 rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-700/50">
+              <thead className="bg-purple-800/50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-300">User</th>
-                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-300">Debt</th>
-                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-300">Streak</th>
-                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-300">Uploads</th>
-                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-300">Joined</th>
-                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-300">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-purple-200">User</th>
+                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-purple-200">Debt</th>
+                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-purple-200">Streak</th>
+                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-purple-200">Uploads</th>
+                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-purple-200">Joined</th>
+                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-purple-200">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700">
                 {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-700/30">
+                  <tr key={user.id} className="hover:bg-purple-800/30">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2 sm:gap-3">
                         {user.profile_picture ? (
                           <img
                             src={getImageUrl(user.profile_picture) || ''}
                             alt={user.username}
-                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-gray-600 object-cover"
+                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-purple-700 object-cover"
                           />
                         ) : (
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center">
-                            <span className="text-gray-400 text-xs sm:text-sm font-semibold">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-purple-800 border border-purple-700 flex items-center justify-center">
+                            <span className="text-purple-300 text-xs sm:text-sm font-semibold">
                               {user.username.charAt(0).toUpperCase()}
                             </span>
                           </div>
                         )}
-                        <span className="text-sm sm:text-base font-medium text-gray-100">@{user.username}</span>
+                        <span className="text-sm sm:text-base font-medium text-purple-100">@{user.username}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-sm sm:text-base font-semibold ${user.debt > 0 ? 'text-red-400' : 'text-gray-300'}`}>
+                      <span className={`text-sm sm:text-base font-semibold ${user.debt > 0 ? 'text-red-400' : 'text-purple-200'}`}>
                         {user.debt}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-sm sm:text-base">
                         <div className="text-primary-400 font-semibold">{user.current_streak} days</div>
-                        <div className="text-xs text-gray-400">Best: {user.longest_streak}</div>
+                        <div className="text-xs text-purple-300">Best: {user.longest_streak}</div>
                       </div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-sm sm:text-base">
-                        <div className="text-gray-300">{user.approved_uploads}</div>
-                        <div className="text-xs text-gray-400">of {user.total_uploads}</div>
+                        <div className="text-purple-200">{user.approved_uploads}</div>
+                        <div className="text-xs text-purple-300">of {user.total_uploads}</div>
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-xs sm:text-sm text-gray-400">
+                      <span className="text-xs sm:text-sm text-purple-300">
                         {new Date(user.created_at).toLocaleDateString()}
                       </span>
                     </td>
@@ -347,13 +347,13 @@ export default function AdminUsers() {
             </table>
           </div>
           {filteredUsers.length === 0 && (
-            <div className="p-8 text-center text-gray-400">
+            <div className="p-8 text-center text-purple-300">
               {searchTerm ? 'No users found matching your search' : 'No users found'}
             </div>
           )}
         </div>
 
-        <div className="mt-4 text-sm text-gray-400">
+        <div className="mt-4 text-sm text-purple-300">
           Showing {filteredUsers.length} of {users.length} users
         </div>
       </main>
@@ -373,4 +373,5 @@ export default function AdminUsers() {
     </div>
   );
 }
+
 

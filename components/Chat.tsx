@@ -161,12 +161,12 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
   };
 
   return (
-    <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg flex flex-col h-[500px] sm:h-[600px]">
+    <div className="bg-purple-900 border border-purple-800 rounded-lg shadow-lg flex flex-col h-[500px] sm:h-[600px]">
       {/* Chat Header */}
-      <div className="border-b border-gray-700 p-3 sm:p-4 flex items-center justify-between bg-gray-800/50">
+      <div className="border-b border-purple-800 p-3 sm:p-4 flex items-center justify-between bg-purple-900/50">
         <div className="flex items-center gap-2">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-100">Global Chat</h3>
-          <span className="text-xs text-gray-400">(clears every 24h)</span>
+          <h3 className="text-base sm:text-lg font-semibold text-purple-100">Global Chat</h3>
+          <span className="text-xs text-purple-300">(clears every 24h)</span>
         </div>
         {error && (
           <div className="text-xs text-red-400 truncate max-w-[150px] sm:max-w-none">{error}</div>
@@ -176,7 +176,7 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
       {/* Messages Container */}
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
+        className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-black"
       >
         {loading ? (
           <div className="flex items-center justify-center h-full">
@@ -184,7 +184,7 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
           </div>
         ) : messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-400 text-sm">No messages yet. Be the first to chat!</p>
+            <p className="text-purple-300 text-sm">No messages yet. Be the first to chat!</p>
           </div>
         ) : (
           messages.map((msg) => {
@@ -203,7 +203,7 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
                     <img
                       src={getImageUrl(profilePicture) || ''}
                       alt={msg.username}
-                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-gray-600 object-cover"
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-purple-700 object-cover"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                         const fallback = e.currentTarget.nextElementSibling as HTMLElement;
@@ -214,9 +214,9 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
                     />
                   ) : null}
                   <div 
-                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center ${profilePicture ? 'hidden' : ''}`}
+                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-purple-800 border border-purple-700 flex items-center justify-center ${profilePicture ? 'hidden' : ''}`}
                   >
-                    <span className="text-gray-400 text-xs sm:text-sm font-semibold">
+                    <span className="text-purple-300 text-xs sm:text-sm font-semibold">
                       {msg.username.charAt(0).toUpperCase()}
                     </span>
                   </div>
@@ -225,16 +225,16 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
                 {/* Message Content */}
                 <div className={`flex-1 min-w-0 ${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col`}>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs sm:text-sm font-semibold text-gray-300">
+                    <span className="text-xs sm:text-sm font-semibold text-purple-200">
                       {msg.username}
                     </span>
-                    <span className="text-xs text-gray-500">{formatTime(msg.created_at)}</span>
+                    <span className="text-xs text-purple-400">{formatTime(msg.created_at)}</span>
                   </div>
                   <div
                     className={`rounded-lg px-3 sm:px-4 py-2 max-w-[85%] sm:max-w-[75%] break-words ${
                       isOwnMessage
                         ? 'bg-primary-600 text-white'
-                        : 'bg-gray-700 text-gray-100'
+                        : 'bg-purple-800 text-purple-100'
                     }`}
                   >
                     <p className="text-sm sm:text-base whitespace-pre-wrap">{msg.message}</p>
@@ -248,7 +248,7 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
       </div>
 
       {/* Input Form */}
-      <form onSubmit={sendMessage} className="border-t border-gray-700 p-3 sm:p-4 bg-gray-800/50">
+      <form onSubmit={sendMessage} className="border-t border-purple-800 p-3 sm:p-4 bg-purple-900/50">
         <div className="flex gap-2 sm:gap-3">
           <input
             type="text"
@@ -257,7 +257,7 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
             placeholder="Type a message..."
             maxLength={500}
             disabled={sending}
-            className="flex-1 bg-gray-900 border border-gray-600 rounded-md px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-h-[44px]"
+            className="flex-1 bg-black border border-purple-700 rounded-md px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base text-purple-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-h-[44px]"
           />
           <button
             type="submit"
@@ -267,7 +267,7 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
             {sending ? 'Sending...' : 'Send'}
           </button>
         </div>
-        <p className="text-xs text-gray-500 mt-1.5">
+        <p className="text-xs text-purple-400 mt-1.5">
           {newMessage.length}/500 characters
         </p>
       </form>

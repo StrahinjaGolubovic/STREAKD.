@@ -107,27 +107,27 @@ export default function AdminSystem() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-400"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      <header className="bg-gray-800 border-b border-gray-700 shadow-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-black">
+      <header className="bg-purple-900 border-b border-purple-800 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-3 md:py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
           <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-primary-400">System Management</h1>
           <div className="flex gap-2">
             <Link
               href="/admin/dashboard"
-              className="text-gray-300 hover:text-gray-100 px-4 py-2.5 rounded-md hover:bg-gray-700 active:bg-gray-600 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
+              className="text-purple-200 hover:text-purple-100 px-4 py-2.5 rounded-md hover:bg-purple-800 active:bg-purple-700 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
             >
               Dashboard
             </Link>
             <button
               onClick={() => router.push('/dashboard')}
-              className="text-gray-300 hover:text-gray-100 px-4 py-2.5 rounded-md hover:bg-gray-700 active:bg-gray-600 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
+              className="text-purple-200 hover:text-purple-100 px-4 py-2.5 rounded-md hover:bg-purple-800 active:bg-purple-700 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
             >
               Back to Dashboard
             </button>
@@ -141,25 +141,25 @@ export default function AdminSystem() {
           <nav className="flex flex-wrap gap-2 sm:gap-3">
             <Link
               href="/admin/dashboard"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               Dashboard
             </Link>
             <Link
               href="/admin/users"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               Users
             </Link>
             <Link
               href="/admin/verification"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               Photo Verification
             </Link>
             <Link
               href="/admin/chat"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               Chat Moderation
             </Link>
@@ -175,32 +175,32 @@ export default function AdminSystem() {
         {/* System Stats */}
         {stats && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 sm:p-5 md:p-6">
-              <div className="text-xs sm:text-sm font-medium text-gray-400 mb-1">Database Size</div>
-              <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-100">{stats.databaseSize}</div>
+            <div className="bg-purple-900 border border-purple-800 rounded-lg p-4 sm:p-5 md:p-6">
+              <div className="text-xs sm:text-sm font-medium text-purple-300 mb-1">Database Size</div>
+              <div className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-100">{stats.databaseSize}</div>
             </div>
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 sm:p-5 md:p-6">
-              <div className="text-xs sm:text-sm font-medium text-gray-400 mb-1">Total Tables</div>
-              <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-100">{stats.totalTables}</div>
+            <div className="bg-purple-900 border border-purple-800 rounded-lg p-4 sm:p-5 md:p-6">
+              <div className="text-xs sm:text-sm font-medium text-purple-300 mb-1">Total Tables</div>
+              <div className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-100">{stats.totalTables}</div>
             </div>
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 sm:p-5 md:p-6">
-              <div className="text-xs sm:text-sm font-medium text-gray-400 mb-1">Total Records</div>
-              <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-100">{stats.totalRecords}</div>
+            <div className="bg-purple-900 border border-purple-800 rounded-lg p-4 sm:p-5 md:p-6">
+              <div className="text-xs sm:text-sm font-medium text-purple-300 mb-1">Total Records</div>
+              <div className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-100">{stats.totalRecords}</div>
             </div>
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 sm:p-5 md:p-6">
-              <div className="text-xs sm:text-sm font-medium text-gray-400 mb-1">Oldest User</div>
-              <div className="text-sm sm:text-base font-semibold text-gray-100">{stats.oldestUser}</div>
+            <div className="bg-purple-900 border border-purple-800 rounded-lg p-4 sm:p-5 md:p-6">
+              <div className="text-xs sm:text-sm font-medium text-purple-300 mb-1">Oldest User</div>
+              <div className="text-sm sm:text-base font-semibold text-purple-100">{stats.oldestUser}</div>
             </div>
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 sm:p-5 md:p-6">
-              <div className="text-xs sm:text-sm font-medium text-gray-400 mb-1">Newest User</div>
-              <div className="text-sm sm:text-base font-semibold text-gray-100">{stats.newestUser}</div>
+            <div className="bg-purple-900 border border-purple-800 rounded-lg p-4 sm:p-5 md:p-6">
+              <div className="text-xs sm:text-sm font-medium text-purple-300 mb-1">Newest User</div>
+              <div className="text-sm sm:text-base font-semibold text-purple-100">{stats.newestUser}</div>
             </div>
           </div>
         )}
 
         {/* System Actions */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 sm:p-5 md:p-6">
-          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-100 mb-4 sm:mb-6">System Actions</h2>
+        <div className="bg-purple-900 border border-purple-800 rounded-lg p-4 sm:p-5 md:p-6">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-purple-100 mb-4 sm:mb-6">System Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <button
               onClick={() =>
@@ -211,10 +211,10 @@ export default function AdminSystem() {
                   'danger'
                 )
               }
-              className="p-4 bg-gray-700/50 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-left"
+              className="p-4 bg-purple-800/50 border border-purple-700 rounded-lg hover:bg-purple-800 transition-colors text-left"
             >
-              <div className="text-base sm:text-lg font-semibold text-gray-100 mb-1">Reset All Debt</div>
-              <div className="text-xs sm:text-sm text-gray-400">Set all user debt to 0</div>
+              <div className="text-base sm:text-lg font-semibold text-purple-100 mb-1">Reset All Debt</div>
+              <div className="text-xs sm:text-sm text-purple-300">Set all user debt to 0</div>
             </button>
             <button
               onClick={() =>
@@ -225,10 +225,10 @@ export default function AdminSystem() {
                   'default'
                 )
               }
-              className="p-4 bg-gray-700/50 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-left"
+              className="p-4 bg-purple-800/50 border border-purple-700 rounded-lg hover:bg-purple-800 transition-colors text-left"
             >
-              <div className="text-base sm:text-lg font-semibold text-gray-100 mb-1">Cleanup Old Chat</div>
-              <div className="text-xs sm:text-sm text-gray-400">Remove messages older than 24h</div>
+              <div className="text-base sm:text-lg font-semibold text-purple-100 mb-1">Cleanup Old Chat</div>
+              <div className="text-xs sm:text-sm text-purple-300">Remove messages older than 24h</div>
             </button>
           </div>
         </div>

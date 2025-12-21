@@ -115,10 +115,17 @@ export default function DashboardPage() {
       const result = await response.json();
 
       if (response.ok) {
+        showToast(Date.now().toString(), 'Upload successful!', 'success');
         await fetchDashboard();
         e.target.value = ''; // Reset input
       } else {
-        setError(result.error || 'Upload failed');
+        const errorMsg = result.error || 'Upload failed';
+        if (errorMsg.includes('already exists')) {
+          showToast(Date.now().toString(), 'Upload already exists for this date', 'error');
+        } else {
+          showToast(Date.now().toString(), errorMsg, 'error');
+        }
+        setError(errorMsg);
       }
     } catch (err) {
       setError('An error occurred during upload');
@@ -295,7 +302,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-400"></div>
       </div>
     );
@@ -303,7 +310,7 @@ export default function DashboardPage() {
 
   if (!data) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-red-400">{error || 'Failed to load dashboard'}</div>
       </div>
     );
@@ -314,9 +321,9 @@ export default function DashboardPage() {
   const needsMoreDays = Math.max(0, 5 - data.progress.completedDays);
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="bg-gray-800 border-b border-gray-700 shadow-sm sticky top-0 z-50">
+      <header className="bg-purple-900 border-b border-purple-800 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-3 md:py-4 flex justify-between items-center">
           <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-primary-400">Gymble</h1>
           <div className="flex items-center gap-2 sm:gap-3">
@@ -336,7 +343,7 @@ export default function DashboardPage() {
                       key={`profile-img-${data.profilePicture}`}
                       src={data.profilePicture}
                       alt=""
-                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-gray-600 object-cover hover:border-primary-400 transition-colors"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-purple-700 object-cover hover:border-primary-400 transition-colors"
                       onError={(e) => {
                         // Hide image on error and show fallback
                         e.currentTarget.style.display = 'none';
@@ -348,14 +355,14 @@ export default function DashboardPage() {
                     />
                   ) : null}
                   <div 
-                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-700 border-2 border-gray-600 flex items-center justify-center hover:border-primary-400 transition-colors ${data?.profilePicture ? 'hidden' : ''}`}
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-purple-800 border-2 border-purple-700 flex items-center justify-center hover:border-primary-400 transition-colors ${data?.profilePicture ? 'hidden' : ''}`}
                   >
-                    <span className="text-gray-400 text-lg font-semibold">
+                    <span className="text-purple-300 text-lg font-semibold">
                       {data?.username?.charAt(0).toUpperCase() || 'U'}
                     </span>
                   </div>
                   {profilePictureUploading && (
-                    <div className="absolute inset-0 bg-gray-900/50 rounded-full flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-400"></div>
                     </div>
                   )}
@@ -374,14 +381,14 @@ export default function DashboardPage() {
             {data && (data.username === 'admin' || data.username === 'seuq') && (
               <Link
                 href="/admin/dashboard"
-                className="text-primary-400 hover:text-primary-300 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-gray-700 transition-colors text-sm sm:text-base"
+                className="text-primary-400 hover:text-primary-300 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-purple-800 transition-colors text-sm sm:text-base"
               >
                 Admin Panel
               </Link>
             )}
             <button
               onClick={handleLogout}
-              className="text-gray-300 hover:text-gray-100 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-gray-700 transition-colors text-sm sm:text-base"
+              className="text-purple-300 hover:text-purple-100 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-purple-800 transition-colors text-sm sm:text-base"
             >
               Logout
             </button>
@@ -392,28 +399,28 @@ export default function DashboardPage() {
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6 lg:py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
-          <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
-            <div className="text-xs sm:text-sm font-medium text-gray-400 mb-1">Debt</div>
-            <div className={`text-xl sm:text-2xl md:text-3xl font-bold ${data.debt > 0 ? 'text-red-400' : 'text-gray-100'}`}>
+          <div className="bg-purple-900 border border-purple-800 rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
+            <div className="text-xs sm:text-sm font-medium text-purple-300 mb-1">Debt</div>
+            <div className={`text-xl sm:text-2xl md:text-3xl font-bold ${data.debt > 0 ? 'text-red-400' : 'text-purple-100'}`}>
               {data.debt}
             </div>
           </div>
-          <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
-            <div className="text-xs sm:text-sm font-medium text-gray-400 mb-1">Current Streak</div>
+          <div className="bg-purple-900 border border-purple-800 rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
+            <div className="text-xs sm:text-sm font-medium text-purple-300 mb-1">Current Streak</div>
             <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-400">{data.streak.current_streak} days</div>
           </div>
-          <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-5 md:p-6 sm:col-span-2 lg:col-span-1">
-            <div className="text-xs sm:text-sm font-medium text-gray-400 mb-1">Longest Streak</div>
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-100">{data.streak.longest_streak} days</div>
+          <div className="bg-purple-900 border border-purple-800 rounded-lg shadow-lg p-4 sm:p-5 md:p-6 sm:col-span-2 lg:col-span-1">
+            <div className="text-xs sm:text-sm font-medium text-purple-300 mb-1">Longest Streak</div>
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-100">{data.streak.longest_streak} days</div>
           </div>
         </div>
 
         {/* Weekly Challenge Card */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-5 md:p-6 mb-4 sm:mb-6 md:mb-8">
+        <div className="bg-purple-900 border border-purple-800 rounded-lg shadow-lg p-4 sm:p-5 md:p-6 mb-4 sm:mb-6 md:mb-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4 md:mb-6 gap-3">
             <div>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-100">Weekly Challenge</h2>
-              <p className="text-xs sm:text-sm text-gray-400 mt-1">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-purple-100">Weekly Challenge</h2>
+              <p className="text-xs sm:text-sm text-purple-300 mt-1">
                 {new Date(data.challenge.start_date).toLocaleDateString()} -{' '}
                 {new Date(data.challenge.end_date).toLocaleDateString()}
               </p>
@@ -422,17 +429,17 @@ export default function DashboardPage() {
               <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-400">
                 {data.progress.completedDays}/{data.progress.totalDays}
               </div>
-              <div className="text-xs sm:text-sm text-gray-400">days completed</div>
+              <div className="text-xs sm:text-sm text-purple-300">days completed</div>
             </div>
           </div>
 
           {/* Progress Bar */}
           <div className="mb-6">
-            <div className="flex justify-between text-sm text-gray-300 mb-2">
+            <div className="flex justify-between text-sm text-purple-200 mb-2">
               <span>Progress</span>
               <span>{Math.round(progressPercentage)}%</span>
             </div>
-            <div className="w-full bg-gray-700 rounded-full h-3">
+            <div className="w-full bg-purple-800 rounded-full h-3">
               <div
                 className={`h-3 rounded-full transition-all ${
                   progressPercentage >= 71.4 ? 'bg-green-500' : 'bg-primary-500'
@@ -454,8 +461,8 @@ export default function DashboardPage() {
           )}
 
           {/* Upload Section */}
-          <div className="border-t border-gray-700 pt-4 sm:pt-5 md:pt-6">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-100 mb-3 sm:mb-4">Upload Today's Photo</h3>
+          <div className="border-t border-purple-800 pt-4 sm:pt-5 md:pt-6">
+            <h3 className="text-base sm:text-lg font-semibold text-purple-100 mb-3 sm:mb-4">Upload Today's Photo</h3>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
               <label className="flex-1">
                 <input
@@ -471,15 +478,15 @@ export default function DashboardPage() {
               </label>
               {error && <div className="text-red-400 text-sm sm:text-base">{error}</div>}
             </div>
-            <p className="text-xs sm:text-sm text-gray-400 mt-2 sm:mt-3">
+            <p className="text-xs sm:text-sm text-purple-300 mt-2 sm:mt-3">
               Upload one photo per day as proof of your gym visit
             </p>
           </div>
         </div>
 
         {/* Days Grid */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-3 sm:p-4 md:p-6 mb-4 sm:mb-6 md:mb-8">
-          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-100 mb-3 sm:mb-4 md:mb-6">This Week's Progress</h2>
+        <div className="bg-purple-900 border border-purple-800 rounded-lg shadow-lg p-3 sm:p-4 md:p-6 mb-4 sm:mb-6 md:mb-8">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-purple-100 mb-3 sm:mb-4 md:mb-6">This Week's Progress</h2>
           {/* Mobile: Horizontal scroll, Desktop: Grid */}
           <div className="block sm:hidden">
             <div className="flex gap-3 overflow-x-auto pb-2 -mx-3 sm:mx-0 px-3 sm:px-0 scrollbar-hide">
@@ -503,11 +510,11 @@ export default function DashboardPage() {
                         ? 'border-yellow-500 bg-yellow-900/20'
                         : isPast
                         ? 'border-red-700 bg-red-900/20'
-                        : 'border-gray-700 bg-gray-700/50'
+                        : 'border-purple-800 bg-purple-800/50'
                     }`}
                   >
-                    <div className="text-xs font-medium text-gray-400">{dayName}</div>
-                    <div className="text-xl font-bold text-gray-100 mt-1">{dayNumber}</div>
+                    <div className="text-xs font-medium text-purple-300">{dayName}</div>
+                    <div className="text-xl font-bold text-purple-100 mt-1">{dayNumber}</div>
                     {day.uploaded ? (
                       <div className="mt-2">
                         {day.verification_status === 'pending' ? (
@@ -523,7 +530,7 @@ export default function DashboardPage() {
                     ) : isPast ? (
                       <div className="mt-2 text-red-400 text-[10px] font-medium">✗ Missed</div>
                     ) : (
-                      <div className="mt-2 text-gray-500 text-[10px]">Pending</div>
+                      <div className="mt-2 text-purple-400 text-[10px]">Pending</div>
                     )}
                   </div>
                 );
@@ -552,11 +559,11 @@ export default function DashboardPage() {
                       ? 'border-yellow-500 bg-yellow-900/20'
                       : isPast
                       ? 'border-red-700 bg-red-900/20'
-                      : 'border-gray-700 bg-gray-700/50'
+                      : 'border-purple-800 bg-purple-800/50'
                   }`}
                 >
-                  <div className="text-xs sm:text-sm font-medium text-gray-400">{dayName}</div>
-                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-100 mt-1">{dayNumber}</div>
+                  <div className="text-xs sm:text-sm font-medium text-purple-300">{dayName}</div>
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-purple-100 mt-1">{dayNumber}</div>
                   {day.uploaded ? (
                     <div className="mt-2">
                       {day.verification_status === 'pending' ? (
@@ -567,7 +574,7 @@ export default function DashboardPage() {
                         <div className="text-green-400 text-xs font-medium mb-2">✓ Uploaded</div>
                       )}
                       {day.photo_path && (
-                        <div className="mt-2 relative w-full aspect-square rounded overflow-hidden bg-gray-700">
+                        <div className="mt-2 relative w-full aspect-square rounded overflow-hidden bg-purple-800">
                           <img
                             src={getImageUrl(day.photo_path) || ''}
                             alt={`Photo for ${day.date}`}
@@ -581,7 +588,7 @@ export default function DashboardPage() {
                   ) : isPast ? (
                     <div className="mt-2 text-red-400 text-xs font-medium">✗ Missed</div>
                   ) : (
-                    <div className="mt-2 text-gray-500 text-xs">Pending</div>
+                    <div className="mt-2 text-purple-400 text-xs">Pending</div>
                   )}
                 </div>
               );
@@ -590,14 +597,14 @@ export default function DashboardPage() {
         </div>
 
         {/* Friends Section */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-5 md:p-6 mb-4 sm:mb-6">
-          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-100 mb-4 sm:mb-5 md:mb-6">Friends</h2>
+        <div className="bg-purple-900 border border-purple-800 rounded-lg shadow-lg p-4 sm:p-5 md:p-6 mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-purple-100 mb-4 sm:mb-5 md:mb-6">Friends</h2>
 
           {/* Invite Code Section */}
-          <div className="mb-4 sm:mb-6 md:mb-8 p-3 sm:p-4 bg-gray-700/50 rounded-lg">
-            <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-100 mb-3 sm:mb-4">Your Invite Code</h3>
+          <div className="mb-4 sm:mb-6 md:mb-8 p-3 sm:p-4 bg-purple-800/50 rounded-lg">
+            <h3 className="text-sm sm:text-base md:text-lg font-semibold text-purple-100 mb-3 sm:mb-4">Your Invite Code</h3>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-              <div className="flex-1 bg-gray-900 border border-gray-600 rounded-md px-3 sm:px-4 py-3 sm:py-3.5 font-mono text-sm sm:text-base md:text-lg font-bold text-primary-400 break-all min-h-[44px] flex items-center">
+              <div className="flex-1 bg-black border border-purple-700 rounded-md px-3 sm:px-4 py-3 sm:py-3.5 font-mono text-sm sm:text-base md:text-lg font-bold text-primary-400 break-all min-h-[44px] flex items-center">
                 {inviteCode || 'Loading...'}
               </div>
               <button
@@ -608,14 +615,14 @@ export default function DashboardPage() {
                 Copy
               </button>
             </div>
-            <p className="text-xs sm:text-sm text-gray-400 mt-2 sm:mt-3">
+            <p className="text-xs sm:text-sm text-purple-300 mt-2 sm:mt-3">
               Share this code with friends so they can add you!
             </p>
           </div>
 
           {/* Accept Invite Section */}
-          <div className="mb-4 sm:mb-6 md:mb-8 p-3 sm:p-4 bg-gray-700/50 rounded-lg">
-            <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-100 mb-3 sm:mb-4">Add Friend by Invite Code</h3>
+          <div className="mb-4 sm:mb-6 md:mb-8 p-3 sm:p-4 bg-purple-800/50 rounded-lg">
+            <h3 className="text-sm sm:text-base md:text-lg font-semibold text-purple-100 mb-3 sm:mb-4">Add Friend by Invite Code</h3>
             <form onSubmit={handleAcceptInvite} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
               <input
                 type="text"
@@ -623,7 +630,7 @@ export default function DashboardPage() {
                 onChange={(e) => setInviteInput(e.target.value.toUpperCase())}
                 placeholder="Enter invite code"
                 maxLength={8}
-                className="flex-1 bg-gray-900 border border-gray-600 rounded-md px-4 sm:px-4 py-3 sm:py-3.5 text-base sm:text-base text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono uppercase min-h-[44px]"
+                className="flex-1 bg-black border border-purple-700 rounded-md px-4 sm:px-4 py-3 sm:py-3.5 text-base sm:text-base text-purple-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono uppercase min-h-[44px]"
               />
               <button
                 type="submit"
@@ -637,7 +644,7 @@ export default function DashboardPage() {
 
           {/* Friends List */}
           <div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-100 mb-3 sm:mb-4">
+            <h3 className="text-base sm:text-lg font-semibold text-purple-100 mb-3 sm:mb-4">
               Your Friends ({friends.length})
             </h3>
             {friendsLoading ? (
@@ -645,7 +652,7 @@ export default function DashboardPage() {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-400 mx-auto"></div>
               </div>
             ) : friends.length === 0 ? (
-              <div className="text-center py-8 text-gray-400">
+              <div className="text-center py-8 text-purple-300">
                 <p className="text-sm sm:text-base">No friends yet. Share your invite code to get started!</p>
               </div>
             ) : (
@@ -654,7 +661,7 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={friend.id}
-                      className="bg-gray-700/50 border border-gray-600 rounded-lg p-3 sm:p-4 md:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
+                      className="bg-purple-800/50 border border-purple-700 rounded-lg p-3 sm:p-4 md:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
@@ -663,20 +670,20 @@ export default function DashboardPage() {
                               <img
                                 src={getImageUrl(friend.profile_picture) || ''}
                                 alt={friend.username}
-                                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-gray-600 object-cover flex-shrink-0"
+                                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-purple-700 object-cover flex-shrink-0"
                                 onError={(e) => {
                                   // Hide image and show fallback if it fails to load
                                   e.currentTarget.style.display = 'none';
                                 }}
                               />
                             ) : (
-                              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center flex-shrink-0">
-                                <span className="text-gray-400 text-sm sm:text-base font-semibold">
+                              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-purple-800 border border-purple-700 flex items-center justify-center flex-shrink-0">
+                                <span className="text-purple-300 text-sm sm:text-base font-semibold">
                                   {friend.username.charAt(0).toUpperCase()}
                                 </span>
                               </div>
                             )}
-                            <h4 className="text-base sm:text-lg font-semibold text-gray-100 truncate">@{friend.username}</h4>
+                            <h4 className="text-base sm:text-lg font-semibold text-purple-100 truncate">@{friend.username}</h4>
                           </div>
                           {friend.debt > 0 && (
                             <span className="px-2.5 py-1.5 bg-red-900/50 border border-red-700 text-red-300 text-xs sm:text-sm rounded whitespace-nowrap">
@@ -686,26 +693,26 @@ export default function DashboardPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-3 sm:gap-4 text-sm sm:text-base">
                           <div>
-                            <span className="text-gray-400">Current Streak: </span>
+                            <span className="text-purple-300">Current Streak: </span>
                             <span className="text-primary-400 font-semibold">
                               {friend.current_streak} days
                             </span>
                           </div>
                           <div>
-                            <span className="text-gray-400">Longest Streak: </span>
-                            <span className="text-gray-300 font-semibold">
+                            <span className="text-purple-300">Longest Streak: </span>
+                            <span className="text-purple-200 font-semibold">
                               {friend.longest_streak} days
                             </span>
                           </div>
                           <div>
-                            <span className="text-gray-400">Debt: </span>
-                            <span className={`font-semibold ${friend.debt > 0 ? 'text-red-400' : 'text-gray-300'}`}>
+                            <span className="text-purple-300">Debt: </span>
+                            <span className={`font-semibold ${friend.debt > 0 ? 'text-red-400' : 'text-purple-200'}`}>
                               {friend.debt}
                             </span>
                           </div>
                           <div>
-                            <span className="text-gray-400">Member since: </span>
-                            <span className="text-gray-300">
+                            <span className="text-purple-300">Member since: </span>
+                            <span className="text-purple-200">
                               {new Date(friend.created_at).toLocaleDateString()}
                             </span>
                           </div>

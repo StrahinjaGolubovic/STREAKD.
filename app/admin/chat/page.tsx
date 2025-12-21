@@ -133,27 +133,27 @@ export default function AdminChat() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-400"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      <header className="bg-gray-800 border-b border-gray-700 shadow-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-black">
+      <header className="bg-purple-900 border-b border-purple-800 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-3 md:py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
           <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-primary-400">Chat Moderation</h1>
           <div className="flex gap-2">
             <Link
               href="/admin/dashboard"
-              className="text-gray-300 hover:text-gray-100 px-4 py-2.5 rounded-md hover:bg-gray-700 active:bg-gray-600 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
+              className="text-purple-200 hover:text-purple-100 px-4 py-2.5 rounded-md hover:bg-purple-800 active:bg-purple-700 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
             >
               Dashboard
             </Link>
             <button
               onClick={() => router.push('/dashboard')}
-              className="text-gray-300 hover:text-gray-100 px-4 py-2.5 rounded-md hover:bg-gray-700 active:bg-gray-600 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
+              className="text-purple-200 hover:text-purple-100 px-4 py-2.5 rounded-md hover:bg-purple-800 active:bg-purple-700 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
             >
               Back to Dashboard
             </button>
@@ -167,19 +167,19 @@ export default function AdminChat() {
           <nav className="flex flex-wrap gap-2 sm:gap-3">
             <Link
               href="/admin/dashboard"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               Dashboard
             </Link>
             <Link
               href="/admin/users"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               Users
             </Link>
             <Link
               href="/admin/verification"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               Photo Verification
             </Link>
@@ -191,7 +191,7 @@ export default function AdminChat() {
             </Link>
             <Link
               href="/admin/system"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               System
             </Link>
@@ -199,14 +199,14 @@ export default function AdminChat() {
         </div>
 
         {/* Search and Actions */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 sm:p-5 md:p-6 mb-4 sm:mb-6">
+        <div className="bg-purple-900 border border-purple-800 rounded-lg p-4 sm:p-5 md:p-6 mb-4 sm:mb-6">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <input
               type="text"
               placeholder="Search messages or users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 bg-gray-900 border border-gray-600 rounded-md px-4 py-2.5 text-base text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-h-[44px]"
+              className="flex-1 bg-black border border-purple-700 rounded-md px-4 py-2.5 text-base text-purple-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-h-[44px]"
             />
             <button
               onClick={() =>
@@ -225,10 +225,10 @@ export default function AdminChat() {
         </div>
 
         {/* Messages List */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+        <div className="bg-purple-900 border border-purple-800 rounded-lg overflow-hidden">
           <div className="p-4 sm:p-6 max-h-[600px] overflow-y-auto">
             {filteredMessages.length === 0 ? (
-              <div className="text-center py-8 text-gray-400">
+              <div className="text-center py-8 text-purple-300">
                 {searchTerm ? 'No messages found matching your search' : 'No messages in the last 24 hours'}
               </div>
             ) : (
@@ -236,18 +236,18 @@ export default function AdminChat() {
                 {filteredMessages.map((msg) => (
                   <div
                     key={msg.id}
-                    className="bg-gray-700/50 border border-gray-600 rounded-lg p-3 sm:p-4 flex gap-3 sm:gap-4"
+                    className="bg-purple-800/50 border border-purple-700 rounded-lg p-3 sm:p-4 flex gap-3 sm:gap-4"
                   >
                     <div className="flex-shrink-0">
                       {msg.profile_picture ? (
                         <img
                           src={getImageUrl(msg.profile_picture) || ''}
                           alt={msg.username}
-                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-gray-600 object-cover"
+                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-purple-700 object-cover"
                         />
                       ) : (
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center">
-                          <span className="text-gray-400 text-sm sm:text-base font-semibold">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-purple-800 border border-purple-700 flex items-center justify-center">
+                          <span className="text-purple-300 text-sm sm:text-base font-semibold">
                             {msg.username.charAt(0).toUpperCase()}
                           </span>
                         </div>
@@ -255,10 +255,10 @@ export default function AdminChat() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm sm:text-base font-semibold text-gray-100">@{msg.username}</span>
+                        <span className="text-sm sm:text-base font-semibold text-purple-100">@{msg.username}</span>
                         <span className="text-xs text-gray-500">{formatTime(msg.created_at)}</span>
                       </div>
-                      <p className="text-sm sm:text-base text-gray-300 whitespace-pre-wrap break-words">{msg.message}</p>
+                      <p className="text-sm sm:text-base text-purple-200 whitespace-pre-wrap break-words">{msg.message}</p>
                     </div>
                     <div className="flex-shrink-0">
                       <button
@@ -282,7 +282,7 @@ export default function AdminChat() {
           </div>
         </div>
 
-        <div className="mt-4 text-sm text-gray-400">
+        <div className="mt-4 text-sm text-purple-300">
           Showing {filteredMessages.length} of {messages.length} messages (last 24 hours)
         </div>
       </main>

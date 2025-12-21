@@ -29,14 +29,14 @@ export function ToastItem({ toast, onRemove }: ToastProps) {
       ? 'bg-green-900/90 border-green-700'
       : toast.type === 'error'
       ? 'bg-red-900/90 border-red-700'
-      : 'bg-blue-900/90 border-blue-700';
+      : 'bg-purple-900/90 border-purple-700';
 
   const textColor =
     toast.type === 'success'
       ? 'text-green-300'
       : toast.type === 'error'
       ? 'text-red-300'
-      : 'text-blue-300';
+      : 'text-purple-300';
 
   return (
     <div

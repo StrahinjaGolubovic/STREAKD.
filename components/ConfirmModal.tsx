@@ -34,15 +34,15 @@ export function ConfirmModal({
       onClick={onCancel}
     >
       <div
-        className="bg-gray-800 border border-gray-700 rounded-lg shadow-xl p-6 max-w-md w-full mx-4"
+        className="bg-purple-900 border border-purple-800 rounded-lg shadow-xl p-6 max-w-md w-full mx-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-lg font-semibold text-gray-100 mb-2">{title}</h3>
-        <p className="text-gray-300 mb-6">{message}</p>
+        <h3 className="text-lg font-semibold text-purple-100 mb-2">{title}</h3>
+        <p className="text-purple-200 mb-6">{message}</p>
         <div className="flex gap-3 justify-end">
           <button
             onClick={onCancel}
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-100 rounded-md transition-colors"
+            className="px-4 py-2 bg-purple-800 hover:bg-purple-700 text-purple-100 rounded-md transition-colors"
           >
             {cancelText}
           </button>

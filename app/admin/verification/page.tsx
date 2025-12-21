@@ -137,27 +137,27 @@ export default function AdminVerification() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-400"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      <header className="bg-gray-800 border-b border-gray-700 shadow-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-black">
+      <header className="bg-purple-900 border-b border-purple-800 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-3 md:py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
           <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-primary-400">Photo Verification</h1>
           <div className="flex gap-2">
             <Link
               href="/admin/dashboard"
-              className="text-gray-300 hover:text-gray-100 px-4 py-2.5 rounded-md hover:bg-gray-700 active:bg-gray-600 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
+              className="text-purple-200 hover:text-purple-100 px-4 py-2.5 rounded-md hover:bg-purple-800 active:bg-purple-700 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
             >
               Dashboard
             </Link>
             <button
               onClick={() => router.push('/dashboard')}
-              className="text-gray-300 hover:text-gray-100 px-4 py-2.5 rounded-md hover:bg-gray-700 active:bg-gray-600 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
+              className="text-purple-200 hover:text-purple-100 px-4 py-2.5 rounded-md hover:bg-purple-800 active:bg-purple-700 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
             >
               Back to Dashboard
             </button>
@@ -171,13 +171,13 @@ export default function AdminVerification() {
           <nav className="flex flex-wrap gap-2 sm:gap-3">
             <Link
               href="/admin/dashboard"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               Dashboard
             </Link>
             <Link
               href="/admin/users"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               Users
             </Link>
@@ -189,13 +189,13 @@ export default function AdminVerification() {
             </Link>
             <Link
               href="/admin/chat"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               Chat Moderation
             </Link>
             <Link
               href="/admin/system"
-              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              className="px-4 py-2 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 transition-colors text-sm sm:text-base"
             >
               System
             </Link>
@@ -203,39 +203,39 @@ export default function AdminVerification() {
         </div>
 
         <div className="mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-100 mb-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-purple-100 mb-2">
             Pending Verifications ({uploads.length})
           </h2>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-purple-300">
             Review and verify user photo uploads. Check metadata for legitimacy.
           </p>
         </div>
 
         {uploads.length === 0 ? (
-          <div className="bg-gray-800 border border-gray-700 rounded-lg p-8 text-center">
-            <p className="text-gray-400">No pending uploads to verify.</p>
+          <div className="bg-purple-900 border border-purple-800 rounded-lg p-8 text-center">
+            <p className="text-purple-300">No pending uploads to verify.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
             {uploads.map((upload) => (
               <div
                 key={upload.id}
-                className="bg-gray-800 border border-gray-700 rounded-lg p-3 sm:p-4 md:p-6"
+                className="bg-purple-900 border border-purple-800 rounded-lg p-3 sm:p-4 md:p-6"
               >
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3 sm:mb-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <h3 className="text-base sm:text-lg font-semibold text-gray-100 truncate">
+                      <h3 className="text-base sm:text-lg font-semibold text-purple-100 truncate">
                         @{upload.username}
                       </h3>
                       <span className="px-2 py-1 bg-yellow-900/50 border border-yellow-700 text-yellow-300 text-xs rounded whitespace-nowrap">
                         Pending
                       </span>
                     </div>
-                    <p className="text-xs sm:text-sm text-gray-400">
+                    <p className="text-xs sm:text-sm text-purple-300">
                       Upload Date: {new Date(upload.upload_date).toLocaleDateString()}
                     </p>
-                    <p className="text-xs sm:text-sm text-gray-400">
+                    <p className="text-xs sm:text-sm text-purple-300">
                       Submitted: {new Date(upload.created_at).toLocaleString()}
                     </p>
                   </div>
@@ -245,7 +245,7 @@ export default function AdminVerification() {
                   <img
                     src={getImageUrl(upload.photo_path) || ''}
                     alt={`Upload from ${upload.username}`}
-                    className="w-full h-auto rounded-lg border border-gray-700 max-h-48 sm:max-h-64 object-contain bg-gray-900"
+                    className="w-full h-auto rounded-lg border border-purple-800 max-h-48 sm:max-h-64 object-contain bg-black"
                   />
                 </div>
 
@@ -255,7 +255,7 @@ export default function AdminVerification() {
                       setSelectedUpload(upload);
                       setMetadata(null);
                     }}
-                    className="px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 active:bg-gray-500 transition-colors text-xs sm:text-sm md:text-base touch-manipulation min-h-[44px]"
+                    className="px-3 sm:px-4 py-2.5 sm:py-3 bg-purple-800 text-purple-200 rounded-md hover:bg-purple-700 active:bg-gray-500 transition-colors text-xs sm:text-sm md:text-base touch-manipulation min-h-[44px]"
                   >
                     Details
                   </button>
@@ -289,37 +289,37 @@ export default function AdminVerification() {
         {/* Details Modal */}
         {selectedUpload && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedUpload(null)}>
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-purple-900 border border-purple-800 rounded-lg p-4 sm:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-100">Upload Details</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-purple-100">Upload Details</h3>
                 <button
                   onClick={() => setSelectedUpload(null)}
-                  className="text-gray-400 hover:text-gray-200 text-2xl"
+                  className="text-purple-300 hover:text-purple-200 text-2xl"
                 >
                   ×
                 </button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-400">User</p>
-                  <p className="text-base text-gray-100">@{selectedUpload.username}</p>
+                  <p className="text-sm text-purple-300">User</p>
+                  <p className="text-base text-purple-100">@{selectedUpload.username}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-400">Upload Date</p>
-                  <p className="text-base text-gray-100">{new Date(selectedUpload.upload_date).toLocaleDateString()}</p>
+                  <p className="text-sm text-purple-300">Upload Date</p>
+                  <p className="text-base text-purple-100">{new Date(selectedUpload.upload_date).toLocaleDateString()}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-400">Submitted</p>
-                  <p className="text-base text-gray-100">{new Date(selectedUpload.created_at).toLocaleString()}</p>
+                  <p className="text-sm text-purple-300">Submitted</p>
+                  <p className="text-base text-purple-100">{new Date(selectedUpload.created_at).toLocaleString()}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-400">Photo Path</p>
-                  <p className="text-base text-gray-100 break-all">{selectedUpload.photo_path}</p>
+                  <p className="text-sm text-purple-300">Photo Path</p>
+                  <p className="text-base text-purple-100 break-all">{selectedUpload.photo_path}</p>
                 </div>
                 {metadata && (
                   <div>
-                    <p className="text-sm text-gray-400 mb-2">Metadata</p>
-                    <pre className="bg-gray-900 p-3 rounded text-xs text-gray-300 overflow-x-auto">
+                    <p className="text-sm text-purple-300 mb-2">Metadata</p>
+                    <pre className="bg-black p-3 rounded text-xs text-purple-200 overflow-x-auto">
                       {JSON.stringify(metadata, null, 2)}
                     </pre>
                   </div>
