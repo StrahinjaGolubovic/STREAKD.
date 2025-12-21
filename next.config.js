@@ -18,6 +18,8 @@ const nextConfig = {
     }
     return config;
   },
+  // Add empty turbopack config to silence the warning
+  turbopack: {},
 }
 
 module.exports = nextConfig
