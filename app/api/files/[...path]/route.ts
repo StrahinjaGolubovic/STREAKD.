@@ -6,11 +6,11 @@ import { existsSync } from 'fs';
 // Serve files from the persistent volume
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ path: string[] }> | { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
-    const params = await Promise.resolve(context.params);
-    const filePath = params.path.join('/');
+    const { path } = await params;
+    const filePath = path.join('/');
     
     // Security: Only allow profiles and uploads directories
     if (!filePath.startsWith('profiles/') && !filePath.startsWith('uploads/')) {
