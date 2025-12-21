@@ -77,10 +77,13 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
         setMessages((prev) => [...prev, data.message]);
         setNewMessage('');
         setIsAtBottom(true); // User just sent a message, so scroll to bottom
-        // Scroll to bottom after sending
-        requestAnimationFrame(() => {
-          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-        });
+        // Scroll within chat container only, not the entire page
+        if (chatContainerRef.current) {
+          const container = chatContainerRef.current;
+          requestAnimationFrame(() => {
+            container.scrollTop = container.scrollHeight;
+          });
+        }
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Failed to send message');
@@ -123,10 +126,11 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
 
   // Auto-scroll to bottom only if user is at bottom or when sending a message
   useEffect(() => {
-    if (isAtBottom && messages.length > 0) {
-      // Use requestAnimationFrame to ensure DOM has updated
+    if (isAtBottom && messages.length > 0 && chatContainerRef.current) {
+      // Scroll within the chat container only, not the entire page
+      const container = chatContainerRef.current;
       requestAnimationFrame(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        container.scrollTop = container.scrollHeight;
       });
     }
   }, [messages.length, isAtBottom]); // Only trigger when message count changes
