@@ -245,6 +245,12 @@ export default function DashboardPage() {
       });
 
       if (response.ok) {
+        const result = await response.json();
+        // Update state immediately with new profile picture
+        if (result.profile_picture && data) {
+          setData({ ...data, profilePicture: result.profile_picture });
+        }
+        // Refresh dashboard to get latest data
         await fetchDashboard();
         showToast('Profile picture updated successfully', 'success');
       } else {
@@ -323,17 +329,27 @@ export default function DashboardPage() {
                 <div className="relative">
                   {data?.profilePicture ? (
                     <img
+                      key={`profile-img-${data.profilePicture}`}
                       src={data.profilePicture}
-                      alt="Profile"
+                      alt=""
                       className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-gray-600 object-cover hover:border-primary-400 transition-colors"
+                      onError={(e) => {
+                        // Hide image on error and show fallback
+                        e.currentTarget.style.display = 'none';
+                        const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                        if (fallback) {
+                          fallback.classList.remove('hidden');
+                        }
+                      }}
                     />
-                  ) : (
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-700 border-2 border-gray-600 flex items-center justify-center hover:border-primary-400 transition-colors">
-                      <span className="text-gray-400 text-lg font-semibold">
-                        {data?.username?.charAt(0).toUpperCase() || 'U'}
-                      </span>
-                    </div>
-                  )}
+                  ) : null}
+                  <div 
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-700 border-2 border-gray-600 flex items-center justify-center hover:border-primary-400 transition-colors ${data?.profilePicture ? 'hidden' : ''}`}
+                  >
+                    <span className="text-gray-400 text-lg font-semibold">
+                      {data?.username?.charAt(0).toUpperCase() || 'U'}
+                    </span>
+                  </div>
                   {profilePictureUploading && (
                     <div className="absolute inset-0 bg-gray-900/50 rounded-full flex items-center justify-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-400"></div>
@@ -587,6 +603,10 @@ export default function DashboardPage() {
                                 src={friend.profile_picture}
                                 alt={friend.username}
                                 className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-gray-600 object-cover"
+                                onError={(e) => {
+                                  // Hide image and show fallback if it fails to load
+                                  e.currentTarget.style.display = 'none';
+                                }}
                               />
                             ) : (
                               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center">
