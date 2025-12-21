@@ -1,8 +1,11 @@
 [phases.setup]
-nixPkgs = ["nodejs-18_x", "python3", "sqlite"]
+nixPkgs = ["nodejs-18_x", "python3", "sqlite", "nodePackages.node-gyp", "gcc", "make"]
 
 [phases.install]
-cmds = ["npm install"]
+cmds = [
+  "npm install --verbose",
+  "npm rebuild better-sqlite3"
+]
 
 [phases.build]
 cmds = ["npm run build"]
