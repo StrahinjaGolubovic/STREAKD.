@@ -56,10 +56,20 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
     setError('');
 
     try {
+      // Get current time in user's local timezone
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const clientTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+      
       const response = await fetch('/api/chat/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: newMessage.trim() }),
+        body: JSON.stringify({ message: newMessage.trim(), clientTime }),
       });
 
       if (response.ok) {

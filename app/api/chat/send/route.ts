@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const { message } = await request.json();
+    const { message, clientTime } = await request.json();
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
@@ -39,7 +39,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Message too long (max 500 characters)' }, { status: 400 });
     }
 
-    const newMessage = addMessage(userId, user.username, message);
+    // Use client time if provided (to avoid timezone issues), otherwise use server time
+    const newMessage = addMessage(userId, user.username, message, clientTime);
 
     if (!newMessage) {
       return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });

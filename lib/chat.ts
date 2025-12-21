@@ -62,7 +62,7 @@ export function getRecentMessages(limit: number = 100): ChatMessageWithProfile[]
 }
 
 // Add a new message
-export function addMessage(userId: number, username: string, message: string): ChatMessageWithProfile | null {
+export function addMessage(userId: number, username: string, message: string, clientTime?: string): ChatMessageWithProfile | null {
   try {
     // Clean up old messages before adding new one
     cleanupOldMessages();
@@ -76,12 +76,29 @@ export function addMessage(userId: number, username: string, message: string): C
       throw new Error('Message too long (max 500 characters)');
     }
     
+    // Use client time if provided (to match user's timezone), otherwise use server time
+    let timeString: string;
+    if (clientTime) {
+      // Client sends time in format "YYYY-MM-DD HH:MM:SS" in their local timezone
+      timeString = clientTime;
+    } else {
+      // Fallback to server time
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      timeString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+    
     const result = db
       .prepare(
         `INSERT INTO chat_messages (user_id, username, message, created_at)
-         VALUES (?, ?, ?, datetime('now', 'localtime'))`
+         VALUES (?, ?, ?, ?)`
       )
-      .run(userId, username, trimmedMessage);
+      .run(userId, username, trimmedMessage, timeString);
     
     // Return the newly created message with profile picture
     const newMessage = db
