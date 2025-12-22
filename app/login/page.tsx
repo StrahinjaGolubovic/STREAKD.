@@ -16,7 +16,6 @@ export default function LoginPage() {
   const [altchaSolution, setAltchaSolution] = useState<string | null>(null);
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [altchaReady, setAltchaReady] = useState(false);
-  const [altchaStartTime] = useState(() => Date.now());
 
   useEffect(() => {
     // Check if script is already loaded and element is defined
@@ -42,10 +41,8 @@ export default function LoginPage() {
     const setupWidget = () => {
       const widget = document.querySelector('altcha-widget');
       if (widget) {
-        // Keep loader visible for at least 2 seconds (polished appearance)
-        const elapsed = Date.now() - altchaStartTime;
-        const remaining = Math.max(0, 2000 - elapsed);
-        window.setTimeout(() => setAltchaReady(true), remaining);
+        // Mark ready on next tick so CSS can reveal the widget cleanly
+        requestAnimationFrame(() => setAltchaReady(true));
 
         widget.addEventListener('verified', (e: any) => {
           setAltchaSolution(e.detail.payload);
@@ -195,14 +192,6 @@ export default function LoginPage() {
                 error: 'Verification failed. Please try again.',
               }),
             })}
-            {!altchaReady && (
-              <div className="altcha-loading mb-4 p-4 bg-gray-700 border border-gray-600 rounded">
-                <div className="flex items-center justify-center gap-3 text-gray-300">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-primary-400" />
-                  <span className="text-sm">Loading…</span>
-                </div>
-              </div>
-            )}
           </div>
 
           <div>
