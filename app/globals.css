@@ -30,10 +30,20 @@ altcha-widget {
   --altcha-width: 100%;
   --altcha-max-width: 100%;
   --altcha-border-radius: 0.375rem; /* rounded-md */
+  --altcha-focus-width: 0px; /* Remove focus ring */
+  --altcha-outline-width: 0px; /* Remove outline */
+  --altcha-error-color: #f87171; /* red-400 */
   display: block;
   width: 100%;
   margin-top: 1rem;
   margin-bottom: 1rem;
+  outline: none !important;
+}
+
+altcha-widget::part(label),
+altcha-widget::part(state) {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 /* Mobile optimizations */
