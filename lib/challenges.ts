@@ -1,6 +1,29 @@
 import db from './db';
 import { formatDateSerbia, formatDateDisplay, isTodaySerbia, isPastSerbia, parseSerbiaDate } from './timezone';
 
+function parseYMD(dateString: string): { year: number; month: number; day: number } {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return { year, month, day };
+}
+
+// Add days to a YYYY-MM-DD date string (treating it as a calendar day, timezone-agnostic)
+function addDaysYMD(dateString: string, deltaDays: number): string {
+  const { year, month, day } = parseYMD(dateString);
+  const dt = new Date(Date.UTC(year, month - 1, day + deltaDays));
+  const y = dt.getUTCFullYear();
+  const m = String(dt.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(dt.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function diffDaysYMD(a: string, b: string): number {
+  const A = parseYMD(a);
+  const B = parseYMD(b);
+  const tA = Date.UTC(A.year, A.month - 1, A.day);
+  const tB = Date.UTC(B.year, B.month - 1, B.day);
+  return Math.floor((tA - tB) / (1000 * 60 * 60 * 24));
+}
+
 export interface WeeklyChallenge {
   id: number;
   user_id: number;
@@ -218,6 +241,10 @@ export function addDailyUpload(
     )
     .run(challengeId, userId, uploadDate, photoPath, 'pending');
 
+  // Update streak immediately on upload submit (pending uploads still count as "done" for the day)
+  // This keeps streak consistent even before admin verification.
+  updateStreakOnUpload(userId, uploadDate);
+
   // Update challenge completed_days
   const progress = getChallengeProgress(challengeId);
   db.prepare('UPDATE weekly_challenges SET completed_days = ? WHERE id = ?').run(
@@ -237,6 +264,19 @@ export function getUserStreak(userId: number): Streak {
     streak = db.prepare('SELECT * FROM streaks WHERE user_id = ?').get(userId) as Streak;
   }
 
+  // Auto-reset streak if the user missed at least one full Serbia day.
+  // Without a cron, this ensures the first request/heartbeat after midnight corrects the streak.
+  if (streak.last_activity_date) {
+    const today = formatDateSerbia();
+    const yesterday = addDaysYMD(today, -1);
+
+    // If last activity is before yesterday, there was a gap day with no upload -> streak is broken.
+    if (streak.last_activity_date < yesterday && streak.current_streak !== 0) {
+      db.prepare('UPDATE streaks SET current_streak = 0 WHERE user_id = ?').run(userId);
+      streak.current_streak = 0;
+    }
+  }
+
   return streak;
 }
 
@@ -254,8 +294,7 @@ export function updateStreak(userId: number, challengeCompleted: boolean): void 
         userId
       );
     } else {
-      const lastDate = new Date(streak.last_activity_date);
-      const daysDiff = Math.floor((new Date(today).getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+      const daysDiff = diffDaysYMD(today, streak.last_activity_date);
 
       if (daysDiff === 1) {
         // Consecutive day, increment streak
@@ -284,9 +323,8 @@ export function updateStreak(userId: number, challengeCompleted: boolean): void 
 // Update streak when a day is completed (called on upload)
 export function updateStreakOnUpload(userId: number, uploadDate: string): void {
   const streak = getUserStreak(userId);
-  const upload = new Date(uploadDate);
-  upload.setHours(0, 0, 0, 0);
-  const uploadDateStr = formatDate(upload);
+  // uploadDate is already a Serbia YYYY-MM-DD string (from the app), treat it as a day key.
+  const uploadDateStr = uploadDate;
 
   if (!streak.last_activity_date) {
     // First upload
@@ -295,9 +333,7 @@ export function updateStreakOnUpload(userId: number, uploadDate: string): void {
       userId
     );
   } else {
-    const lastDate = new Date(streak.last_activity_date);
-    lastDate.setHours(0, 0, 0, 0);
-    const daysDiff = Math.floor((upload.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysDiff = diffDaysYMD(uploadDateStr, streak.last_activity_date);
 
     if (daysDiff === 1) {
       // Consecutive day
@@ -309,12 +345,14 @@ export function updateStreakOnUpload(userId: number, uploadDate: string): void {
     } else if (daysDiff === 0) {
       // Same day, don't increment
       // Do nothing
-    } else {
+    } else if (daysDiff > 1) {
       // Gap in streak, reset to 1
       db.prepare('UPDATE streaks SET current_streak = 1, last_activity_date = ? WHERE user_id = ?').run(
         uploadDateStr,
         userId
       );
+    } else {
+      // Upload is older than last_activity_date (e.g., admin verifies an old upload) — ignore.
     }
   }
 }
