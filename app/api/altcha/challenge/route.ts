@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   try {
     const challenge = await createChallenge({ 
       hmacKey: HMAC_KEY,
-      maxNumber: 1000000, // Adjust difficulty if needed
+      maxNumber: 100000, // Reduced from 1,000,000 for faster verification
     });
     return NextResponse.json(challenge);
   } catch (error) {
