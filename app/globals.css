@@ -39,6 +39,21 @@ altcha-widget {
   margin-bottom: 1rem;
 }
 
+/* Remove the native checkbox focus outline/border (this is what you're seeing) */
+/* ALTCHA uses a real <input type="checkbox"> inside `.altcha-checkbox` */
+altcha-widget .altcha-checkbox input {
+  outline: none !important;
+  box-shadow: none !important;
+  accent-color: #38bdf8; /* match primary */
+}
+
+altcha-widget .altcha-checkbox input:focus,
+altcha-widget .altcha-checkbox input:focus-visible,
+altcha-widget .altcha-checkbox input:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Force-disable outlines on the widget and all its shadow parts */
 altcha-widget,
 altcha-widget::part(base),
