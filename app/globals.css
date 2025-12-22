@@ -21,7 +21,7 @@ body {
   @apply bg-gray-900 text-gray-100;
 }
 
-/* Custom ALTCHA styling */
+/* Custom ALTCHA styling - Nuclear removal of focus rings */
 altcha-widget {
   --altcha-bg: #374151; /* gray-700 */
   --altcha-border: #4b5563; /* gray-600 */
@@ -29,45 +29,46 @@ altcha-widget {
   --altcha-color: #38bdf8; /* primary-400 */
   --altcha-width: 100%;
   --altcha-max-width: 100%;
-  --altcha-border-radius: 0.375rem; /* rounded-md */
-  --altcha-focus-width: 0px !important; 
+  --altcha-border-radius: 0.375rem;
+  --altcha-focus-width: 0 !important; 
   --altcha-focus-color: transparent !important;
-  --altcha-outline-width: 0px !important;
+  --altcha-outline-width: 0 !important;
   --altcha-outline-color: transparent !important;
-  --altcha-error-color: #f87171; /* red-400 */
   display: block;
   width: 100%;
   margin-top: 1rem;
   margin-bottom: 1rem;
-  outline: none !important;
-  box-shadow: none !important;
 }
 
-/* Target internal parts to kill white borders and focus squares */
+/* Force-disable outlines on the widget and all its shadow parts */
+altcha-widget,
 altcha-widget::part(base),
 altcha-widget::part(state),
 altcha-widget::part(checkbox),
+altcha-widget::part(checkmark),
 altcha-widget::part(label),
 altcha-widget::part(anchor) {
+  outline: 0 !important;
   outline: none !important;
   box-shadow: none !important;
-  border-color: var(--altcha-border) !important;
   -webkit-tap-highlight-color: transparent !important;
 }
 
-/* Specifically kill focus indicators when verified or clicked */
-altcha-widget:focus,
-altcha-widget:focus-within,
-altcha-widget:focus-visible,
-altcha-widget:active {
-  outline: none !important;
+/* Prevent the checkbox from changing appearance when verified or clicked */
+altcha-widget::part(checkbox):focus,
+altcha-widget::part(checkbox):active,
+altcha-widget::part(checkbox):focus-visible,
+altcha-widget::part(base):focus,
+altcha-widget::part(base):active {
+  outline: 0 !important;
   box-shadow: none !important;
+  border-color: var(--altcha-border) !important;
 }
 
-/* Target the checkbox state specifically */
-altcha-widget::part(checkbox) {
-  --altcha-focus-width: 0px !important;
+/* Specifically target the verified state checkmark wrapper */
+altcha-widget::part(state) {
   outline: none !important;
+  box-shadow: none !important;
 }
 
 /* Mobile optimizations */
