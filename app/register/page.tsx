@@ -59,6 +59,22 @@ export default function RegisterPage() {
             checkboxInput.addEventListener('focus', () => checkboxInput.blur());
             checkboxInput.addEventListener('mousedown', (ev) => ev.preventDefault());
             checkboxInput.addEventListener('pointerdown', (ev) => ev.preventDefault());
+            // The native checkbox can still show a focus/active outline in some browsers.
+            // Intercept clicks and trigger ALTCHA verification without focusing the input.
+            checkboxInput.addEventListener(
+              'click',
+              (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                try {
+                  (widget as any).verify?.();
+                } catch {
+                  // ignore
+                }
+                checkboxInput.blur();
+              },
+              { capture: true }
+            );
           }
         } catch {
           // Ignore if shadow root is not accessible
