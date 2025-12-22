@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Script from 'next/script';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -10,6 +11,20 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [altchaSolution, setAltchaSolution] = useState<string | null>(null);
+
+  useEffect(() => {
+    const widget = document.querySelector('altcha-widget');
+    if (widget) {
+      const handleVerified = (e: any) => {
+        setAltchaSolution(e.detail.payload);
+      };
+      widget.addEventListener('verified', handleVerified);
+      return () => {
+        widget.removeEventListener('verified', handleVerified);
+      };
+    }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -17,10 +32,16 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      if (!altchaSolution) {
+        setError('Please complete the verification challenge');
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, altcha: altchaSolution }),
       });
 
       const data = await response.json();
@@ -39,7 +60,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+    <>
+      <Script src="/altcha.js" strategy="beforeInteractive" />
+      <link rel="stylesheet" href="/altcha.css" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-6 sm:space-y-8 bg-gray-800 border border-gray-700 p-6 sm:p-8 rounded-xl shadow-2xl">
         <div>
           <h1 className="text-3xl sm:text-4xl font-bold text-center text-primary-400 mb-2">Gymble</h1>
@@ -87,6 +111,17 @@ export default function LoginPage() {
           </div>
 
           <div>
+            <altcha-widget
+              challengeurl="/api/altcha/challenge"
+              strings={{
+                label: 'Verification',
+                error: 'Verification failed. Please try again.',
+              }}
+              className="mb-4"
+            ></altcha-widget>
+          </div>
+
+          <div>
             <button
               type="submit"
               disabled={loading}
@@ -107,6 +142,7 @@ export default function LoginPage() {
         </form>
       </div>
     </div>
+    </>
   );
 }
 

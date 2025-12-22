@@ -1,11 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { hashPassword, getUserByUsername } from '@/lib/auth';
+import { verifyAltcha } from '@/lib/altcha';
 import db from '@/lib/db';
 import { getSerbiaDateSQLite } from '@/lib/timezone';
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, password } = await request.json();
+    const { username, password, altcha } = await request.json();
+    
+    // Verify ALTCHA solution
+    if (!altcha) {
+      return NextResponse.json({ error: 'Please complete the verification challenge' }, { status: 400 });
+    }
+    
+    const isValidAltcha = await verifyAltcha(altcha);
+    if (!isValidAltcha) {
+      return NextResponse.json({ error: 'Verification failed. Please try again.' }, { status: 400 });
+    }
 
     if (!username || !password) {
       return NextResponse.json({ error: 'Username and password are required' }, { status: 400 });

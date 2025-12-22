@@ -20,6 +20,8 @@
     "@types/node": "^25.0.3",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "altcha": "^2.3.0",
+    "altcha-lib": "^1.4.1",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.5.0",
     "exifr": "^7.1.3",

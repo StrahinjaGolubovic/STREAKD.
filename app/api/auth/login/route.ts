@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyPassword, generateToken, getUserByUsername } from '@/lib/auth';
+import { verifyAltcha } from '@/lib/altcha';
 import { cookies } from 'next/headers';
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, password } = await request.json();
+    const { username, password, altcha } = await request.json();
+    
+    // Verify ALTCHA solution
+    if (!altcha) {
+      return NextResponse.json({ error: 'Please complete the verification challenge' }, { status: 400 });
+    }
+    
+    const isValidAltcha = await verifyAltcha(altcha);
+    if (!isValidAltcha) {
+      return NextResponse.json({ error: 'Verification failed. Please try again.' }, { status: 400 });
+    }
 
     if (!username || !password) {
       return NextResponse.json({ error: 'Username and password are required' }, { status: 400 });
