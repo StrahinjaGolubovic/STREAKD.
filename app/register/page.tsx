@@ -44,6 +44,19 @@ export default function RegisterPage() {
         widget.addEventListener('verified', (e: any) => {
           setAltchaSolution(e.detail.payload);
         });
+
+        // Remove focus state (ALTCHA applies a focus-within border around the checkbox/container)
+        // We blur the internal checkbox input whenever it receives focus.
+        try {
+          const shadowRoot = (widget as any).shadowRoot as ShadowRoot | null;
+          const checkboxInput = shadowRoot?.querySelector('.altcha-checkbox input') as HTMLInputElement | null;
+          if (checkboxInput) {
+            checkboxInput.addEventListener('focus', () => checkboxInput.blur());
+            checkboxInput.addEventListener('mousedown', (ev) => ev.preventDefault());
+          }
+        } catch {
+          // Ignore if shadow root is not accessible
+        }
       } else {
         // Retry once if not found immediately
         setTimeout(setupWidget, 100);
@@ -197,6 +210,7 @@ export default function RegisterPage() {
               theme: 'dark',
               hidelogo: true,
               hidefooter: true,
+              disableautofocus: true,
               strings: JSON.stringify({
                 label: 'Verification',
                 error: 'Verification failed. Please try again.',

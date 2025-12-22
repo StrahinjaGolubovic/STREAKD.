@@ -21,19 +21,18 @@ body {
   @apply bg-gray-900 text-gray-100;
 }
 
-/* Custom ALTCHA styling - Nuclear removal of focus rings */
+/* Custom ALTCHA styling */
+/* ALTCHA exposes these CSS variables (see `node_modules/altcha/dist_external/altcha.d.ts`) */
 altcha-widget {
-  --altcha-bg: #374151; /* gray-700 */
-  --altcha-border: #4b5563; /* gray-600 */
-  --altcha-text: #f3f4f6; /* gray-100 */
-  --altcha-color: #38bdf8; /* primary-400 */
-  --altcha-width: 100%;
+  --altcha-color-base: #374151; /* gray-700 */
+  --altcha-color-border: #4b5563; /* gray-600 */
+  --altcha-color-text: #f3f4f6; /* gray-100 */
+  --altcha-color-border-focus: transparent; /* remove the white focus border */
+  --altcha-color-error-text: #f87171; /* red-400 */
+  --altcha-border-width: 1px;
+  --altcha-border-radius: 0.375rem; /* rounded-md */
+  --altcha-color-footer-bg: #374151;
   --altcha-max-width: 100%;
-  --altcha-border-radius: 0.375rem;
-  --altcha-focus-width: 0 !important; 
-  --altcha-focus-color: transparent !important;
-  --altcha-outline-width: 0 !important;
-  --altcha-outline-color: transparent !important;
   display: block;
   width: 100%;
   margin-top: 1rem;
@@ -62,7 +61,7 @@ altcha-widget::part(base):focus,
 altcha-widget::part(base):active {
   outline: 0 !important;
   box-shadow: none !important;
-  border-color: var(--altcha-border) !important;
+  border-color: var(--altcha-color-border) !important;
 }
 
 /* Specifically target the verified state checkmark wrapper */
