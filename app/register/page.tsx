@@ -15,19 +15,41 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [altchaSolution, setAltchaSolution] = useState<string | null>(null);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
 
   useEffect(() => {
-    const widget = document.querySelector('altcha-widget');
-    if (widget) {
-      const handleVerified = (e: any) => {
-        setAltchaSolution(e.detail.payload);
-      };
-      widget.addEventListener('verified', handleVerified);
-      return () => {
-        widget.removeEventListener('verified', handleVerified);
-      };
-    }
+    // Wait for custom element to be defined
+    const checkCustomElement = async () => {
+      if (typeof window !== 'undefined' && (window as any).customElements) {
+        try {
+          await (window as any).customElements.whenDefined('altcha-widget');
+          setScriptLoaded(true);
+        } catch (e) {
+          // If not defined yet, wait a bit and try again
+          setTimeout(checkCustomElement, 100);
+        }
+      }
+    };
+
+    checkCustomElement();
   }, []);
+
+  useEffect(() => {
+    if (!scriptLoaded) return;
+
+    // Use a small delay to ensure widget is in DOM
+    const timer = setTimeout(() => {
+      const widget = document.querySelector('altcha-widget');
+      if (widget) {
+        const handleVerified = (e: any) => {
+          setAltchaSolution(e.detail.payload);
+        };
+        widget.addEventListener('verified', handleVerified);
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [scriptLoaded]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -96,7 +118,11 @@ export default function RegisterPage() {
 
   return (
     <>
-      <Script src="/altcha.js" strategy="beforeInteractive" />
+      <Script 
+        src="/altcha.js" 
+        strategy="lazyOnload"
+        onLoad={() => setScriptLoaded(true)}
+      />
       <link rel="stylesheet" href="/altcha.css" />
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-6 sm:space-y-8 bg-gray-800 border border-gray-700 p-6 sm:p-8 rounded-xl shadow-2xl">
@@ -163,7 +189,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            {React.createElement('altcha-widget', {
+            {scriptLoaded && React.createElement('altcha-widget', {
               challengeurl: '/api/altcha/challenge',
               strings: {
                 label: 'Verification',
@@ -171,6 +197,11 @@ export default function RegisterPage() {
               },
               className: 'mb-4',
             })}
+            {!scriptLoaded && (
+              <div className="mb-4 p-4 bg-gray-700 rounded text-gray-300 text-sm">
+                Loading verification...
+              </div>
+            )}
           </div>
 
           <div>
