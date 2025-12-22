@@ -50,8 +50,14 @@ export default function LoginPage() {
           const shadowRoot = (widget as any).shadowRoot as ShadowRoot | null;
           const checkboxInput = shadowRoot?.querySelector('.altcha-checkbox input') as HTMLInputElement | null;
           if (checkboxInput) {
+            // Kill the browser's default checkbox focus outline (the white rounded square)
+            checkboxInput.style.outline = 'none';
+            checkboxInput.style.boxShadow = 'none';
+            // Extra: prevent it from receiving focus on click/tap
+            checkboxInput.tabIndex = -1;
             checkboxInput.addEventListener('focus', () => checkboxInput.blur());
             checkboxInput.addEventListener('mousedown', (ev) => ev.preventDefault());
+            checkboxInput.addEventListener('pointerdown', (ev) => ev.preventDefault());
           }
         } catch {
           // Ignore if shadow root is not accessible
