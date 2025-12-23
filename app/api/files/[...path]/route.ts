@@ -42,6 +42,8 @@ export async function GET(
       ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' :
       ext === 'gif' ? 'image/gif' :
       ext === 'webp' ? 'image/webp' :
+      ext === 'heic' ? 'image/heic' :
+      ext === 'heif' ? 'image/heif' :
       'application/octet-stream';
 
     return new NextResponse(fileBuffer, {

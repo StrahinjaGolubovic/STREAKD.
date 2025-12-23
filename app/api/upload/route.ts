@@ -38,6 +38,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
     }
 
+    // HEIC/HEIF are not reliably displayable in browsers; we convert client-side to JPEG.
+    // Reject raw HEIC uploads so we don't store images that won't render for most users.
+    const ext = (file.name?.split('.').pop() || '').toLowerCase();
+    if (file.type === 'image/heic' || file.type === 'image/heif' || ext === 'heic' || ext === 'heif') {
+      return NextResponse.json(
+        { error: 'HEIC images are not supported. Please upload JPG/PNG (or let the app convert it automatically).' },
+        { status: 400 }
+      );
+    }
+
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 });
@@ -69,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     // Generate unique filename
     const timestamp = Date.now();
-    const extension = file.name.split('.').pop() || 'jpg';
+    const extension = (file.name.split('.').pop() || 'jpg').toLowerCase();
     const filename = `${timestamp}.${extension}`;
     const filepath = join(uploadsDir, filename);
     // Use API route to serve the file

@@ -149,7 +149,39 @@ export default function DashboardPage() {
     setError('');
 
     const formData = new FormData();
-    formData.append('photo', file);
+
+    // Convert HEIC/HEIF to JPEG so it displays in all browsers (most browsers can't render HEIC).
+    let uploadFile: File = file;
+    try {
+      const name = file.name || '';
+      const ext = name.split('.').pop()?.toLowerCase();
+      const isHeic =
+        file.type === 'image/heic' ||
+        file.type === 'image/heif' ||
+        ext === 'heic' ||
+        ext === 'heif';
+
+      if (isHeic) {
+        // Lazy-load to keep the main bundle small
+        const mod: any = await import('heic2any');
+        const heic2any = mod?.default || mod;
+        const out = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: 0.9,
+        });
+        const blob: Blob = Array.isArray(out) ? out[0] : out;
+        const newName = name ? name.replace(/\.(heic|heif)$/i, '.jpg') : 'upload.jpg';
+        uploadFile = new File([blob], newName, { type: 'image/jpeg' });
+      }
+    } catch (err) {
+      showToast('Failed to convert HEIC image. Please upload JPG/PNG instead.', 'error');
+      setUploading(false);
+      e.target.value = '';
+      return;
+    }
+
+    formData.append('photo', uploadFile);
 
     try {
       const response = await fetch('/api/upload', {
@@ -293,7 +325,36 @@ export default function DashboardPage() {
     setProfilePictureUploading(true);
     try {
       const formData = new FormData();
-      formData.append('picture', file);
+
+      // Convert HEIC/HEIF to JPEG so it displays in all browsers.
+      let uploadFile: File = file;
+      try {
+        const name = file.name || '';
+        const ext = name.split('.').pop()?.toLowerCase();
+        const isHeic =
+          file.type === 'image/heic' ||
+          file.type === 'image/heif' ||
+          ext === 'heic' ||
+          ext === 'heif';
+
+        if (isHeic) {
+          const mod: any = await import('heic2any');
+          const heic2any = mod?.default || mod;
+          const out = await heic2any({
+            blob: file,
+            toType: 'image/jpeg',
+            quality: 0.9,
+          });
+          const blob: Blob = Array.isArray(out) ? out[0] : out;
+          const newName = name ? name.replace(/\.(heic|heif)$/i, '.jpg') : 'profile.jpg';
+          uploadFile = new File([blob], newName, { type: 'image/jpeg' });
+        }
+      } catch (err) {
+        showToast('Failed to convert HEIC image. Please upload JPG/PNG instead.', 'error');
+        return;
+      }
+
+      formData.append('picture', uploadFile);
 
       const response = await fetch('/api/profile/picture', {
         method: 'POST',
