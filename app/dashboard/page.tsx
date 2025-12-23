@@ -9,6 +9,7 @@ import { ConfirmModal } from '@/components/ConfirmModal';
 import { getImageUrl } from '@/lib/image-utils';
 import { Chat } from '@/components/Chat';
 import { formatDateSerbia, isTodaySerbia, isPastSerbia, formatDateDisplay, formatDateTimeDisplay } from '@/lib/timezone';
+import { compressImageToJpeg } from '@/lib/image-compress';
 
 interface DashboardData {
   challenge: {
@@ -211,6 +212,26 @@ export default function DashboardPage() {
       return;
     }
 
+    // Resize/compress client-side to save bandwidth + storage (and avoid server-side size limits).
+    // Targets <= ~4.5MB so it reliably passes the 5MB server limit.
+    try {
+      uploadFile = await compressImageToJpeg(uploadFile, {
+        maxBytes: 4.5 * 1024 * 1024,
+        maxDimension: 1600,
+        quality: 0.82,
+        minQuality: 0.55,
+        outputBaseName: uploadFile.name || 'upload',
+      });
+    } catch (err) {
+      // If compression fails but file is already within server limit, continue with original.
+      if (uploadFile.size > 5 * 1024 * 1024) {
+        showToast('Image is too large. Please try a smaller image.', 'error');
+        setUploading(false);
+        e.target.value = '';
+        return;
+      }
+    }
+
     formData.append('photo', uploadFile);
 
     try {
@@ -355,6 +376,22 @@ export default function DashboardPage() {
       } catch (err) {
         showToast('Failed to convert HEIC image. Please upload JPG/PNG instead.', 'error');
         return;
+      }
+
+      // Resize/compress profile pictures more aggressively (targets <= ~1.8MB for 2MB server limit).
+      try {
+        uploadFile = await compressImageToJpeg(uploadFile, {
+          maxBytes: 1.8 * 1024 * 1024,
+          maxDimension: 512,
+          quality: 0.8,
+          minQuality: 0.55,
+          outputBaseName: 'profile',
+        });
+      } catch (err) {
+        if (uploadFile.size > 2 * 1024 * 1024) {
+          showToast('Profile picture is too large. Please try a smaller image.', 'error');
+          return;
+        }
       }
 
       formData.append('picture', uploadFile);
