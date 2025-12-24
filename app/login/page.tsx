@@ -137,15 +137,17 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-6 sm:space-y-8 bg-gray-800 border border-gray-700 p-6 sm:p-8 rounded-xl shadow-2xl">
         <div>
           <div className="flex justify-center mb-3">
-            <Image
-              src="/streakd_logo.png"
-              alt="STREAKD."
-              width={220}
-              height={64}
-              priority
-              unoptimized
-              className="h-12 sm:h-14 w-auto object-contain"
-            />
+            <div className="relative h-12 w-12 sm:h-14 sm:w-14">
+              <Image
+                src="/streakd_logo.png"
+                alt="STREAKD."
+                fill
+                priority
+                unoptimized
+                className="object-contain"
+                sizes="56px"
+              />
+            </div>
           </div>
           <h2 className="text-xl sm:text-2xl font-semibold text-center text-gray-100">Sign in to your account</h2>
         </div>

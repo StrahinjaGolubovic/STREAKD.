@@ -524,15 +524,15 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="bg-gray-800 border-b border-gray-700 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-3 md:py-4 flex justify-between items-center">
-          <div className="flex items-center">
+          <div className="relative h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 flex-shrink-0">
             <Image
               src="/streakd_logo.png"
               alt="STREAKD."
-              width={140}
-              height={36}
+              fill
               priority
               unoptimized
-              className="h-8 sm:h-9 md:h-10 w-auto"
+              className="object-contain"
+              sizes="40px"
             />
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
