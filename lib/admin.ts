@@ -1,6 +1,6 @@
 import { verifyToken, getUserById } from './auth';
 
-const ADMIN_USERNAMES = ['admin', 'seuq'];
+const ADMIN_USERNAMES = ['admin', 'seuq', 'jakow', 'nikola'];
 
 export function isAdmin(userId: number): boolean {
   const user = getUserById(userId);

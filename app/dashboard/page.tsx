@@ -648,7 +648,7 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
-            {data && (data.username === 'admin' || data.username === 'seuq') && (
+            {data && (data.username === 'admin' || data.username === 'seuq' || data.username === 'jakow' || data.username === 'nikola') && (
               <Link
                 href="/admin/dashboard"
                 className="text-primary-400 hover:text-primary-300 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-gray-700 transition-colors text-sm sm:text-base"
