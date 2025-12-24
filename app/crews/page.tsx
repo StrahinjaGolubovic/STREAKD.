@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ToastContainer, Toast } from '@/components/Toast';
 import { ConfirmModal } from '@/components/ConfirmModal';
+import { getImageUrl } from '@/lib/image-utils';
 
 interface CrewInfo {
   id: number;
@@ -58,6 +59,7 @@ export default function CrewsPage() {
     requests: CrewRequestInfo[];
   } | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [brokenPics, setBrokenPics] = useState<Set<number>>(() => new Set());
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -317,40 +319,48 @@ export default function CrewsPage() {
 
         {/* My Crew Section */}
         {myCrew && (
-          <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-8">
+          <div className="bg-gradient-to-br from-gray-800 to-gray-800/90 border-2 border-primary-500/30 rounded-xl p-4 sm:p-6 mb-6 sm:mb-8 shadow-lg">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-100 mb-2">My Crew: {myCrew.name}</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-400">Members:</span>
-                    <span className="ml-2 text-gray-100 font-semibold">{myCrew.member_count}/30</span>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-2xl">⚓</span>
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-100">{myCrew.name}</h2>
+                  {myCrew.is_leader && (
+                    <span className="px-2 py-1 bg-yellow-600/20 border border-yellow-600/50 text-yellow-400 text-xs font-semibold rounded-full">
+                      Leader
+                    </span>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="bg-gray-700/50 rounded-lg p-2 sm:p-3">
+                    <div className="text-xs text-gray-400 mb-1">Members</div>
+                    <div className="text-base sm:text-lg font-bold text-gray-100">{myCrew.member_count}/30</div>
                   </div>
-                  <div>
-                    <span className="text-gray-400">Avg Streak:</span>
-                    <span className="ml-2 text-gray-100 font-semibold">{myCrew.average_streak}</span>
+                  <div className="bg-gray-700/50 rounded-lg p-2 sm:p-3">
+                    <div className="text-xs text-gray-400 mb-1">Avg Streak</div>
+                    <div className="text-base sm:text-lg font-bold text-primary-400">{myCrew.average_streak}</div>
                   </div>
-                  <div>
-                    <span className="text-gray-400">Avg Trophies:</span>
-                    <span className="ml-2 text-gray-100 font-semibold">{myCrew.average_trophies}</span>
+                  <div className="bg-gray-700/50 rounded-lg p-2 sm:p-3">
+                    <div className="text-xs text-gray-400 mb-1">Avg Trophies</div>
+                    <div className="text-base sm:text-lg font-bold text-yellow-400">{myCrew.average_trophies}</div>
                   </div>
-                  <div>
-                    <span className="text-gray-400">Leader:</span>
-                    <span className="ml-2 text-gray-100 font-semibold">@{myCrew.leader_username}</span>
+                  <div className="bg-gray-700/50 rounded-lg p-2 sm:p-3">
+                    <div className="text-xs text-gray-400 mb-1">Leader</div>
+                    <div className="text-sm font-semibold text-gray-100 truncate">@{myCrew.leader_username}</div>
                   </div>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <button
                   onClick={() => fetchCrewDetails(myCrew.id)}
-                  className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+                  className="px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 active:bg-primary-800 transition-colors font-medium text-sm sm:text-base shadow-md"
                 >
                   View Details
                 </button>
                 {!myCrew.is_leader && (
                   <button
                     onClick={handleLeaveCrew}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                    className="px-4 py-2.5 bg-red-600/80 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-medium text-sm sm:text-base shadow-md"
                   >
                     Leave
                   </button>
@@ -362,22 +372,22 @@ export default function CrewsPage() {
 
         {/* Search and Create Section */}
         {!myCrew && (
-          <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-8">
-            <div className="flex flex-col sm:flex-row gap-4 mb-4">
+          <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 sm:p-6 mb-6 sm:mb-8 shadow-lg">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
               <div className="flex-1">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search crews by name..."
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base"
                 />
               </div>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors whitespace-nowrap"
+                className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 active:bg-primary-800 transition-colors whitespace-nowrap font-medium shadow-md"
               >
-                Create Crew
+                + Create Crew
               </button>
             </div>
 
@@ -393,56 +403,57 @@ export default function CrewsPage() {
             )}
 
             {!searching && searchResults.length > 0 && (
-              <div className="space-y-3">
+              <div className="space-y-3 sm:space-y-4">
                 {searchResults.map((crew) => (
                   <div
                     key={crew.id}
-                    className="bg-gray-700 border border-gray-600 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+                    className="bg-gray-700/80 border border-gray-600 rounded-xl p-4 sm:p-5 hover:bg-gray-700 transition-colors shadow-md"
                   >
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-100 mb-1">{crew.name}</h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-400">Leader:</span>
-                          <span className="ml-2 text-gray-200">@{crew.leader_username}</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                          <h3 className="text-lg sm:text-xl font-bold text-gray-100">{crew.name}</h3>
+                          <span className="text-xs text-gray-400">by @{crew.leader_username}</span>
                         </div>
-                        <div>
-                          <span className="text-gray-400">Members:</span>
-                          <span className="ml-2 text-gray-200">{crew.member_count}/30</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Avg Streak:</span>
-                          <span className="ml-2 text-gray-200">{crew.average_streak}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Avg Trophies:</span>
-                          <span className="ml-2 text-gray-200">{crew.average_trophies}</span>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                          <div className="bg-gray-600/50 rounded-lg p-2">
+                            <div className="text-xs text-gray-400 mb-1">Members</div>
+                            <div className="text-sm font-semibold text-gray-100">{crew.member_count}/30</div>
+                          </div>
+                          <div className="bg-gray-600/50 rounded-lg p-2">
+                            <div className="text-xs text-gray-400 mb-1">Avg Streak</div>
+                            <div className="text-sm font-semibold text-primary-400">{crew.average_streak}</div>
+                          </div>
+                          <div className="bg-gray-600/50 rounded-lg p-2">
+                            <div className="text-xs text-gray-400 mb-1">Avg Trophies</div>
+                            <div className="text-sm font-semibold text-yellow-400">{crew.average_trophies}</div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => fetchCrewDetails(crew.id)}
-                        className="px-4 py-2 bg-gray-600 text-gray-100 rounded-md hover:bg-gray-500 transition-colors"
-                      >
-                        View
-                      </button>
-                      {!crew.has_pending_request && !crew.is_member && (
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <button
-                          onClick={() => handleRequestJoin(crew.id)}
-                          className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+                          onClick={() => fetchCrewDetails(crew.id)}
+                          className="px-4 py-2.5 bg-gray-600 text-gray-100 rounded-lg hover:bg-gray-500 active:bg-gray-400 transition-colors font-medium text-sm shadow-sm"
                         >
-                          Request Join
+                          View
                         </button>
-                      )}
-                      {crew.has_pending_request && (
-                        <button
-                          disabled
-                          className="px-4 py-2 bg-gray-500 text-gray-300 rounded-md cursor-not-allowed"
-                        >
-                          Pending
-                        </button>
-                      )}
+                        {!crew.has_pending_request && !crew.is_member && (
+                          <button
+                            onClick={() => handleRequestJoin(crew.id)}
+                            className="px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 active:bg-primary-800 transition-colors font-medium text-sm shadow-md"
+                          >
+                            Request Join
+                          </button>
+                        )}
+                        {crew.has_pending_request && (
+                          <button
+                            disabled
+                            className="px-4 py-2.5 bg-yellow-600/30 border border-yellow-600/50 text-yellow-400 rounded-lg cursor-not-allowed font-medium text-sm"
+                          >
+                            Pending
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -453,35 +464,39 @@ export default function CrewsPage() {
 
         {/* Create Crew Modal */}
         {showCreateModal && (
-          <div className="fixed inset-0 bg-gray-900/50 flex items-center justify-center p-4 z-50" onClick={() => setShowCreateModal(false)}>
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-              <h3 className="text-xl font-bold text-gray-100 mb-4">Create New Crew</h3>
-              <div className="mb-4">
+          <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={() => setShowCreateModal(false)}>
+            <div className="bg-gray-800 border border-gray-700 rounded-xl p-5 sm:p-6 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center gap-2 mb-4 sm:mb-5">
+                <span className="text-2xl">⚓</span>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-100">Create New Crew</h3>
+              </div>
+              <div className="mb-5 sm:mb-6">
                 <label className="block text-sm font-medium text-gray-300 mb-2">Crew Name</label>
                 <input
                   type="text"
                   value={newCrewName}
                   onChange={(e) => setNewCrewName(e.target.value)}
                   placeholder="Enter crew name..."
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base"
                   maxLength={30}
+                  autoFocus
                 />
-                <p className="mt-1 text-xs text-gray-400">3-30 characters, letters, numbers, underscores, and spaces</p>
+                <p className="mt-2 text-xs text-gray-400">3-30 characters, letters, numbers, underscores, and spaces</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <button
                   onClick={handleCreateCrew}
                   disabled={creating}
-                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 transition-colors"
+                  className="flex-1 px-4 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 active:bg-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium shadow-md"
                 >
-                  {creating ? 'Creating...' : 'Create'}
+                  {creating ? 'Creating...' : 'Create Crew'}
                 </button>
                 <button
                   onClick={() => {
                     setShowCreateModal(false);
                     setNewCrewName('');
                   }}
-                  className="px-4 py-2 bg-gray-600 text-gray-100 rounded-md hover:bg-gray-500 transition-colors"
+                  className="px-4 py-3 bg-gray-600 text-gray-100 rounded-lg hover:bg-gray-500 active:bg-gray-400 transition-colors font-medium"
                 >
                   Cancel
                 </button>
@@ -492,61 +507,68 @@ export default function CrewsPage() {
 
         {/* Crew Details Modal */}
         {showDetailsModal && crewDetails && (
-          <div className="fixed inset-0 bg-gray-900/50 flex items-center justify-center p-4 z-50" onClick={() => setShowDetailsModal(false)}>
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-100">{crewDetails.crew.name}</h3>
+          <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50" onClick={() => setShowDetailsModal(false)}>
+            <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 sm:p-6 max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className="flex justify-between items-center mb-4 sm:mb-6">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className="text-2xl sm:text-3xl">⚓</span>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-100">{crewDetails.crew.name}</h3>
+                </div>
                 <button
                   onClick={() => setShowDetailsModal(false)}
-                  className="text-gray-400 hover:text-gray-200 text-2xl"
+                  className="text-gray-400 hover:text-gray-200 text-2xl sm:text-3xl leading-none w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-700 transition-colors"
                 >
                   ×
                 </button>
               </div>
 
               {/* Crew Stats */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-                <div className="bg-gray-700 rounded-lg p-4">
-                  <div className="text-sm text-gray-400">Members</div>
-                  <div className="text-2xl font-bold text-gray-100">{crewDetails.crew.member_count}/30</div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <div className="bg-gradient-to-br from-gray-700 to-gray-700/80 rounded-xl p-3 sm:p-4 border border-gray-600">
+                  <div className="text-xs sm:text-sm text-gray-400 mb-1">Members</div>
+                  <div className="text-xl sm:text-2xl font-bold text-gray-100">{crewDetails.crew.member_count}/30</div>
                 </div>
-                <div className="bg-gray-700 rounded-lg p-4">
-                  <div className="text-sm text-gray-400">Avg Streak</div>
-                  <div className="text-2xl font-bold text-gray-100">{crewDetails.crew.average_streak}</div>
+                <div className="bg-gradient-to-br from-primary-900/30 to-primary-800/20 rounded-xl p-3 sm:p-4 border border-primary-600/30">
+                  <div className="text-xs sm:text-sm text-gray-400 mb-1">Avg Streak</div>
+                  <div className="text-xl sm:text-2xl font-bold text-primary-400">{crewDetails.crew.average_streak}</div>
                 </div>
-                <div className="bg-gray-700 rounded-lg p-4">
-                  <div className="text-sm text-gray-400">Avg Trophies</div>
-                  <div className="text-2xl font-bold text-gray-100">{crewDetails.crew.average_trophies}</div>
+                <div className="bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 rounded-xl p-3 sm:p-4 border border-yellow-600/30">
+                  <div className="text-xs sm:text-sm text-gray-400 mb-1">Avg Trophies</div>
+                  <div className="text-xl sm:text-2xl font-bold text-yellow-400">{crewDetails.crew.average_trophies}</div>
                 </div>
-                <div className="bg-gray-700 rounded-lg p-4">
-                  <div className="text-sm text-gray-400">Leader</div>
-                  <div className="text-lg font-semibold text-gray-100">@{crewDetails.crew.leader_username}</div>
+                <div className="bg-gradient-to-br from-gray-700 to-gray-700/80 rounded-xl p-3 sm:p-4 border border-gray-600">
+                  <div className="text-xs sm:text-sm text-gray-400 mb-1">Leader</div>
+                  <div className="text-base sm:text-lg font-semibold text-gray-100 truncate">@{crewDetails.crew.leader_username}</div>
                 </div>
               </div>
 
               {/* Pending Requests (Leader Only) */}
               {crewDetails.crew.is_leader && crewDetails.requests.length > 0 && (
-                <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-gray-100 mb-3">Pending Requests</h4>
-                  <div className="space-y-2">
+                <div className="mb-4 sm:mb-6">
+                  <h4 className="text-base sm:text-lg font-semibold text-gray-100 mb-3 flex items-center gap-2">
+                    <span>📬</span>
+                    <span>Pending Requests ({crewDetails.requests.length})</span>
+                  </h4>
+                  <div className="space-y-2 sm:space-y-3">
                     {crewDetails.requests.map((request) => (
-                      <div key={request.id} className="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
-                        <div>
-                          <div className="font-semibold text-gray-100">@{request.username}</div>
-                          <div className="text-sm text-gray-400">
-                            {request.trophies} trophies • {request.current_streak} day streak
+                      <div key={request.id} className="bg-gray-700/80 border border-gray-600 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div className="flex-1">
+                          <div className="font-semibold text-gray-100 mb-1">@{request.username}</div>
+                          <div className="text-xs sm:text-sm text-gray-400 flex items-center gap-3">
+                            <span>🏆 {request.trophies} trophies</span>
+                            <span>🔥 {request.current_streak} day streak</span>
                           </div>
                         </div>
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleAcceptRequest(request.id)}
-                            className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+                            className="flex-1 sm:flex-none px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 active:bg-green-800 transition-colors font-medium text-sm shadow-md"
                           >
                             Accept
                           </button>
                           <button
                             onClick={() => handleRejectRequest(request.id)}
-                            className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm"
+                            className="flex-1 sm:flex-none px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 active:bg-red-800 transition-colors font-medium text-sm shadow-md"
                           >
                             Reject
                           </button>
@@ -559,33 +581,48 @@ export default function CrewsPage() {
 
               {/* Members List */}
               <div>
-                <h4 className="text-lg font-semibold text-gray-100 mb-3">Members</h4>
-                <div className="space-y-2">
+                <h4 className="text-base sm:text-lg font-semibold text-gray-100 mb-3 flex items-center gap-2">
+                  <span>👥</span>
+                  <span>Members ({crewDetails.members.length})</span>
+                </h4>
+                <div className="space-y-2 sm:space-y-3">
                   {crewDetails.members.map((member) => (
-                    <div key={member.id} className="bg-gray-700 rounded-lg p-4 flex items-center gap-4">
-                      {member.profile_picture ? (
-                        <Image
-                          src={`/api/files/${member.profile_picture}`}
-                          alt={member.username}
-                          width={40}
-                          height={40}
-                          className="rounded-full"
-                          unoptimized
-                        />
+                    <div key={member.id} className="bg-gray-700/80 border border-gray-600 rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4 hover:bg-gray-700 transition-colors">
+                      {member.profile_picture && !brokenPics.has(member.user_id) ? (
+                        <div className="relative flex-shrink-0">
+                          <Image
+                            src={getImageUrl(member.profile_picture) || ''}
+                            alt={member.username}
+                            width={48}
+                            height={48}
+                            className="rounded-full border-2 border-gray-600"
+                            unoptimized
+                            onError={() => setBrokenPics((prev) => new Set(prev).add(member.user_id))}
+                          />
+                        </div>
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-gray-300 font-semibold">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center text-gray-200 font-bold text-lg border-2 border-gray-600 flex-shrink-0">
                           {member.username[0].toUpperCase()}
                         </div>
                       )}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-gray-100">@{member.username}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold text-gray-100 truncate">@{member.username}</span>
                           {member.is_leader && (
-                            <span className="px-2 py-0.5 bg-yellow-600 text-yellow-100 text-xs rounded">Leader</span>
+                            <span className="px-2 py-0.5 bg-yellow-600/20 border border-yellow-600/50 text-yellow-400 text-xs font-semibold rounded-full flex-shrink-0">
+                              👑 Leader
+                            </span>
                           )}
                         </div>
-                        <div className="text-sm text-gray-400">
-                          {member.trophies} trophies • {member.current_streak} day streak
+                        <div className="text-xs sm:text-sm text-gray-400 flex items-center gap-3 flex-wrap">
+                          <span className="flex items-center gap-1">
+                            <span>🏆</span>
+                            <span>{member.trophies.toLocaleString()}</span>
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <span>🔥</span>
+                            <span>{member.current_streak} day streak</span>
+                          </span>
                         </div>
                       </div>
                     </div>
