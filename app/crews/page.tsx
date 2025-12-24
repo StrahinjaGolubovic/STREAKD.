@@ -8,7 +8,6 @@ import { ToastContainer, Toast } from '@/components/Toast';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { getImageUrl } from '@/lib/image-utils';
 import { EmptyState } from '@/components/EmptyState';
-import { MobileNav } from '@/components/MobileNav';
 
 interface CrewInfo {
   id: number;

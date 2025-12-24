@@ -213,10 +213,4 @@ input:focus-visible {
   outline-offset: 2px;
 }
 
-/* Mobile bottom nav spacing */
-@media (max-width: 640px) {
-  main {
-    padding-bottom: 5rem; /* Space for bottom nav */
-  }
-}
 
