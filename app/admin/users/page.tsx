@@ -12,7 +12,7 @@ import { formatDateDisplay } from '@/lib/timezone';
 interface User {
   id: number;
   username: string;
-  debt: number;
+  trophies: number;
   current_streak: number;
   longest_streak: number;
   last_activity_date?: string | null;
@@ -27,7 +27,7 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<'username' | 'debt' | 'streak' | 'created'>('username');
+  const [sortBy, setSortBy] = useState<'username' | 'trophies' | 'streak' | 'created'>('username');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirmModal, setConfirmModal] = useState<{
@@ -45,12 +45,12 @@ export default function AdminUsers() {
 
   const [editUser, setEditUser] = useState<User | null>(null);
   const [editForm, setEditForm] = useState<{
-    debt: string;
+    trophies: string;
     current_streak: string;
     longest_streak: string;
     last_activity_date: string;
   }>({
-    debt: '',
+    trophies: '',
     current_streak: '',
     longest_streak: '',
     last_activity_date: '',
@@ -99,19 +99,19 @@ export default function AdminUsers() {
     setConfirmModal({ isOpen: true, title, message, onConfirm, variant });
   }
 
-  async function resetUserDebt(userId: number, username: string) {
+  async function resetUserTrophies(userId: number, username: string) {
     try {
-      const response = await fetch('/api/admin/reset-user-debt', {
+      const response = await fetch('/api/admin/update-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ userId, trophies: 0 }),
       });
 
       if (response.ok) {
-        showToast(`Debt reset for ${username}`, 'success');
+        showToast(`Trophies reset for ${username}`, 'success');
         fetchUsers();
       } else {
-        showToast('Failed to reset debt', 'error');
+        showToast('Failed to reset trophies', 'error');
       }
     } catch (err) {
       showToast('An error occurred', 'error');
@@ -140,7 +140,7 @@ export default function AdminUsers() {
   function openEdit(user: User) {
     setEditUser(user);
     setEditForm({
-      debt: String(user.debt ?? 0),
+      trophies: String(user.trophies ?? 0),
       current_streak: String(user.current_streak ?? 0),
       longest_streak: String(user.longest_streak ?? 0),
       last_activity_date: user.last_activity_date ? String(user.last_activity_date) : '',
@@ -155,7 +155,7 @@ export default function AdminUsers() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: editUser.id,
-          debt: editForm.debt,
+          trophies: editForm.trophies,
           current_streak: editForm.current_streak,
           longest_streak: editForm.longest_streak,
           last_activity_date: editForm.last_activity_date,
@@ -239,9 +239,9 @@ export default function AdminUsers() {
           aVal = a.username.toLowerCase();
           bVal = b.username.toLowerCase();
           break;
-        case 'debt':
-          aVal = a.debt;
-          bVal = b.debt;
+        case 'trophies':
+          aVal = a.trophies;
+          bVal = b.trophies;
           break;
         case 'streak':
           aVal = a.current_streak;
@@ -344,14 +344,14 @@ export default function AdminUsers() {
               value={sortBy}
               onChange={(e) => {
                 const value = e.target.value;
-                if (value === 'username' || value === 'debt' || value === 'streak' || value === 'created') {
+                if (value === 'username' || value === 'trophies' || value === 'streak' || value === 'created') {
                   setSortBy(value);
                 }
               }}
               className="bg-gray-900 border border-gray-600 rounded-md px-4 py-2.5 text-base text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-h-[44px]"
             >
               <option value="username">Sort by Username</option>
-              <option value="debt">Sort by Debt</option>
+              <option value="trophies">Sort by Trophies</option>
               <option value="streak">Sort by Streak</option>
               <option value="created">Sort by Created</option>
             </select>
@@ -371,7 +371,7 @@ export default function AdminUsers() {
               <thead className="bg-gray-700/50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-200">User</th>
-                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-200">Debt</th>
+                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-200">Trophies</th>
                   <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-200">Streak</th>
                   <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-200">Uploads</th>
                   <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-200">Joined</th>
@@ -403,8 +403,8 @@ export default function AdminUsers() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-sm sm:text-base font-semibold ${user.debt > 0 ? 'text-red-400' : 'text-gray-200'}`}>
-                        {user.debt}
+                      <span className="text-sm sm:text-base font-semibold text-yellow-400">
+                        🏆 {user.trophies.toLocaleString()}
                       </span>
                     </td>
                     <td className="px-4 py-3">
@@ -435,15 +435,15 @@ export default function AdminUsers() {
                         <button
                           onClick={() =>
                             showConfirm(
-                              'Reset Debt',
-                              `Reset debt for ${user.username} to 0?`,
-                              () => resetUserDebt(user.id, user.username),
+                              'Reset Trophies',
+                              `Reset trophies for ${user.username} to 0?`,
+                              () => resetUserTrophies(user.id, user.username),
                               'default'
                             )
                           }
                           className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs sm:text-sm hover:bg-blue-700 transition-colors"
                         >
-                          Reset Debt
+                          Reset Trophies
                         </button>
                         <button
                           onClick={() => openPasswordReset(user)}
@@ -524,12 +524,12 @@ export default function AdminUsers() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label className="text-sm text-gray-200">
-                Debt
+                Trophies 🏆
                 <input
                   type="number"
                   min={0}
-                  value={editForm.debt}
-                  onChange={(e) => setEditForm((p) => ({ ...p, debt: e.target.value }))}
+                  value={editForm.trophies}
+                  onChange={(e) => setEditForm((p) => ({ ...p, trophies: e.target.value }))}
                   className="mt-1 w-full bg-gray-900 border border-gray-600 rounded-md px-3 py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </label>

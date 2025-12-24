@@ -18,7 +18,7 @@ export interface Friend {
 export interface FriendInfo {
   id: number;
   username: string;
-  debt: number;
+  trophies: number;
   current_streak: number;
   longest_streak: number;
   profile_picture: string | null;
@@ -107,7 +107,7 @@ export function getUserFriends(userId: number): FriendInfo[] {
     SELECT 
       u.id,
       u.username,
-      u.credits,
+      COALESCE(u.trophies, 0) as trophies,
       u.profile_picture,
       u.created_at,
       COALESCE(s.current_streak, 0) as current_streak,
@@ -119,12 +119,12 @@ export function getUserFriends(userId: number): FriendInfo[] {
     ORDER BY u.username
   `
     )
-    .all(userId) as Array<FriendInfo & { credits: number; current_streak: number; longest_streak: number; profile_picture: string | null }>;
+    .all(userId) as Array<FriendInfo & { trophies: number; current_streak: number; longest_streak: number; profile_picture: string | null }>;
 
   return friends.map((f) => ({
     id: f.id,
     username: f.username,
-    debt: f.credits, // credits column stores debt
+    trophies: f.trophies,
     current_streak: f.current_streak,
     longest_streak: f.longest_streak,
     profile_picture: f.profile_picture,
@@ -144,8 +144,8 @@ export function getFriendStats(friendId: number, userId: number): FriendInfo | n
   }
 
   const friend = db
-    .prepare('SELECT id, username, credits, profile_picture, created_at FROM users WHERE id = ?')
-    .get(friendId) as { id: number; username: string; credits: number; profile_picture: string | null; created_at: string } | undefined;
+    .prepare('SELECT id, username, COALESCE(trophies, 0) as trophies, profile_picture, created_at FROM users WHERE id = ?')
+    .get(friendId) as { id: number; username: string; trophies: number; profile_picture: string | null; created_at: string } | undefined;
 
   if (!friend) {
     return null;
@@ -156,7 +156,7 @@ export function getFriendStats(friendId: number, userId: number): FriendInfo | n
   return {
     id: friend.id,
     username: friend.username,
-    debt: friend.credits, // credits column stores debt
+    trophies: friend.trophies,
     current_streak: streak.current_streak,
     longest_streak: streak.longest_streak,
     profile_picture: friend.profile_picture,

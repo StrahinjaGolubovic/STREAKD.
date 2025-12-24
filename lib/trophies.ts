@@ -36,20 +36,60 @@ function getLastApprovedDateBefore(userId: number, uploadDate: string, uploadId:
 }
 
 /**
- * "Miss a streak => cut trophies in half" logic:
- * - If the user has an approved upload for yesterday (relative to the uploadDate), full reward.
- * - If they had no previous approved days at all, full reward (first day shouldn't be penalized).
- * - Otherwise, half reward.
+ * Get user's current streak for multiplier calculation
+ */
+function getUserCurrentStreak(userId: number): number {
+  const row = db
+    .prepare('SELECT current_streak FROM streaks WHERE user_id = ?')
+    .get(userId) as { current_streak: number } | undefined;
+  return row?.current_streak ?? 0;
+}
+
+/**
+ * Calculate streak multiplier:
+ * - 30+ days: 2.0x (double rewards!)
+ * - 14+ days: 1.5x (50% bonus)
+ * - 7+ days: 1.2x (20% bonus)
+ * - Otherwise: 1.0x (base)
+ */
+function getStreakMultiplier(streak: number): number {
+  if (streak >= 30) return 2.0;
+  if (streak >= 14) return 1.5;
+  if (streak >= 7) return 1.2;
+  return 1.0;
+}
+
+/**
+ * Enhanced approval reward with streak multipliers:
+ * - Base reward: 26-32 trophies (deterministic)
+ * - Streak multiplier: up to 2x for long streaks
+ * - Missed streak penalty: cut in half if gap exists
  */
 export function trophiesAwardForApproval(userId: number, uploadId: number, uploadDate: string): number {
   const base = baseTrophiesForUpload(uploadId);
   const lastApproved = getLastApprovedDateBefore(userId, uploadDate, uploadId);
-  if (!lastApproved) return base;
+  
+  // Check if streak was maintained (yesterday had an approved upload)
+  let maintainedStreak = false;
+  if (lastApproved) {
+    const yesterday = addDaysYMD(uploadDate, -1);
+    maintainedStreak = lastApproved === yesterday;
+  } else {
+    // First upload ever - treat as maintained
+    maintainedStreak = true;
+  }
 
-  const yesterday = addDaysYMD(uploadDate, -1);
-  if (lastApproved === yesterday) return base;
+  // Apply missed streak penalty (half) if streak was broken
+  let reward = maintainedStreak ? base : Math.max(1, Math.round(base / 2));
+  
+  // Apply streak multiplier (only if streak was maintained)
+  if (maintainedStreak) {
+    const currentStreak = getUserCurrentStreak(userId);
+    const multiplier = getStreakMultiplier(currentStreak);
+    reward = Math.round(reward * multiplier);
+  }
 
-  return Math.max(1, Math.round(base / 2));
+  return reward;
 }
 
 /**
@@ -116,6 +156,24 @@ export function getUserTrophies(userId: number): number {
     | { trophies: number }
     | undefined;
   return row?.trophies ?? 0;
+}
+
+/**
+ * Award weekly challenge completion bonus.
+ * Called when a user completes 5+ days in a week.
+ */
+export function awardWeeklyCompletionBonus(userId: number, challengeId: number): void {
+  const bonus = 100;
+  applyTrophyDelta(userId, null, bonus, `weekly_completion:challenge_${challengeId}`);
+}
+
+/**
+ * Deduct trophies for failing a weekly challenge (< 5 days).
+ * Penalty is proportional to encourage consistency.
+ */
+export function deductWeeklyFailurePenalty(userId: number, challengeId: number): void {
+  const penalty = -150; // More forgiving than old debt system, but still meaningful
+  applyTrophyDelta(userId, null, penalty, `weekly_failure:challenge_${challengeId}`);
 }
 
 

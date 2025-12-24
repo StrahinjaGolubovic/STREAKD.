@@ -1,5 +1,6 @@
 import db from './db';
 import { formatDateSerbia, formatDateDisplay, isTodaySerbia, isPastSerbia, parseSerbiaDate } from './timezone';
+import { deductWeeklyFailurePenalty, awardWeeklyCompletionBonus, getUserTrophies } from './trophies';
 
 function parseYMD(dateString: string): { year: number; month: number; day: number } {
   const [year, month, day] = dateString.split('-').map(Number);
@@ -217,9 +218,12 @@ export function getOrCreateActiveChallenge(userId: number): WeeklyChallenge {
         previousChallenge.id
       );
 
-      // Apply penalty if failed (add 200 to debt)
+      // Apply trophy penalty for failed challenge (replaces old debt system)
       if (status === 'failed') {
-        db.prepare('UPDATE users SET credits = credits + 200 WHERE id = ?').run(userId);
+        deductWeeklyFailurePenalty(userId, previousChallenge.id);
+      } else if (status === 'completed') {
+        // Award bonus for completing weekly challenge
+        awardWeeklyCompletionBonus(userId, previousChallenge.id);
       }
 
       // Update streak
@@ -448,18 +452,18 @@ export function getUserDashboard(userId: number): {
   challenge: WeeklyChallenge;
   progress: ReturnType<typeof getChallengeProgress>;
   streak: Streak;
-  debt: number;
+  trophies: number;
 } {
   const challenge = getOrCreateActiveChallenge(userId);
   const progress = getChallengeProgress(challenge.id);
   const streak = getUserStreak(userId);
-  const user = db.prepare('SELECT credits FROM users WHERE id = ?').get(userId) as { credits: number };
+  const trophies = getUserTrophies(userId);
 
   return {
     challenge,
     progress,
     streak,
-    debt: user.credits, // credits column stores debt amount
+    trophies,
   };
 }
 

@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
         `SELECT 
           u.id,
           u.username,
-          u.credits as debt,
+          COALESCE(u.trophies, 0) as trophies,
           u.created_at,
           u.profile_picture,
           COALESCE(s.current_streak, 0) as current_streak,

@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Valid userId is required' }, { status: 400 });
     }
 
-    const debt = body.debt;
+    const trophies = body.trophies;
     const currentStreak = body.current_streak;
     const longestStreak = body.longest_streak;
     const lastActivityDate = body.last_activity_date;
@@ -37,12 +37,12 @@ export async function POST(request: NextRequest) {
       return n;
     };
 
-    const debtInt = parseNonNegativeInt(debt);
+    const trophiesInt = parseNonNegativeInt(trophies);
     const currentInt = parseNonNegativeInt(currentStreak);
     const longestInt = parseNonNegativeInt(longestStreak);
 
-    if (debtInt === null || currentInt === null || longestInt === null) {
-      return NextResponse.json({ error: 'Debt/streak values must be non-negative integers' }, { status: 400 });
+    if (trophiesInt === null || currentInt === null || longestInt === null) {
+      return NextResponse.json({ error: 'Trophies/streak values must be non-negative integers' }, { status: 400 });
     }
 
     if (
@@ -63,8 +63,8 @@ export async function POST(request: NextRequest) {
     // `@/lib/db` is a thin wrapper, so we use explicit BEGIN/COMMIT for atomic updates.
     db.exec('BEGIN');
     try {
-      if (debtInt !== undefined) {
-        db.prepare('UPDATE users SET credits = ? WHERE id = ?').run(debtInt, userId);
+      if (trophiesInt !== undefined) {
+        db.prepare('UPDATE users SET trophies = ? WHERE id = ?').run(trophiesInt, userId);
       }
 
       const needsStreakUpdate =
