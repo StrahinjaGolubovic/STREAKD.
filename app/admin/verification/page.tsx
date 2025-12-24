@@ -126,15 +126,23 @@ export default function AdminVerification() {
       if (response.ok) {
         const data = await response.json();
         setMetadata(data.metadata);
-        showToast('Metadata extracted successfully', 'success');
       } else {
+        setMetadata(null);
         showToast('Failed to extract metadata', 'error');
       }
     } catch (err) {
-      showToast('An error occurred', 'error');
+      setMetadata(null);
+      showToast('An error occurred while extracting metadata', 'error');
     } finally {
       setMetadataLoading(false);
     }
+  }
+
+  async function handleShowDetails(upload: PendingUpload) {
+    setSelectedUpload(upload);
+    setMetadata(null);
+    // Automatically fetch metadata when opening details
+    await handleExtractMetadata(upload.photo_path);
   }
 
   if (loading) {
@@ -258,20 +266,11 @@ export default function AdminVerification() {
 
                 <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 sm:gap-3">
                   <button
-                    onClick={() => {
-                      setSelectedUpload(upload);
-                      setMetadata(null);
-                    }}
-                    className="px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 active:bg-gray-500 transition-colors text-xs sm:text-sm md:text-base touch-manipulation min-h-[44px]"
+                    onClick={() => handleShowDetails(upload)}
+                    disabled={metadataLoading && selectedUpload?.id === upload.id}
+                    className="px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 active:bg-gray-500 disabled:opacity-50 transition-colors text-xs sm:text-sm md:text-base touch-manipulation min-h-[44px]"
                   >
-                    Details
-                  </button>
-                  <button
-                    onClick={() => handleExtractMetadata(upload.photo_path)}
-                    disabled={metadataLoading}
-                    className="px-3 sm:px-4 py-2.5 sm:py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 transition-colors text-xs sm:text-sm md:text-base touch-manipulation min-h-[44px]"
-                  >
-                    {metadataLoading ? 'Extracting...' : 'Metadata'}
+                    {metadataLoading && selectedUpload?.id === upload.id ? 'Loading...' : 'Details'}
                   </button>
                   <button
                     onClick={() => handleVerify(upload.id, 'approved')}
@@ -323,14 +322,23 @@ export default function AdminVerification() {
                   <p className="text-sm text-gray-400">Photo Path</p>
                   <p className="text-base text-gray-100 break-all">{selectedUpload.photo_path}</p>
                 </div>
-                {metadata && (
-                  <div>
-                    <p className="text-sm text-gray-400 mb-2">Metadata</p>
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">Metadata</p>
+                  {metadataLoading ? (
+                    <div className="bg-gray-900 p-3 rounded text-xs text-gray-200 flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-400"></div>
+                      <span>Extracting metadata...</span>
+                    </div>
+                  ) : metadata ? (
                     <pre className="bg-gray-900 p-3 rounded text-xs text-gray-200 overflow-x-auto">
                       {JSON.stringify(metadata, null, 2)}
                     </pre>
-                  </div>
-                )}
+                  ) : (
+                    <div className="bg-gray-900 p-3 rounded text-xs text-gray-400">
+                      No metadata available
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
