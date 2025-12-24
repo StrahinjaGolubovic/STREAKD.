@@ -601,20 +601,28 @@ export default function DashboardPage() {
                     </button>
                   )}
                   <div className="h-px bg-gray-700" />
-                  <button
-                    type="button"
-                    role="menuitem"
-                    className="w-full text-left px-4 py-2.5 text-sm text-gray-100 hover:bg-gray-700 transition-colors"
-                    onClick={() => {
-                      setProfileMenuOpen(false);
-                      handleLogout();
-                    }}
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
+                    <Link
+                      href={`/profile/${encodeURIComponent(data.username || '')}`}
+                      className="block w-full text-left px-4 py-2.5 text-sm text-gray-100 hover:bg-gray-700 transition-colors"
+                      onClick={() => setProfileMenuOpen(false)}
+                    >
+                      View Profile
+                    </Link>
+                    <div className="h-px bg-gray-700" />
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="w-full text-left px-4 py-2.5 text-sm text-gray-100 hover:bg-gray-700 transition-colors"
+                      onClick={() => {
+                        setProfileMenuOpen(false);
+                        handleLogout();
+                      }}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             <Link
               href="/crews"
               className="text-primary-400 hover:text-primary-300 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md hover:bg-gray-700 transition-colors text-sm sm:text-base"
@@ -944,7 +952,10 @@ export default function DashboardPage() {
                       key={friend.id}
                       className="bg-gray-700/50 border border-gray-600 rounded-lg p-3 sm:p-4 md:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
                     >
-                      <div className="flex-1 min-w-0">
+                      <Link
+                        href={`/profile/${encodeURIComponent(friend.username)}`}
+                        className="flex-1 min-w-0 hover:opacity-80 transition-opacity"
+                      >
                         <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                           <div className="flex items-center gap-2 sm:gap-3">
                             {friend.profile_picture ? (
@@ -1010,9 +1021,13 @@ export default function DashboardPage() {
                             </span>
                           </div>
                         </div>
-                      </div>
+                      </Link>
                       <button
-                        onClick={() => handleRemoveFriend(friend.id)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleRemoveFriend(friend.id);
+                        }}
                         className="self-start sm:self-auto px-3 sm:px-4 py-2 bg-red-900/50 border border-red-700 text-red-300 rounded-md hover:bg-red-900/70 transition-colors text-xs sm:text-sm whitespace-nowrap"
                       >
                         Remove
