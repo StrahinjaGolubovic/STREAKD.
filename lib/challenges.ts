@@ -55,6 +55,91 @@ export interface Streak {
   last_activity_date: string | null;
 }
 
+/**
+ * Recompute a user's streak from daily uploads, excluding rejected uploads.
+ * This is used when an upload is approved/rejected so streak reflects legitimacy.
+ *
+ * Rules:
+ * - A "valid day" is any day with at least one upload whose verification_status != 'rejected'
+ *   (pending counts until rejected; approved counts).
+ * - current_streak is the length of the most recent consecutive-day run ending on the latest valid day,
+ *   but is 0 if that latest valid day is before yesterday (Serbia day).
+ * - longest_streak is the maximum consecutive-day run across all valid days.
+ */
+export function recomputeUserStreakFromUploads(userId: number): Streak {
+  // Ensure streak row exists
+  let streak = db.prepare('SELECT * FROM streaks WHERE user_id = ?').get(userId) as Streak | undefined;
+  if (!streak) {
+    db.prepare('INSERT INTO streaks (user_id, current_streak, longest_streak) VALUES (?, 0, 0)').run(userId);
+    streak = db.prepare('SELECT * FROM streaks WHERE user_id = ?').get(userId) as Streak;
+  }
+
+  const rows = db
+    .prepare(
+      `SELECT upload_date
+       FROM daily_uploads
+       WHERE user_id = ?
+         AND verification_status != 'rejected'
+       ORDER BY upload_date ASC`
+    )
+    .all(userId) as Array<{ upload_date: string }>;
+
+  const dates = rows.map((r) => r.upload_date);
+
+  let longest = 0;
+  let currentRun = 0;
+  let lastDate: string | null = null;
+
+  for (const d of dates) {
+    if (!lastDate) {
+      currentRun = 1;
+      longest = Math.max(longest, currentRun);
+      lastDate = d;
+      continue;
+    }
+
+    const diff = diffDaysYMD(d, lastDate);
+    if (diff === 0) {
+      // same day duplicate (shouldn't happen), ignore
+      continue;
+    }
+    if (diff === 1) {
+      currentRun += 1;
+    } else {
+      currentRun = 1;
+    }
+    longest = Math.max(longest, currentRun);
+    lastDate = d;
+  }
+
+  const today = formatDateSerbia();
+  const yesterday = addDaysYMD(today, -1);
+
+  let current = 0;
+  if (lastDate) {
+    // Determine the run length ending at lastDate by walking backwards through the sequence
+    // (we can compute it by scanning again from the end).
+    let run = 1;
+    for (let i = dates.length - 1; i > 0; i--) {
+      const a = dates[i];
+      const b = dates[i - 1];
+      const diff = diffDaysYMD(a, b);
+      if (diff === 1) run += 1;
+      else if (diff === 0) continue;
+      else break;
+    }
+
+    // If the last valid upload is too old, streak is considered broken.
+    current = lastDate < yesterday ? 0 : run;
+  }
+
+  db.prepare(
+    'UPDATE streaks SET current_streak = ?, longest_streak = ?, last_activity_date = ? WHERE user_id = ?'
+  ).run(current, Math.max(longest, streak.longest_streak), lastDate, userId);
+
+  return db.prepare('SELECT * FROM streaks WHERE user_id = ?').get(userId) as Streak;
+}
+
 // Get the start of the current week based on user registration date
 export function getWeekStartForUser(registrationDate: Date, currentDate: Date = new Date()): Date {
   const regDate = new Date(registrationDate);
@@ -210,7 +295,8 @@ export function getChallengeProgress(challengeId: number): {
     });
   }
 
-  const completedDays = days.filter((d) => d.uploaded).length;
+  // Rejected uploads should not count as completed.
+  const completedDays = days.filter((d) => d.uploaded && d.verification_status !== 'rejected').length;
 
   return {
     totalDays: 7,
