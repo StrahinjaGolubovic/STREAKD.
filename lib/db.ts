@@ -55,10 +55,23 @@ function initDatabase(database: Database) {
       username TEXT UNIQUE NOT NULL,
       password_hash TEXT NOT NULL,
       credits INTEGER DEFAULT 0,
+      trophies INTEGER DEFAULT 0,
       profile_picture TEXT,
       created_at DATE
     )
   `);
+
+  // Migrate existing users table to add trophies column if missing
+  try {
+    const usersInfo = database.prepare("PRAGMA table_info(users)").all() as Array<{ name: string }>;
+    const usersCols = usersInfo.map((c) => c.name);
+    if (!usersCols.includes('trophies')) {
+      database.exec(`ALTER TABLE users ADD COLUMN trophies INTEGER DEFAULT 0;`);
+      database.exec(`UPDATE users SET trophies = 0 WHERE trophies IS NULL;`);
+    }
+  } catch (error) {
+    console.log('Users migration note:', error);
+  }
 
   // Weekly challenges table
   database.exec(`
@@ -135,6 +148,20 @@ function initDatabase(database: Database) {
     )
   `);
 
+  // Trophy transactions ledger (auditable)
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS trophy_transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      upload_id INTEGER,
+      delta INTEGER NOT NULL,
+      reason TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (upload_id) REFERENCES daily_uploads(id) ON DELETE SET NULL
+    )
+  `);
+
   // User activity table (for "online users" tracking)
   database.exec(`
     CREATE TABLE IF NOT EXISTS user_activity (
@@ -194,6 +221,8 @@ function initDatabase(database: Database) {
     CREATE INDEX IF NOT EXISTS idx_chat_messages_user ON chat_messages(user_id);
     CREATE INDEX IF NOT EXISTS idx_chat_messages_created ON chat_messages(created_at);
     CREATE INDEX IF NOT EXISTS idx_user_activity_last_seen ON user_activity(last_seen);
+    CREATE INDEX IF NOT EXISTS idx_trophy_transactions_user ON trophy_transactions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_trophy_transactions_upload ON trophy_transactions(upload_id);
   `);
 }
 

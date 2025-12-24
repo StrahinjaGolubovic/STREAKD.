@@ -34,6 +34,7 @@ interface DashboardData {
     longest_streak: number;
   };
   debt: number;
+  trophies?: number;
   userId?: number;
   username?: string;
   profilePicture?: string | null;
@@ -663,11 +664,17 @@ export default function DashboardPage() {
 
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6 lg:py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
           <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
             <div className="text-xs sm:text-sm font-medium text-gray-400 mb-1">Debt</div>
             <div className={`text-xl sm:text-2xl md:text-3xl font-bold ${data.debt > 0 ? 'text-red-400' : 'text-gray-100'}`}>
               {data.debt}
+            </div>
+          </div>
+          <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
+            <div className="text-xs sm:text-sm font-medium text-gray-400 mb-1">Trophies</div>
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400">
+              {data.trophies ?? 0}
             </div>
           </div>
           <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-5 md:p-6">

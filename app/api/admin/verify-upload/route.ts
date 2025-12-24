@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { checkAdmin } from '@/lib/admin';
 import { verifyUpload, extractImageMetadata, updateUploadMetadata, getPendingUploads } from '@/lib/verification';
 import { recomputeUserStreakFromUploads, getChallengeProgress } from '@/lib/challenges';
+import { syncTrophiesForUpload } from '@/lib/trophies';
 import { cookies } from 'next/headers';
 import db from '@/lib/db';
 
@@ -51,6 +52,14 @@ export async function POST(request: NextRequest) {
       progress.completedDays,
       upload.challenge_id
     );
+
+    // Sync trophies for this upload (award on approve, penalty on reject, idempotent across toggles).
+    syncTrophiesForUpload({
+      userId: upload.user_id,
+      uploadId,
+      uploadDate: upload.upload_date,
+      status,
+    });
 
     return NextResponse.json({ message: `Upload ${status} successfully` });
   } catch (error) {

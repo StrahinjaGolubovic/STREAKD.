@@ -23,13 +23,14 @@ export async function GET(request: NextRequest) {
     const dashboard = getUserDashboard(userId);
     
     // Get user username and profile picture for admin check and display
-    const user = db.prepare('SELECT username, profile_picture FROM users WHERE id = ?').get(userId) as { username: string; profile_picture: string | null } | undefined;
+    const user = db.prepare('SELECT username, profile_picture, COALESCE(trophies, 0) as trophies FROM users WHERE id = ?').get(userId) as { username: string; profile_picture: string | null; trophies: number } | undefined;
     
     return NextResponse.json({
       ...dashboard,
       userId,
       username: user?.username,
       profilePicture: user?.profile_picture || null,
+      trophies: user?.trophies ?? 0,
     });
   } catch (error) {
     console.error('Dashboard error:', error);
