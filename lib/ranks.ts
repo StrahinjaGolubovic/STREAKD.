@@ -20,17 +20,17 @@ export function getTrophyRank(trophies: number): string {
  * Get rank color based on trophy count - vibrant and powerful colors
  */
 export function getRankColor(trophies: number): string {
-  if (trophies < 100) return 'text-orange-500'; // Bronze - vibrant orange
+  if (trophies < 100) return 'text-orange-600'; // Bronze - vibrant orange
   if (trophies < 200) return 'text-gray-200'; // Silver - bright silver
-  if (trophies < 300) return 'text-yellow-400'; // Gold - bright gold
-  if (trophies < 400) return 'text-cyan-300'; // Platinum - bright cyan
-  if (trophies < 500) return 'text-blue-400'; // Diamond - vibrant blue
-  if (trophies < 600) return 'text-purple-400'; // Master - vibrant purple
-  if (trophies < 700) return 'text-pink-400'; // Grandmaster - vibrant pink
+  if (trophies < 300) return 'text-yellow-500'; // Gold - bright gold
+  if (trophies < 400) return 'text-cyan-500'; // Platinum - bright cyan
+  if (trophies < 500) return 'text-blue-500'; // Diamond - vibrant blue
+  if (trophies < 600) return 'text-purple-500'; // Master - vibrant purple
+  if (trophies < 700) return 'text-pink-500'; // Grandmaster - vibrant pink
   if (trophies < 800) return 'text-red-500'; // Champion - powerful red
-  if (trophies < 900) return 'text-indigo-400'; // Legend - vibrant indigo
-  if (trophies < 1000) return 'text-yellow-300'; // Elite - bright yellow
-  return 'text-yellow-200'; // Supreme - glowing yellow
+  if (trophies < 900) return 'text-indigo-500'; // Legend - vibrant indigo
+  if (trophies < 1000) return 'text-amber-500'; // Elite - bright amber
+  return 'text-yellow-400'; // Supreme - glowing yellow
 }
 
 /**
