@@ -90,6 +90,14 @@ export function CrewChat({ crewId, currentUserId, currentUsername, currentUserPr
       if (response.ok && result.message) {
         setNewMessage('');
         setMessages((prev) => [...prev, result.message]);
+        setIsAtBottom(true); // User just sent a message, so scroll to bottom
+        // Scroll within chat container only, not the entire page
+        if (chatContainerRef.current) {
+          const container = chatContainerRef.current;
+          requestAnimationFrame(() => {
+            container.scrollTop = container.scrollHeight;
+          });
+        }
       } else {
         setError(result.error || 'Failed to send message');
       }
@@ -100,10 +108,34 @@ export function CrewChat({ crewId, currentUserId, currentUsername, currentUserPr
     }
   };
 
-  // Auto-scroll to bottom when new messages arrive
+  // Track if user is at bottom of chat
+  const [isAtBottom, setIsAtBottom] = useState(true);
+
+  // Check scroll position
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const threshold = 100;
+      const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+      setIsAtBottom(isNearBottom);
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Auto-scroll to bottom only if user is at bottom or when sending a message
+  useEffect(() => {
+    if (isAtBottom && messages.length > 0 && chatContainerRef.current) {
+      // Scroll within the chat container only, not the entire page
+      const container = chatContainerRef.current;
+      requestAnimationFrame(() => {
+        container.scrollTop = container.scrollHeight;
+      });
+    }
+  }, [messages.length, isAtBottom]); // Only trigger when message count changes
 
   // Fetch messages on mount and periodically
   useEffect(() => {
@@ -114,13 +146,28 @@ export function CrewChat({ crewId, currentUserId, currentUsername, currentUserPr
   }, [crewId]);
 
   const formatTime = (dateString: string) => {
+    // SQLite returns datetime as 'YYYY-MM-DD HH:MM:SS' in Serbia timezone
+    // Extract time directly from the string to avoid timezone conversion issues
+    if (dateString.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
+      // SQLite format: 'YYYY-MM-DD HH:MM:SS' - extract time part directly
+      const timePart = dateString.split(' ')[1]; // Get "HH:MM:SS"
+      const [hour, minute] = timePart.split(':'); // Get hour and minute
+      return `${hour}:${minute}`;
+    } else if (dateString.includes('T')) {
+      // ISO format: extract time from "YYYY-MM-DDTHH:MM:SS"
+      const timePart = dateString.split('T')[1]?.split('.')[0]; // Get "HH:MM:SS"
+      if (timePart) {
+        const [hour, minute] = timePart.split(':');
+        return `${hour}:${minute}`;
+      }
+    }
+    
+    // Fallback: try to parse as Date (shouldn't happen with SQLite format)
     try {
       const date = new Date(dateString);
-      return date.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-      });
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
     } catch {
       return '';
     }
@@ -134,8 +181,7 @@ export function CrewChat({ crewId, currentUserId, currentUsername, currentUserPr
 
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-4"
-        style={{ scrollbarWidth: 'thin' }}
+        className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
       >
         {loading && messages.length === 0 ? (
           <div className="text-center text-gray-400 py-8">Loading messages...</div>
@@ -178,19 +224,22 @@ export function CrewChat({ crewId, currentUserId, currentUsername, currentUserPr
                     </span>
                   </div>
                 )}
-                <div className={`flex-1 ${isOwnMessage ? 'text-right' : ''}`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-semibold text-gray-100">@{msg.username}</span>
-                    <span className="text-xs text-gray-400">{formatTime(msg.created_at)}</span>
+                {/* Message Content */}
+                <div className={`flex-1 min-w-0 ${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col`}>
+                  <div className={`flex items-center gap-2 mb-1 ${isOwnMessage ? 'flex-row-reverse' : ''}`}>
+                    <span className="text-xs sm:text-sm font-semibold text-gray-300">
+                      {msg.username}
+                    </span>
+                    <span className="text-xs text-gray-500">{formatTime(msg.created_at)}</span>
                   </div>
                   <div
-                    className={`inline-block px-4 py-2 rounded-lg ${
+                    className={`rounded-lg px-3 sm:px-4 py-2 max-w-[85%] sm:max-w-[75%] break-words ${
                       isOwnMessage
                         ? 'bg-primary-600 text-white'
                         : 'bg-gray-700 text-gray-100'
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
+                    <p className="text-sm sm:text-base whitespace-pre-wrap">{msg.message}</p>
                   </div>
                 </div>
               </div>
