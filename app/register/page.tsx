@@ -261,7 +261,7 @@ export default function RegisterPage() {
             <div className="ml-3 text-sm">
               <label htmlFor="accept-terms" className="text-gray-300">
                 I agree to the{' '}
-                <Link href="/terms" target="_blank" className="text-primary-400 hover:text-primary-300 underline">
+                <Link href="/terms" className="text-primary-400 hover:text-primary-300 underline">
                   Terms of Service
                 </Link>
               </label>
