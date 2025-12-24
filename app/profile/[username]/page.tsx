@@ -271,7 +271,7 @@ export default function ProfilePage() {
                   <div className="text-xs text-gray-400 mt-1">Trophies</div>
                 </div>
                 <div className={`${getRankGradient(user.trophies)} rounded-lg p-3 text-center border`} style={getRankBorderStyle(user.trophies)}>
-                  <div className="text-lg font-bold" style={getRankColorStyle(user.trophies)}>
+                  <div className="text-lg font-bold" style={{ ...getRankColorStyle(user.trophies), fontFamily: 'var(--font-orbitron), sans-serif' }}>
                     {getTrophyRank(user.trophies)}
                   </div>
                   <div className="text-xs mt-1" style={getRankColorStyle(user.trophies)}>Rank</div>

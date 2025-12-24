@@ -3,17 +3,17 @@
  * Returns a rank name based on trophy count (one rank per 100 trophies)
  */
 export function getTrophyRank(trophies: number): string {
-  if (trophies < 100) return 'Bronze';
-  if (trophies < 200) return 'Silver';
-  if (trophies < 300) return 'Gold';
-  if (trophies < 400) return 'Platinum';
-  if (trophies < 500) return 'Diamond';
-  if (trophies < 600) return 'Master';
-  if (trophies < 700) return 'Grandmaster';
-  if (trophies < 800) return 'Champion';
-  if (trophies < 900) return 'Legend';
-  if (trophies < 1000) return 'Elite';
-  return 'Supreme';
+  if (trophies < 100) return 'BRONZE';
+  if (trophies < 200) return 'SILVER';
+  if (trophies < 300) return 'GOLD';
+  if (trophies < 400) return 'PLATINUM';
+  if (trophies < 500) return 'DIAMOND';
+  if (trophies < 600) return 'MASTER';
+  if (trophies < 700) return 'GRANDMASTER';
+  if (trophies < 800) return 'CHAMPION';
+  if (trophies < 900) return 'LEGEND';
+  if (trophies < 1000) return 'ELITE';
+  return 'SUPREME';
 }
 
 /**
