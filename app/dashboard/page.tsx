@@ -663,19 +663,16 @@ export default function DashboardPage() {
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6 lg:py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
-          <div className={`${getRankGradient(data.trophies)} rounded-lg shadow-lg p-4 sm:p-5 md:p-6`}>
-            <div className={`text-xs sm:text-sm font-medium ${getRankColor(data.trophies)} mb-1 flex items-center gap-1.5`}>
+          <div className="bg-gradient-to-br from-yellow-900/40 to-yellow-800/20 border-2 border-yellow-600/50 rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
+            <div className="text-xs sm:text-sm font-medium text-yellow-300 mb-1 flex items-center gap-1.5">
               <span>🏆</span>
-              <span>Rank</span>
+              <span>Trophies</span>
             </div>
-            <div className={`text-xl sm:text-2xl md:text-3xl font-bold ${getRankColor(data.trophies)}`}>
-              {getTrophyRank(data.trophies)}
-            </div>
-            <div className={`text-xs ${getRankColor(data.trophies)}/70 mt-1`}>
-              {data.trophies.toLocaleString()} trophies
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400">
+              {data.trophies.toLocaleString()}
             </div>
             {data.streak.current_streak >= 7 && (
-              <div className={`text-xs ${getRankColor(data.trophies)}/70 mt-1`}>
+              <div className="text-xs text-yellow-300/70 mt-1">
                 {data.streak.current_streak >= 30 ? '2.0x' : data.streak.current_streak >= 14 ? '1.5x' : '1.2x'} streak bonus active
               </div>
             )}
@@ -688,10 +685,16 @@ export default function DashboardPage() {
             <div className="text-xs sm:text-sm font-medium text-gray-400 mb-1">Longest Streak</div>
             <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-100">{data.streak.longest_streak} days</div>
           </div>
-          <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
-            <div className="text-xs sm:text-sm font-medium text-gray-400 mb-1">Progress</div>
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-100">
-              {data.progress.completedDays}/{data.progress.totalDays}
+          <div className={`${getRankGradient(data.trophies)} rounded-lg shadow-lg p-4 sm:p-5 md:p-6`}>
+            <div className={`text-xs sm:text-sm font-medium ${getRankColor(data.trophies)} mb-1 flex items-center gap-1.5`}>
+              <span>⭐</span>
+              <span>Rank</span>
+            </div>
+            <div className={`text-xl sm:text-2xl md:text-3xl font-bold ${getRankColor(data.trophies)}`}>
+              {getTrophyRank(data.trophies)}
+            </div>
+            <div className={`text-xs ${getRankColor(data.trophies)}/70 mt-1`}>
+              {data.trophies.toLocaleString()} trophies
             </div>
           </div>
         </div>
