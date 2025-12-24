@@ -9,13 +9,24 @@ export default function Home() {
 
   useEffect(() => {
     let cancelled = false;
+    const MIN_LOADING_MS = 1800;
 
     (async () => {
       try {
+        const startedAt = Date.now();
         const response = await fetch('/api/auth/me');
         if (cancelled) return;
+
+        // Keep the splash up for a minimum time so it feels like a deliberate loading animation.
+        const elapsed = Date.now() - startedAt;
+        const remaining = Math.max(0, MIN_LOADING_MS - elapsed);
+        if (remaining > 0) await new Promise((r) => setTimeout(r, remaining));
+        if (cancelled) return;
+
         router.replace(response.ok ? '/dashboard' : '/login');
       } catch {
+        if (cancelled) return;
+        await new Promise((r) => setTimeout(r, MIN_LOADING_MS));
         if (cancelled) return;
         router.replace('/login');
       }
@@ -37,8 +48,8 @@ export default function Home() {
             {/* Logo */}
             <div className="relative h-28 w-28 sm:h-32 sm:w-32">
               <Image
-                src="/streakd_logo.png"
-                alt="STREAKD. logo"
+                src="/streakd_letter.png"
+                alt="STREAKD. lettermark"
                 fill
                 priority
                 unoptimized
@@ -57,6 +68,9 @@ export default function Home() {
             </div>
             <div className="text-sm text-gray-400">
               Checking session…
+            </div>
+            <div className="h-1.5 w-40 rounded-full bg-gray-800 overflow-hidden border border-gray-700/60">
+              <div className="h-full w-1/2 bg-gradient-to-r from-primary-500/30 via-primary-400/70 to-cyan-400/40 animate-pulse" />
             </div>
           </div>
         </div>
