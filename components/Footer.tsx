@@ -4,14 +4,14 @@ export function Footer() {
   return (
     <footer className="bg-gray-800 border-t border-gray-700 mt-auto">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4 sm:gap-6">
           {/* Logo/Brand */}
-          <div className="flex items-center gap-2">
-            <span className="text-primary-400 font-bold text-lg sm:text-xl">STREAKD.</span>
+          <div className="flex items-center justify-center sm:justify-start gap-2">
+            <span className="text-primary-400 font-black text-lg sm:text-xl" style={{ fontFamily: 'var(--font-orbitron), sans-serif' }}>STREAKD.</span>
           </div>
 
-          {/* Social Media Links */}
-          <div className="flex items-center gap-4 sm:gap-6">
+          {/* Social Media Links - Centered */}
+          <div className="flex items-center justify-center gap-4 sm:gap-6">
             <a
               href="https://www.instagram.com/streakd.official/"
               target="_blank"
@@ -50,7 +50,7 @@ export function Footer() {
           </div>
 
           {/* Contact Info */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center sm:justify-end gap-2">
             <a
               href="mailto:contact@streakd.com"
               className="text-gray-400 hover:text-primary-400 transition-colors text-sm sm:text-base flex items-center gap-2"
