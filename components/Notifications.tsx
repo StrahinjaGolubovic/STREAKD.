@@ -149,13 +149,13 @@ export function Notifications({ userId }: NotificationsProps) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 max-h-[500px] flex flex-col">
+        <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 max-h-[calc(100vh-8rem)] sm:max-h-[500px] flex flex-col">
           <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-100">Notifications</h3>
+            <h3 className="text-lg font-semibold text-gray-100 text-right flex-1">Notifications</h3>
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="text-xs text-primary-400 hover:text-primary-300"
+                className="text-xs text-primary-400 hover:text-primary-300 ml-2"
               >
                 Mark all as read
               </button>
@@ -185,17 +185,17 @@ export function Notifications({ userId }: NotificationsProps) {
                         }
                       }}
                     >
-                      <div className="flex items-start gap-3">
-                        {!notification.read && (
-                          <div className="w-2 h-2 bg-primary-400 rounded-full mt-2 flex-shrink-0" />
-                        )}
-                        <div className="flex-1 min-w-0">
+                      <div className="flex items-start gap-3 justify-end">
+                        <div className="flex-1 min-w-0 text-right">
                           <div className="font-semibold text-gray-100 text-sm">{notification.title}</div>
                           <div className="text-gray-300 text-sm mt-1">{notification.message}</div>
                           <div className="text-xs text-gray-500 mt-2">
                             {formatDateTimeDisplay(notification.created_at)}
                           </div>
                         </div>
+                        {!notification.read && (
+                          <div className="w-2 h-2 bg-primary-400 rounded-full mt-2 flex-shrink-0" />
+                        )}
                       </div>
                     </div>
                   );
