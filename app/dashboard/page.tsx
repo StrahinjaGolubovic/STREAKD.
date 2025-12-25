@@ -1126,28 +1126,29 @@ export default function DashboardPage() {
                 <p className="text-sm sm:text-base">No friends yet. Share your invite code to get started!</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
                 {friends.map((friend) => {
                   return (
                     <div
                       key={friend.id}
-                      className="bg-gray-700/50 border border-gray-600 rounded-lg p-3 sm:p-4 md:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
+                      className="relative group"
                     >
                       <Link
                         href={`/profile/${encodeURIComponent(friend.username)}`}
-                        className="flex-1 min-w-0 hover:opacity-80 transition-opacity"
+                        className="block bg-gray-700/50 border border-gray-600 rounded-lg p-3 sm:p-4 hover:bg-gray-700 hover:border-gray-500 transition-all"
                       >
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-                          <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="flex flex-col items-center gap-2 sm:gap-3">
+                          {/* Profile Picture */}
+                          <div className="relative">
                             {friend.profile_picture ? (
                               !brokenFriendPics.has(friend.id) ? (
                                 <Image
                                   src={getImageUrl(friend.profile_picture) || ''}
                                   alt={friend.username}
-                                  width={48}
-                                  height={48}
+                                  width={80}
+                                  height={80}
                                   unoptimized
-                                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-gray-600 object-cover flex-shrink-0"
+                                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-gray-600 object-cover"
                                   onError={() =>
                                     setBrokenFriendPics((prev) => {
                                       const next = new Set(prev);
@@ -1157,53 +1158,51 @@ export default function DashboardPage() {
                                   }
                                 />
                               ) : (
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center flex-shrink-0">
-                                  <span className="text-gray-400 text-sm sm:text-base font-semibold">
+                                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gray-700 border-2 border-gray-600 flex items-center justify-center">
+                                  <span className="text-gray-400 text-xl sm:text-2xl font-semibold">
                                     {friend.username.charAt(0).toUpperCase()}
                                   </span>
                                 </div>
                               )
                             ) : (
-                              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center flex-shrink-0">
-                                <span className="text-gray-400 text-sm sm:text-base font-semibold">
+                              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gray-700 border-2 border-gray-600 flex items-center justify-center">
+                                <span className="text-gray-400 text-xl sm:text-2xl font-semibold">
                                   {friend.username.charAt(0).toUpperCase()}
                                 </span>
                               </div>
                             )}
-                            <h4 className="text-base sm:text-lg font-semibold text-gray-100 truncate">@{friend.username}</h4>
+                            {/* Rank Badge */}
+                            <div 
+                              className="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded text-xs font-bold border-2 border-gray-800"
+                              style={getRankColorStyle(friend.trophies)}
+                            >
+                              {getTrophyRank(friend.trophies).slice(0, 3)}
+                            </div>
                           </div>
-                          <span className="px-2.5 py-1.5 bg-yellow-900/50 border border-yellow-700 text-yellow-300 text-xs sm:text-sm rounded whitespace-nowrap">
-                            🏆 {friend.trophies.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3 sm:gap-4 text-sm sm:text-base">
-                          <div>
-                            <span className="text-gray-400">Current Streak: </span>
-                            <span className="text-primary-400 font-semibold">
+                          
+                          {/* Username */}
+                          <div className="text-center w-full">
+                            <h4 className="text-sm sm:text-base font-semibold text-gray-100 truncate">
+                              @{friend.username}
+                            </h4>
+                            <div className="flex items-center justify-center gap-1 mt-1">
+                              <span className="text-yellow-400 text-xs">🏆</span>
+                              <span className="text-xs text-gray-400">{friend.trophies.toLocaleString()}</span>
+                            </div>
+                          </div>
+
+                          {/* Streak */}
+                          <div className="text-center">
+                            <div className="text-xs text-gray-500">Streak</div>
+                            <div className="text-sm font-semibold text-primary-400">
                               {friend.current_streak} days
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-gray-400">Longest Streak: </span>
-                            <span className="text-gray-300 font-semibold">
-                              {friend.longest_streak} days
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-gray-400">Rank: </span>
-                            <span className="font-semibold" style={getRankColorStyle(friend.trophies)}>
-                              {getTrophyRank(friend.trophies)}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-gray-400">Member since: </span>
-                            <span className="text-gray-300">
-                              {formatDateDisplay(friend.created_at)}
-                            </span>
+                            </div>
                           </div>
                         </div>
                       </Link>
-                      <div className="flex flex-col sm:flex-row gap-2">
+                      
+                      {/* Action Buttons - Show on hover */}
+                      <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-gray-900 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-b-lg flex gap-1">
                         <button
                           onClick={async (e) => {
                             e.preventDefault();
@@ -1217,12 +1216,10 @@ export default function DashboardPage() {
                               });
                               if (response.ok) {
                                 showToast(`Nudged @${friend.username}!`, 'success');
-                                // Refresh friends list to update nudge status
                                 fetchFriends();
                               } else {
                                 const data = await response.json();
                                 if (response.status === 429) {
-                                  // Already nudged today - refresh friends list
                                   fetchFriends();
                                 } else {
                                   showToast(data.error || 'Failed to nudge friend', 'error');
@@ -1233,13 +1230,14 @@ export default function DashboardPage() {
                             }
                           }}
                           disabled={friend.nudged_today}
-                          className={`self-start sm:self-auto px-3 sm:px-4 py-2 border rounded-md transition-colors text-xs sm:text-sm whitespace-nowrap ${
+                          className={`flex-1 px-2 py-1 border rounded text-xs transition-colors ${
                             friend.nudged_today
                               ? 'bg-gray-700/50 border-gray-600 text-gray-500 cursor-not-allowed'
                               : 'bg-primary-600/50 border-primary-700 text-primary-300 hover:bg-primary-600/70'
                           }`}
+                          title="Nudge friend"
                         >
-                          👋 Nudge{friend.nudged_today ? 'd' : ''}
+                          👋
                         </button>
                         <button
                           onClick={(e) => {
@@ -1247,9 +1245,10 @@ export default function DashboardPage() {
                             e.stopPropagation();
                             handleRemoveFriend(friend.id);
                           }}
-                          className="self-start sm:self-auto px-3 sm:px-4 py-2 bg-red-900/50 border border-red-700 text-red-300 rounded-md hover:bg-red-900/70 transition-colors text-xs sm:text-sm whitespace-nowrap"
+                          className="px-2 py-1 bg-red-900/50 border border-red-700 text-red-300 rounded hover:bg-red-900/70 transition-colors text-xs"
+                          title="Remove friend"
                         >
-                          Remove
+                          ✕
                         </button>
                       </div>
                     </div>
