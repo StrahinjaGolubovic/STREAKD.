@@ -1224,9 +1224,11 @@ export default function DashboardPage() {
                               <h4 className="text-sm sm:text-base font-semibold text-gray-100 truncate">
                                 @{friend.username}
                               </h4>
-                              <div className="flex items-center justify-center gap-1 mt-1">
-                                <span className="text-yellow-400 text-xs">🏆</span>
-                                <span className="text-xs text-gray-400">{friend.trophies.toLocaleString()}</span>
+                              
+                              {/* Trophy Count - Special Display */}
+                              <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-yellow-500/20 via-yellow-400/20 to-yellow-500/20 border border-yellow-500/40 rounded-full">
+                                <span className="text-lg">🏆</span>
+                                <span className="text-sm font-bold text-yellow-400">{friend.trophies.toLocaleString()}</span>
                               </div>
                             </div>
 
