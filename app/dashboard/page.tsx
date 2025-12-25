@@ -853,7 +853,7 @@ export default function DashboardPage() {
               <span>⭐</span>
               <span>Rank</span>
             </div>
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold" style={{ ...getRankColorStyle(data.trophies), fontFamily: 'var(--font-orbitron), sans-serif' }}>
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold rank-shine" style={{ ...getRankColorStyle(data.trophies), fontFamily: 'var(--font-orbitron), sans-serif' }}>
               {getTrophyRank(data.trophies)}
             </div>
           </div>
