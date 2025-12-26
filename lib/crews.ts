@@ -102,6 +102,9 @@ export function createCrew(userId: number, name: string): { success: boolean; cr
     // Add creator as member
     db.prepare('INSERT INTO crew_members (crew_id, user_id) VALUES (?, ?)').run(crewId, userId);
 
+    // Set crew_id on users table for badge display
+    db.prepare('UPDATE users SET crew_id = ? WHERE id = ?').run(crewId, userId);
+
     return { success: true, crewId, message: 'Crew created successfully' };
   } catch (error) {
     return { success: false, message: 'Failed to create crew' };
@@ -332,6 +335,9 @@ export function acceptJoinRequest(leaderId: number, requestId: number): { succes
     // Add user to crew
     db.prepare('INSERT INTO crew_members (crew_id, user_id) VALUES (?, ?)').run(request.crew_id, request.user_id);
 
+    // Set crew_id on users table for badge display
+    db.prepare('UPDATE users SET crew_id = ? WHERE id = ?').run(request.crew_id, request.user_id);
+
     // Update request status
     db.prepare('UPDATE crew_requests SET status = ? WHERE id = ?').run('approved', requestId);
 
@@ -475,6 +481,10 @@ export function leaveCrew(userId: number): { success: boolean; message: string }
 
   try {
     db.prepare('DELETE FROM crew_members WHERE id = ?').run(membership.id);
+    
+    // Clear crew_id on users table
+    db.prepare('UPDATE users SET crew_id = NULL WHERE id = ?').run(userId);
+    
     return { success: true, message: 'Left crew successfully' };
   } catch (error) {
     return { success: false, message: 'Failed to leave crew' };

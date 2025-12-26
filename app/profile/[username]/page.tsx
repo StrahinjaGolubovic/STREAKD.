@@ -15,6 +15,8 @@ interface ProfileData {
     username: string;
     trophies: number;
     profile_picture: string | null;
+    profile_private: boolean;
+    crew: { id: number; name: string } | null;
     created_at: string;
   };
   streak: {
@@ -49,6 +51,7 @@ export default function ProfilePage() {
   const [updating, setUpdating] = useState(false);
   const [profilePicBroken, setProfilePicBroken] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [privacyUpdating, setPrivacyUpdating] = useState(false);
 
   useEffect(() => {
     if (username) {
@@ -73,6 +76,35 @@ export default function ProfilePage() {
       setError('An error occurred');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleUpdatePrivacy(isPrivate: boolean) {
+    setPrivacyUpdating(true);
+    try {
+      const response = await fetch('/api/profile/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile_private: isPrivate }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if (profileData) {
+          setProfileData({
+            ...profileData,
+            user: { ...profileData.user, profile_private: isPrivate },
+          });
+        }
+        showToast(isPrivate ? 'Profile set to private' : 'Profile set to public', 'success');
+      } else {
+        showToast(data.error || 'Failed to update privacy setting', 'error');
+      }
+    } catch (err) {
+      showToast('An error occurred', 'error');
+    } finally {
+      setPrivacyUpdating(false);
     }
   }
 
@@ -253,16 +285,40 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <>
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-100">
-                      @{user.username}
-                    </h1>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-100">
+                        @{user.username}
+                      </h1>
+                      {user.crew && (
+                        <Link
+                          href="/crews"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary-600/20 border border-primary-500/50 rounded-md text-primary-300 text-sm font-medium hover:bg-primary-600/30 transition-colors"
+                        >
+                          <span>👥</span>
+                          <span>{user.crew.name}</span>
+                        </Link>
+                      )}
+                    </div>
                     {is_own_profile && (
-                      <button
-                        onClick={() => setEditingUsername(true)}
-                        className="px-3 py-1.5 text-sm bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600 transition-colors"
-                      >
-                        Edit
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setEditingUsername(true)}
+                          className="px-3 py-1.5 text-sm bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600 transition-colors"
+                        >
+                          Edit Username
+                        </button>
+                        <button
+                          onClick={() => handleUpdatePrivacy(!user.profile_private)}
+                          disabled={privacyUpdating}
+                          className="px-3 py-1.5 text-sm bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50"
+                        >
+                          {privacyUpdating 
+                            ? 'Updating...' 
+                            : user.profile_private 
+                              ? '🔒 Make Public' 
+                              : '🔓 Make Private'}
+                        </button>
+                      </div>
                     )}
                   </>
                 )}

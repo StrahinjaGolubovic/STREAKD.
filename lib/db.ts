@@ -371,6 +371,32 @@ function initDatabase(database: Database) {
     )
   `);
 
+  // Feedback table - user feedback submissions
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS feedback (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      feedback_text TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    )
+  `);
+
+  // Add profile privacy and crew_id to users table
+  try {
+    const usersInfo = database.prepare("PRAGMA table_info(users)").all() as Array<{ name: string }>;
+    const usersCols = usersInfo.map((c) => c.name);
+    if (!usersCols.includes('profile_private')) {
+      database.exec(`ALTER TABLE users ADD COLUMN profile_private BOOLEAN DEFAULT 0;`);
+    }
+    if (!usersCols.includes('crew_id')) {
+      database.exec(`ALTER TABLE users ADD COLUMN crew_id INTEGER;`);
+      database.exec(`CREATE INDEX IF NOT EXISTS idx_users_crew ON users(crew_id);`);
+    }
+  } catch (error) {
+    console.log('Users migration note:', error);
+  }
+
   // Create indexes for better performance
   database.exec(`
     CREATE INDEX IF NOT EXISTS idx_challenges_user ON weekly_challenges(user_id);

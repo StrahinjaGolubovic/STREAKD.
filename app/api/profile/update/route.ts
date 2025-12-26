@@ -16,7 +16,7 @@ export async function PUT(request: NextRequest) {
 
     const userId = decoded.userId;
     const body = await request.json();
-    const { username } = body;
+    const { username, profile_private } = body;
 
     // Validate username
     if (!username || typeof username !== 'string') {
@@ -53,17 +53,37 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Update username
+    // Update username and/or privacy setting
     try {
-      db.prepare(`
-        UPDATE users 
-        SET username = ? 
-        WHERE id = ?
-      `).run(trimmedUsername, userId);
+      if (profile_private !== undefined) {
+        // Update both username and privacy
+        if (trimmedUsername) {
+          db.prepare(`
+            UPDATE users 
+            SET username = ?, profile_private = ? 
+            WHERE id = ?
+          `).run(trimmedUsername, profile_private ? 1 : 0, userId);
+        } else {
+          // Only update privacy
+          db.prepare(`
+            UPDATE users 
+            SET profile_private = ? 
+            WHERE id = ?
+          `).run(profile_private ? 1 : 0, userId);
+        }
+      } else if (trimmedUsername) {
+        // Only update username
+        db.prepare(`
+          UPDATE users 
+          SET username = ? 
+          WHERE id = ?
+        `).run(trimmedUsername, userId);
+      }
 
       return NextResponse.json({
         success: true,
-        username: trimmedUsername,
+        username: trimmedUsername || undefined,
+        profile_private: profile_private !== undefined ? (profile_private ? 1 : 0) : undefined,
       });
     } catch (error: any) {
       if (error.message?.includes('UNIQUE constraint')) {

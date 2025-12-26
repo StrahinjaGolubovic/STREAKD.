@@ -10,26 +10,56 @@ export async function GET(
     const { username: usernameParam } = await params;
     const username = decodeURIComponent(usernameParam);
     
-    // Get user by username
+    // Get user by username with crew info
     const user = db.prepare(`
       SELECT 
-        id,
-        username,
-        COALESCE(trophies, 0) as trophies,
-        profile_picture,
-        created_at
-      FROM users 
-      WHERE username = ?
+        u.id,
+        u.username,
+        COALESCE(u.trophies, 0) as trophies,
+        u.profile_picture,
+        u.profile_private,
+        u.crew_id,
+        c.name as crew_name,
+        u.created_at
+      FROM users u
+      LEFT JOIN crews c ON u.crew_id = c.id
+      WHERE u.username = ?
     `).get(username) as {
       id: number;
       username: string;
       trophies: number;
       profile_picture: string | null;
+      profile_private: number | null;
+      crew_id: number | null;
+      crew_name: string | null;
       created_at: string;
     } | undefined;
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Check if current user is viewing their own profile
+    let isOwnProfile = false;
+    let currentUserId: number | null = null;
+    try {
+      const token = request.cookies.get('token')?.value;
+      if (token) {
+        const decoded = verifyToken(token);
+        if (decoded && decoded.userId === user.id) {
+          isOwnProfile = true;
+          currentUserId = decoded.userId;
+        } else if (decoded) {
+          currentUserId = decoded.userId;
+        }
+      }
+    } catch {
+      // Not logged in or invalid token
+    }
+
+    // Check privacy - if profile is private and user is not viewing their own profile, return 403
+    if (user.profile_private && !isOwnProfile) {
+      return NextResponse.json({ error: 'This profile is private' }, { status: 403 });
     }
 
     // Get streak data
@@ -80,19 +110,6 @@ export async function GET(
       created_at: string;
     }>;
 
-    // Check if current user is viewing their own profile
-    let isOwnProfile = false;
-    try {
-      const token = request.cookies.get('token')?.value;
-      if (token) {
-        const decoded = verifyToken(token);
-        if (decoded && decoded.userId === user.id) {
-          isOwnProfile = true;
-        }
-      }
-    } catch {
-      // Not logged in or invalid token
-    }
 
     return NextResponse.json({
       user: {
@@ -100,6 +117,8 @@ export async function GET(
         username: user.username,
         trophies: user.trophies,
         profile_picture: user.profile_picture,
+        profile_private: user.profile_private ? true : false,
+        crew: user.crew_name ? { id: user.crew_id, name: user.crew_name } : null,
         created_at: user.created_at,
       },
       streak: {

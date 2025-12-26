@@ -161,10 +161,50 @@ export function getUserTrophies(userId: number): number {
 /**
  * Award weekly challenge completion bonus.
  * Called when a user completes 5+ days in a week.
+ * Bonus increases by +10 per consecutive completed week, capped at +70 for 7th week and beyond.
  */
 export function awardWeeklyCompletionBonus(userId: number, challengeId: number): void {
-  const bonus = 100;
-  applyTrophyDelta(userId, null, bonus, `weekly_completion:challenge_${challengeId}`);
+  // Count all completed weeks up to and including this one (ordered by id to get chronological order)
+  const allCompleted = db
+    .prepare(`
+      SELECT id
+      FROM weekly_challenges
+      WHERE user_id = ? 
+        AND status = 'completed'
+        AND id <= ?
+      ORDER BY id ASC
+    `)
+    .all(userId, challengeId) as Array<{ id: number }>;
+
+  // Count consecutive completed weeks from the end (most recent)
+  // We need to ensure we're counting consecutive weeks, not just total
+  let consecutiveWeeks = 0;
+  if (allCompleted.length > 0) {
+    // Get all challenges for this user ordered by id DESC to check consecutiveness
+    const allChallenges = db
+      .prepare(`
+        SELECT id, status
+        FROM weekly_challenges
+        WHERE user_id = ?
+        ORDER BY id DESC
+      `)
+      .all(userId) as Array<{ id: number; status: string }>;
+    
+    // Count consecutive completed weeks from most recent backwards
+    for (const challenge of allChallenges) {
+      if (challenge.status === 'completed') {
+        consecutiveWeeks++;
+      } else {
+        break; // Stop at first non-completed week
+      }
+    }
+  }
+  
+  // Calculate bonus: +10 per week, capped at +70 for week 7 and beyond
+  // Week 1: +10, Week 2: +20, Week 3: +30, ..., Week 7+: +70
+  const bonus = Math.min(10 * consecutiveWeeks, 70);
+  
+  applyTrophyDelta(userId, null, bonus, `weekly_completion:challenge_${challengeId}:consecutive_${consecutiveWeeks}`);
 }
 
 /**
