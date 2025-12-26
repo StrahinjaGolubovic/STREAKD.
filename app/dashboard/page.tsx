@@ -13,6 +13,7 @@ import { Notifications } from '@/components/Notifications';
 import { formatDateSerbia, isTodaySerbia, isPastSerbia, formatDateDisplay, formatDateTimeDisplay } from '@/lib/timezone';
 import { compressImageToJpeg } from '@/lib/image-compress';
 import { getTrophyRank, getRankColorStyle, getRankGradient, getRankBorderStyle } from '@/lib/ranks';
+import { usePWAInstall } from '@/components/PWAInstall';
 
 interface DashboardData {
   challenge: {
@@ -100,6 +101,8 @@ export default function DashboardPage() {
     message: '',
     onConfirm: () => {},
   });
+  const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+  const { isInstallable, isIOS, isInstalled, install } = usePWAInstall();
 
   const fetchDashboard = useCallback(async () => {
     try {
@@ -838,6 +841,27 @@ export default function DashboardPage() {
                   </svg>
                   Crews
                 </Link>
+                {!isInstalled && (isInstallable || isIOS) && (
+                  <button
+                    onClick={async () => {
+                      setMobileMenuOpen(false);
+                      if (isIOS) {
+                        setShowIOSInstructions(true);
+                      } else if (isInstallable) {
+                        const installed = await install();
+                        if (installed) {
+                          showToast('App installed successfully!', 'success');
+                        }
+                      }
+                    }}
+                    className="text-primary-400 hover:text-primary-300 px-3 py-2 rounded-md hover:bg-gray-700 transition-colors text-base flex items-center gap-2 text-left"
+                  >
+                    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Install App
+                  </button>
+                )}
                 {data && (data.username === 'admin' || data.username === 'seuq' || data.username === 'jakow' || data.username === 'nikola') && (
                   <Link
                     href="/admin/dashboard"
@@ -1361,6 +1385,62 @@ export default function DashboardPage() {
         onCancel={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} })}
         variant={confirmModal.variant}
       />
+
+      {/* iOS Install Instructions Modal */}
+      {showIOSInstructions && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setShowIOSInstructions(false)}>
+          <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-100">Install STREAKD.</h3>
+              <button
+                onClick={() => setShowIOSInstructions(false)}
+                className="text-gray-400 hover:text-gray-100 transition-colors"
+                aria-label="Close"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-4 text-gray-300">
+              <div>
+                <h4 className="font-semibold text-gray-100 mb-2">For iPhone/iPad (Safari):</h4>
+                <ol className="list-decimal list-inside space-y-2 ml-2">
+                  <li>Tap the <span className="inline-flex items-center mx-1 px-2 py-0.5 bg-gray-700 rounded text-sm font-medium">
+                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                    </svg>
+                    Share
+                  </span> button at the bottom</li>
+                  <li>Scroll down and tap <span className="font-semibold text-primary-400">"Add to Home Screen"</span></li>
+                  <li>Tap <span className="font-semibold text-primary-400">"Add"</span> in the top right corner</li>
+                </ol>
+              </div>
+              <div className="pt-3 border-t border-gray-700">
+                <h4 className="font-semibold text-gray-100 mb-2">For Chrome on iOS:</h4>
+                <ol className="list-decimal list-inside space-y-2 ml-2">
+                  <li>Tap the <span className="inline-flex items-center mx-1 px-2 py-0.5 bg-gray-700 rounded text-sm font-medium">
+                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                    </svg>
+                    Menu
+                  </span> button (three dots)</li>
+                  <li>Tap <span className="font-semibold text-primary-400">"Add to Home Screen"</span></li>
+                  <li>Tap <span className="font-semibold text-primary-400">"Add"</span> to confirm</li>
+                </ol>
+              </div>
+            </div>
+            <div className="mt-6 pt-4 border-t border-gray-700">
+              <button
+                onClick={() => setShowIOSInstructions(false)}
+                className="w-full px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors font-medium"
+              >
+                Got it!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
