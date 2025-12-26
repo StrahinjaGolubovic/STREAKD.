@@ -590,6 +590,16 @@ export default function DashboardPage() {
             
             {/* Desktop Navigation */}
             <div className="hidden sm:flex items-center gap-2 sm:gap-3">
+              {/* Rest Days Counter - Desktop */}
+              {data && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-900/40 border border-blue-700/50 rounded-md">
+                  <span className="text-xl">💤</span>
+                  <span className="text-sm font-semibold text-blue-300">
+                    {restDaysAvailable}/3
+                  </span>
+                  <span className="text-xs text-blue-400">Rest Days</span>
+                </div>
+              )}
               {/* Buttons */}
               <Link
                 href="/crews"
