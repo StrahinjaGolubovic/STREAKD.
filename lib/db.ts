@@ -6,6 +6,7 @@ const dbPath = process.env.DATABASE_PATH || './data/gymble.db';
 
 let databaseInstance: Database | null = null;
 let initialized = false;
+let migrationsRun = false;
 
 // Ensure directories exist (lazy)
 function ensureDirectories() {
@@ -44,66 +45,53 @@ function getDb(): Database {
     }
   }
   
-  // Always check and run migrations for rest_days_available column
-  // This ensures migrations run even if database was created before the feature
-  // Run this check every time to ensure migrations complete
-  try {
-    const challengesInfo = databaseInstance.prepare("PRAGMA table_info(weekly_challenges)").all() as Array<{ name: string }>;
-    const challengesCols = challengesInfo.map((c) => c.name.toLowerCase());
-    if (!challengesCols.includes('rest_days_available')) {
-      try {
-        databaseInstance.exec(`ALTER TABLE weekly_challenges ADD COLUMN rest_days_available INTEGER DEFAULT 3;`);
-        databaseInstance.exec(`UPDATE weekly_challenges SET rest_days_available = 3 WHERE rest_days_available IS NULL;`);
-      } catch (alterError: any) {
-        // Column might already exist or there's another issue
-        console.log('Failed to add rest_days_available column:', alterError?.message);
-      }
-    }
-  } catch (error: any) {
-    console.log('Rest days migration check error:', error?.message);
-  }
-  
-  // Check if rest_days table exists
-  try {
-    const tableCheck = databaseInstance.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='rest_days'").get() as { name: string } | undefined;
-    if (!tableCheck) {
-      // Table doesn't exist, create it
-      databaseInstance.exec(`
-        CREATE TABLE IF NOT EXISTS rest_days (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          challenge_id INTEGER NOT NULL,
-          user_id INTEGER NOT NULL,
-          rest_date DATE NOT NULL,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (challenge_id) REFERENCES weekly_challenges(id) ON DELETE CASCADE,
-          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-          UNIQUE(challenge_id, rest_date)
-        )
-      `);
-      databaseInstance.exec(`
-        CREATE INDEX IF NOT EXISTS idx_rest_days_challenge ON rest_days(challenge_id);
-        CREATE INDEX IF NOT EXISTS idx_rest_days_user ON rest_days(user_id);
-        CREATE INDEX IF NOT EXISTS idx_rest_days_date ON rest_days(rest_date);
-      `);
-    }
-  } catch (error) {
-    console.log('Rest days table check error:', error);
-    // If error, try to create it anyway
+  // Run migrations only once to avoid blocking startup
+  if (!migrationsRun) {
+    migrationsRun = true;
     try {
-      databaseInstance.exec(`
-        CREATE TABLE IF NOT EXISTS rest_days (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          challenge_id INTEGER NOT NULL,
-          user_id INTEGER NOT NULL,
-          rest_date DATE NOT NULL,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (challenge_id) REFERENCES weekly_challenges(id) ON DELETE CASCADE,
-          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-          UNIQUE(challenge_id, rest_date)
-        )
-      `);
-    } catch (createError) {
-      console.log('Failed to create rest_days table:', createError);
+      // Check and add rest_days_available column if needed
+      const challengesInfo = databaseInstance.prepare("PRAGMA table_info(weekly_challenges)").all() as Array<{ name: string }>;
+      const challengesCols = challengesInfo.map((c) => c.name.toLowerCase());
+      if (!challengesCols.includes('rest_days_available')) {
+        try {
+          databaseInstance.exec(`ALTER TABLE weekly_challenges ADD COLUMN rest_days_available INTEGER DEFAULT 3;`);
+          databaseInstance.exec(`UPDATE weekly_challenges SET rest_days_available = 3 WHERE rest_days_available IS NULL;`);
+        } catch (alterError: any) {
+          // Column might already exist or there's another issue - continue
+          console.error('Migration: Failed to add rest_days_available column:', alterError?.message);
+        }
+      }
+
+      // Check if rest_days table exists
+      const tableCheck = databaseInstance.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='rest_days'").get() as { name: string } | undefined;
+      if (!tableCheck) {
+        // Table doesn't exist, create it
+        try {
+          databaseInstance.exec(`
+            CREATE TABLE IF NOT EXISTS rest_days (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              challenge_id INTEGER NOT NULL,
+              user_id INTEGER NOT NULL,
+              rest_date DATE NOT NULL,
+              created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+              FOREIGN KEY (challenge_id) REFERENCES weekly_challenges(id) ON DELETE CASCADE,
+              FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+              UNIQUE(challenge_id, rest_date)
+            )
+          `);
+          databaseInstance.exec(`
+            CREATE INDEX IF NOT EXISTS idx_rest_days_challenge ON rest_days(challenge_id);
+            CREATE INDEX IF NOT EXISTS idx_rest_days_user ON rest_days(user_id);
+            CREATE INDEX IF NOT EXISTS idx_rest_days_date ON rest_days(rest_date);
+          `);
+        } catch (createError: any) {
+          console.error('Migration: Failed to create rest_days table:', createError?.message);
+        }
+      }
+    } catch (error: any) {
+      // Don't block app startup if migrations fail - they'll be retried on next request
+      console.error('Migration: Error running migrations:', error?.message);
+      migrationsRun = false; // Allow retry on next call
     }
   }
   
