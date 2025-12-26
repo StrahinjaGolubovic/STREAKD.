@@ -11,18 +11,29 @@ export function ServiceWorkerRegistration() {
           .then((registration) => {
             console.log('Service Worker registered successfully:', registration.scope);
             
-            // Check for updates periodically
+            // Check for updates periodically (every 60 seconds)
+            setInterval(() => {
+              registration.update();
+            }, 60000);
+
+            // Check for updates immediately
             registration.addEventListener('updatefound', () => {
               const newWorker = registration.installing;
               if (newWorker) {
                 newWorker.addEventListener('statechange', () => {
                   if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                     // New service worker available, reload to update
-                    if (confirm('A new version is available. Reload to update?')) {
-                      window.location.reload();
-                    }
+                    console.log('New service worker available, reloading...');
+                    window.location.reload();
                   }
                 });
+              }
+            });
+
+            // Check for updates on page visibility change
+            document.addEventListener('visibilitychange', () => {
+              if (!document.hidden) {
+                registration.update();
               }
             });
           })

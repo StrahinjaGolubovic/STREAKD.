@@ -1,11 +1,9 @@
 // Service Worker for STREAKD PWA
-const CACHE_NAME = 'streakd-v1';
+const CACHE_NAME = 'streakd-v2'; // Bumped version to force cache clear
 const urlsToCache = [
   '/',
-  '/dashboard',
   '/login',
   '/register',
-  '/crews',
 ];
 
 // Install event - cache resources
@@ -29,6 +27,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
+            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -38,24 +37,57 @@ self.addEventListener('activate', (event) => {
   return self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - network-first strategy for HTML, cache-first for assets
 self.addEventListener('fetch', (event) => {
   // Only cache GET requests
   if (event.request.method !== 'GET') {
     return;
   }
 
-  // Don't cache API routes or service worker itself
-  if (event.request.url.includes('/api/') || 
-      event.request.url.includes('/sw.js') ||
-      event.request.url.includes('/_next/')) {
+  const url = new URL(event.request.url);
+
+  // Don't cache API routes, service worker, or Next.js internal files
+  if (url.pathname.includes('/api/') || 
+      url.pathname.includes('/sw.js') ||
+      url.pathname.startsWith('/_next/static/') ||
+      url.pathname.startsWith('/_next/webpack')) {
     return;
   }
 
+  // For HTML pages (navigation requests), use network-first strategy
+  if (event.request.mode === 'navigate' || 
+      (event.request.method === 'GET' && event.request.headers.get('accept')?.includes('text/html'))) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // If network succeeds, update cache and return response
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // If network fails, try cache
+          return caches.match(event.request)
+            .then((cachedResponse) => {
+              if (cachedResponse) {
+                return cachedResponse;
+              }
+              // Fallback to index if cache also fails
+              return caches.match('/');
+            });
+        })
+    );
+    return;
+  }
+
+  // For other assets (images, fonts, etc.), use cache-first strategy
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Return cached version or fetch from network
         if (response) {
           return response;
         }
@@ -81,10 +113,7 @@ self.addEventListener('fetch', (event) => {
         });
       })
       .catch(() => {
-        // If both cache and network fail, return a fallback
-        if (event.request.destination === 'document') {
-          return caches.match('/');
-        }
+        return fetch(event.request);
       })
   );
 });
