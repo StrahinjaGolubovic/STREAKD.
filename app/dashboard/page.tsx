@@ -257,6 +257,8 @@ export default function DashboardPage() {
 
       // Step 2: Extract metadata from the converted file (AFTER HEIC conversion)
       // This is more reliable for iPhones because we're extracting from JPEG, not HEIC
+      let metadataToSend: any = null;
+      
       try {
         const mod: any = await import('exifr');
         const exifr = mod?.default || mod;
@@ -272,11 +274,28 @@ export default function DashboardPage() {
             'Software',
           ],
         });
-        if (exifData) {
-          formData.append('metadata', JSON.stringify(exifData));
+        
+        if (exifData && Object.keys(exifData).length > 0) {
+          metadataToSend = exifData;
         }
       } catch (err) {
         console.error('EXIF extraction failed:', err);
+      }
+
+      // If no EXIF data found (camera-captured photo), inject timestamp metadata
+      if (!metadataToSend) {
+        const now = new Date();
+        metadataToSend = {
+          DateTimeOriginal: now.toISOString(),
+          CreateDate: now.toISOString(),
+          ModifyDate: now.toISOString(),
+          Software: 'STREAKD',
+          source: 'browser_upload',
+        };
+      }
+
+      if (metadataToSend) {
+        formData.append('metadata', JSON.stringify(metadataToSend));
       }
 
       // Step 3: Compress the image
@@ -576,7 +595,7 @@ export default function DashboardPage() {
                 <input
                   ref={profileFileInputRef}
                   type="file"
-                  accept="image/jpeg,image/jpg,image/png,image/heic,image/heif"
+                  accept="image/*"
                   onChange={handleProfilePictureUpload}
                   disabled={profilePictureUploading}
                   className="hidden"
@@ -679,7 +698,7 @@ export default function DashboardPage() {
                 <input
                   ref={profileFileInputRef}
                   type="file"
-                  accept="image/jpeg,image/jpg,image/png,image/heic,image/heif"
+                  accept="image/*"
                   onChange={handleProfilePictureUpload}
                   disabled={profilePictureUploading}
                   className="hidden"
@@ -911,13 +930,13 @@ export default function DashboardPage() {
               <label className="flex-1">
                 <input
                   type="file"
-                  accept="image/jpeg,image/jpg,image/png,image/heic,image/heif"
+                  accept="image/*"
                   onChange={handleFileUpload}
                   disabled={uploading}
                   className="hidden"
                 />
                 <div className="cursor-pointer bg-primary-600 text-white px-5 sm:px-6 py-3 sm:py-3.5 rounded-md hover:bg-primary-700 active:bg-primary-800 text-center text-base sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation min-h-[44px] flex items-center justify-center">
-                  {uploading ? 'Uploading...' : 'Choose from Gallery'}
+                  {uploading ? 'Uploading...' : 'Choose Photo'}
                 </div>
               </label>
               {error && <div className="text-red-400 text-sm sm:text-base">{error}</div>}
