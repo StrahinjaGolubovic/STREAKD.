@@ -977,17 +977,8 @@ export default function DashboardPage() {
 
           {/* Upload Section */}
           <div className="border-t border-gray-700 pt-4 sm:pt-5 md:pt-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2">
+            <div className="mb-3 sm:mb-4">
               <h3 className="text-base sm:text-lg font-semibold text-gray-100">Upload Today's Photo</h3>
-              {data && (
-                <div className="text-sm">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-900/40 border border-blue-700/50 rounded-md">
-                    <span>💤</span>
-                    <span className="font-semibold text-blue-300">{restDaysAvailable}/3</span>
-                    <span className="text-blue-400">Rest Days</span>
-                  </span>
-                </div>
-              )}
             </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
               <label className="flex-1">
@@ -1041,10 +1032,9 @@ export default function DashboardPage() {
                     );
                   }}
                   disabled={uploading}
-                  className="px-5 sm:px-6 py-3 sm:py-3.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-base sm:text-base font-medium touch-manipulation min-h-[44px] flex items-center justify-center gap-2 whitespace-nowrap"
+                  className="px-5 sm:px-6 py-3 sm:py-3.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-base sm:text-base font-medium touch-manipulation min-h-[44px] flex items-center justify-center whitespace-nowrap"
                 >
-                  <span>💤</span>
-                  <span>Use Rest Day</span>
+                  Use Rest Day
                 </button>
               )}
               {error && <div className="text-red-400 text-sm sm:text-base">{error}</div>}
