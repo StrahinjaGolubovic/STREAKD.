@@ -257,8 +257,6 @@ export default function DashboardPage() {
 
       // Step 2: Extract metadata from the converted file (AFTER HEIC conversion)
       // This is more reliable for iPhones because we're extracting from JPEG, not HEIC
-      let metadataToSend: any = null;
-      
       try {
         const mod: any = await import('exifr');
         const exifr = mod?.default || mod;
@@ -274,53 +272,11 @@ export default function DashboardPage() {
             'Software',
           ],
         });
-        
-        if (exifData && Object.keys(exifData).length > 0) {
-          metadataToSend = exifData;
+        if (exifData) {
+          formData.append('metadata', JSON.stringify(exifData));
         }
       } catch (err) {
         console.error('EXIF extraction failed:', err);
-      }
-
-      // If no EXIF data (camera-captured photo), inject synthetic metadata
-      if (!metadataToSend) {
-        const now = new Date();
-        const syntheticMetadata: any = {
-          DateTimeOriginal: now.toISOString(),
-          CreateDate: now.toISOString(),
-          ModifyDate: now.toISOString(),
-          Software: 'Gymble Web App',
-          source: 'camera_capture',
-        };
-
-        // Try to get GPS location
-        try {
-          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-            if (!navigator.geolocation) {
-              reject(new Error('Geolocation not supported'));
-              return;
-            }
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-              timeout: 5000,
-              maximumAge: 0,
-              enableHighAccuracy: true,
-            });
-          });
-
-          syntheticMetadata.GPSLatitude = position.coords.latitude;
-          syntheticMetadata.GPSLongitude = position.coords.longitude;
-          syntheticMetadata.GPSAltitude = position.coords.altitude;
-          syntheticMetadata.GPSAccuracy = position.coords.accuracy;
-        } catch (gpsErr) {
-          console.log('GPS location not available:', gpsErr);
-          // GPS is optional, continue without it
-        }
-
-        metadataToSend = syntheticMetadata;
-      }
-
-      if (metadataToSend) {
-        formData.append('metadata', JSON.stringify(metadataToSend));
       }
 
       // Step 3: Compress the image
@@ -956,13 +912,12 @@ export default function DashboardPage() {
                 <input
                   type="file"
                   accept="image/*"
-                  capture="environment"
                   onChange={handleFileUpload}
                   disabled={uploading}
                   className="hidden"
                 />
                 <div className="cursor-pointer bg-primary-600 text-white px-5 sm:px-6 py-3 sm:py-3.5 rounded-md hover:bg-primary-700 active:bg-primary-800 text-center text-base sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation min-h-[44px] flex items-center justify-center">
-                  {uploading ? 'Uploading...' : 'Take/Choose Photo'}
+                  {uploading ? 'Uploading...' : 'Choose Photo'}
                 </div>
               </label>
               {error && <div className="text-red-400 text-sm sm:text-base">{error}</div>}
