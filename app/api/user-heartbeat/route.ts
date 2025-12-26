@@ -34,9 +34,14 @@ export async function POST(request: NextRequest) {
     getUserStreak(userId);
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Heartbeat error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error stack:', error?.stack);
+    console.error('Error message:', error?.message);
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? error?.message : undefined
+    }, { status: 500 });
   }
 }
 

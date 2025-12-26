@@ -32,9 +32,14 @@ export async function GET(request: NextRequest) {
       profilePicture: user?.profile_picture || null,
       trophies: user?.trophies ?? 0,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Dashboard error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error stack:', error?.stack);
+    console.error('Error message:', error?.message);
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? error?.message : undefined
+    }, { status: 500 });
   }
 }
 

@@ -235,9 +235,13 @@ export function getOrCreateActiveChallenge(userId: number): WeeklyChallenge {
 
   if (!challenge) {
     // Check if there's a previous active challenge that needs to be closed
-    const previousChallenge = db
+    const previousChallengeRow = db
       .prepare('SELECT * FROM weekly_challenges WHERE user_id = ? AND status = ? ORDER BY start_date DESC LIMIT 1')
-      .get(userId, 'active') as WeeklyChallenge | undefined;
+      .get(userId, 'active') as any;
+    
+    const previousChallenge = previousChallengeRow 
+      ? { ...previousChallengeRow, rest_days_available: previousChallengeRow.rest_days_available ?? 3 } as WeeklyChallenge
+      : undefined;
 
     if (previousChallenge) {
       // Evaluate previous challenge (count uploads + rest days)
@@ -278,15 +282,29 @@ export function getOrCreateActiveChallenge(userId: number): WeeklyChallenge {
     }
 
     // Create new challenge (reset rest days to 3 for new week)
-    const result = db
-      .prepare(
-        'INSERT INTO weekly_challenges (user_id, start_date, end_date, status, rest_days_available) VALUES (?, ?, ?, ?, ?)'
-      )
-      .run(userId, weekStart, weekEnd, 'active', 3);
+    // Check if rest_days_available column exists
+    let result;
+    try {
+      result = db
+        .prepare(
+          'INSERT INTO weekly_challenges (user_id, start_date, end_date, status, rest_days_available) VALUES (?, ?, ?, ?, ?)'
+        )
+        .run(userId, weekStart, weekEnd, 'active', 3);
+    } catch (error) {
+      // Column doesn't exist, insert without it
+      result = db
+        .prepare(
+          'INSERT INTO weekly_challenges (user_id, start_date, end_date, status) VALUES (?, ?, ?, ?)'
+        )
+        .run(userId, weekStart, weekEnd, 'active');
+    }
 
-    challenge = db
+    const challengeRow = db
       .prepare('SELECT * FROM weekly_challenges WHERE id = ?')
-      .get(result.lastInsertRowid) as WeeklyChallenge;
+      .get(result.lastInsertRowid) as any;
+    
+    // Ensure rest_days_available exists in the result
+    challenge = { ...challengeRow, rest_days_available: challengeRow.rest_days_available ?? 3 } as WeeklyChallenge;
   }
 
   return challenge;
@@ -298,9 +316,12 @@ export function getChallengeProgress(challengeId: number): {
   completedDays: number;
   days: Array<{ date: string; uploaded: boolean; photo_path?: string; verification_status?: string; is_rest_day?: boolean }>;
 } {
-  const challenge = db
+  const challengeRow = db
     .prepare('SELECT * FROM weekly_challenges WHERE id = ?')
-    .get(challengeId) as WeeklyChallenge;
+    .get(challengeId) as any;
+  
+  // Ensure rest_days_available exists
+  const challenge = { ...challengeRow, rest_days_available: challengeRow.rest_days_available ?? 3 } as WeeklyChallenge;
 
   const days: Array<{ date: string; uploaded: boolean; photo_path?: string; verification_status?: string; is_rest_day?: boolean }> = [];
 
