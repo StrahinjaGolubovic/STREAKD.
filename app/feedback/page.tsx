@@ -2,7 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ToastContainer, Toast, showToast } from '@/components/Toast';
+import { ToastContainer, Toast } from '@/components/Toast';
+
+function showToast(message: string, type: 'success' | 'error' | 'info', setToasts: React.Dispatch<React.SetStateAction<Toast[]>>) {
+  const id = Date.now().toString();
+  setToasts((prev) => [...prev, { id, message, type }]);
+  setTimeout(() => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, 5000);
+}
 
 export default function FeedbackPage() {
   const router = useRouter();
@@ -92,7 +100,7 @@ export default function FeedbackPage() {
           </form>
         </div>
       </main>
-      <ToastContainer toasts={toasts} setToasts={setToasts} />
+      <ToastContainer toasts={toasts} onRemove={(id) => setToasts((prev) => prev.filter((t) => t.id !== id))} />
     </div>
   );
 }
