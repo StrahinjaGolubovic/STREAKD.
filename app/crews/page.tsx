@@ -757,7 +757,9 @@ export default function CrewsPage() {
               {crewDetails.crew.is_leader && crewDetails.requests.length > 0 && (
                 <div className="mb-4 sm:mb-6">
                   <h4 className="text-base sm:text-lg font-semibold text-gray-100 mb-3 flex items-center gap-2">
-                    <span>📬</span>
+                    <svg className="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
                     <span>Pending Requests ({crewDetails.requests.length})</span>
                   </h4>
                   <div className="space-y-2 sm:space-y-3">
@@ -767,14 +769,17 @@ export default function CrewsPage() {
                           <div className="font-semibold text-gray-100 mb-1">@{request.username}</div>
                           <div className="text-xs sm:text-sm text-gray-400 flex items-center gap-3">
                             <span className="flex items-center gap-1">
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                              <svg className="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2L8 7h2v10h4V7h2L12 2zm0 18l-4-4h8l-4 4z" />
+                                <path d="M8 17v2h8v-2H8z" />
                               </svg>
                               {request.trophies} trophies
                             </span>
                             <span className="flex items-center gap-1">
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                              <svg className="w-3 h-3 text-orange-500" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17.657 18.657L16.243 17.243C17.807 15.807 18.75 13.75 18.75 11.5C18.75 7.5 15.5 4.25 11.5 4.25C7.5 4.25 4.25 7.5 4.25 11.5C4.25 15.5 7.5 18.75 11.5 18.75C13.75 18.75 15.807 17.807 17.243 16.243L18.657 17.657C16.971 19.343 14.321 20.25 11.5 20.25C6.394 20.25 2.25 16.106 2.25 11C2.25 5.894 6.394 1.75 11.5 1.75C16.606 1.75 20.75 5.894 20.75 11C20.75 13.821 19.843 16.471 18.157 18.157L17.657 18.657Z" />
+                                <path d="M15 11.5C15 13.433 13.433 15 11.5 15C9.567 15 8 13.433 8 11.5C8 9.567 9.567 8 11.5 8C13.433 8 15 9.567 15 11.5Z" />
+                                <path d="M19.5 19.5L18.793 18.793C19.183 18.403 19.5 17.977 19.5 17.5C19.5 16.672 18.828 16 18 16C17.172 16 16.5 16.672 16.5 17.5C16.5 17.977 16.817 18.403 17.207 18.793L16.5 19.5L19.5 19.5Z" />
                               </svg>
                               {request.current_streak} day streak
                             </span>
@@ -832,21 +837,28 @@ export default function CrewsPage() {
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-semibold text-gray-100 truncate">@{member.username}</span>
                           {member.is_leader && (
-                            <span className="px-2 py-0.5 bg-yellow-600/20 border border-yellow-600/50 text-yellow-400 text-xs font-semibold rounded-full flex-shrink-0">
-                              👑 Leader
+                            <span className="px-2 py-0.5 bg-yellow-600/20 border border-yellow-600/50 text-yellow-400 text-xs font-semibold rounded-full flex-shrink-0 flex items-center gap-1">
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2L8 7h2v10h4V7h2L12 2zm0 18l-4-4h8l-4 4z" />
+                                <path d="M8 17v2h8v-2H8z" />
+                              </svg>
+                              Leader
                             </span>
                           )}
                         </div>
                         <div className="text-xs sm:text-sm text-gray-400 flex items-center gap-3 flex-wrap">
                           <span className="flex items-center gap-1">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                            <svg className="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M12 2L8 7h2v10h4V7h2L12 2zm0 18l-4-4h8l-4 4z" />
+                              <path d="M8 17v2h8v-2H8z" />
                             </svg>
                             <span>{member.trophies.toLocaleString()}</span>
                           </span>
                           <span className="flex items-center gap-1">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            <svg className="w-3 h-3 text-orange-500" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M17.657 18.657L16.243 17.243C17.807 15.807 18.75 13.75 18.75 11.5C18.75 7.5 15.5 4.25 11.5 4.25C7.5 4.25 4.25 7.5 4.25 11.5C4.25 15.5 7.5 18.75 11.5 18.75C13.75 18.75 15.807 17.807 17.243 16.243L18.657 17.657C16.971 19.343 14.321 20.25 11.5 20.25C6.394 20.25 2.25 16.106 2.25 11C2.25 5.894 6.394 1.75 11.5 1.75C16.606 1.75 20.75 5.894 20.75 11C20.75 13.821 19.843 16.471 18.157 18.157L17.657 18.657Z" />
+                              <path d="M15 11.5C15 13.433 13.433 15 11.5 15C9.567 15 8 13.433 8 11.5C8 9.567 9.567 8 11.5 8C13.433 8 15 9.567 15 11.5Z" />
+                              <path d="M19.5 19.5L18.793 18.793C19.183 18.403 19.5 17.977 19.5 17.5C19.5 16.672 18.828 16 18 16C17.172 16 16.5 16.672 16.5 17.5C16.5 17.977 16.817 18.403 17.207 18.793L16.5 19.5L19.5 19.5Z" />
                             </svg>
                             <span>{member.current_streak} day streak</span>
                           </span>
