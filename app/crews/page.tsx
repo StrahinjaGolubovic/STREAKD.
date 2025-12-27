@@ -772,9 +772,9 @@ export default function CrewsPage() {
                               <Image
                                 src="/streakd_dumbbells.png"
                                 alt="Dumbbells"
-                                width={16}
+                                width={28}
                                 height={16}
-                                className="w-4 h-4"
+                                className="h-4 w-auto"
                                 unoptimized
                               />
                               {request.trophies} dumbbells
@@ -841,9 +841,9 @@ export default function CrewsPage() {
                               <Image
                                 src="/streakd_dumbbells.png"
                                 alt="Dumbbells"
-                                width={16}
+                                width={28}
                                 height={16}
-                                className="w-4 h-4"
+                                className="h-4 w-auto"
                                 unoptimized
                               />
                               Leader

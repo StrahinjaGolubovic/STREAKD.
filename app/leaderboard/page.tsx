@@ -158,9 +158,9 @@ export default function LeaderboardPage() {
                     <Image
                       src="/streakd_dumbbells.png"
                       alt="Dumbbells"
-                      width={24}
+                      width={43}
                       height={24}
-                      className="w-6 h-6"
+                      className="h-6 w-auto"
                       unoptimized
                     />
                     <span className="font-bold text-yellow-400 text-base">{user.trophies.toLocaleString()}</span>
@@ -286,9 +286,9 @@ export default function LeaderboardPage() {
                         <Image
                           src="/streakd_dumbbells.png"
                           alt="Dumbbells"
-                          width={24}
+                          width={43}
                           height={24}
-                          className="w-6 h-6"
+                          className="h-6 w-auto"
                           unoptimized
                         />
                         <span className="font-bold text-yellow-400">{user.trophies.toLocaleString()}</span>

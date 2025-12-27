@@ -959,9 +959,9 @@ export default function DashboardPage() {
               <Image
                 src="/streakd_dumbbells.png"
                 alt="Dumbbells"
-                width={20}
+                width={35}
                 height={20}
-                className="w-5 h-5"
+                className="h-5 w-auto"
                 unoptimized
               />
               <span>Dumbbells</span>
@@ -1443,24 +1443,27 @@ export default function DashboardPage() {
                                 @{friend.username}
                               </h4>
                               
-                              {/* Trophy Count - Special Display */}
-                              <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-yellow-500/20 via-yellow-400/20 to-yellow-500/20 border border-yellow-500/40 rounded-full">
-                                <Image
-                                  src="/streakd_dumbbells.png"
-                                  alt="Dumbbells"
-                                  width={20}
-                                  height={20}
-                                  className="w-5 h-5"
-                                  unoptimized
-                                />
-                                <span className="text-sm font-bold text-yellow-400">{friend.trophies.toLocaleString()}</span>
-                              </div>
-                            </div>
+                              {/* Dumbbells and Streak - Side by Side */}
+                              <div className="mt-2 flex items-center justify-center gap-1.5 flex-wrap">
+                                {/* Trophy Count - Special Display */}
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-yellow-500/20 via-yellow-400/20 to-yellow-500/20 border border-yellow-500/40 rounded-full">
+                                  <Image
+                                    src="/streakd_dumbbells.png"
+                                    alt="Dumbbells"
+                                    width={28}
+                                    height={16}
+                                    className="h-4 w-auto"
+                                    unoptimized
+                                  />
+                                  <span className="text-sm font-bold text-yellow-400">{friend.trophies.toLocaleString()}</span>
+                                </div>
 
-                            {/* Streak */}
-                            <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-orange-500/20 via-orange-400/20 to-orange-500/20 border border-orange-500/40 rounded-full">
-                              <span className="text-lg">🔥</span>
-                              <span className="text-sm font-bold text-orange-400">{friend.current_streak} days</span>
+                                {/* Streak */}
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-orange-500/20 via-orange-400/20 to-orange-500/20 border border-orange-500/40 rounded-full">
+                                  <span className="text-lg">🔥</span>
+                                  <span className="text-sm font-bold text-orange-400">{friend.current_streak} days</span>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </Link>

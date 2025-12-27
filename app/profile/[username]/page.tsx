@@ -388,9 +388,9 @@ export default function ProfilePage() {
                     <Image
                       src="/streakd_dumbbells.png"
                       alt="Dumbbells"
-                      width={20}
+                      width={35}
                       height={20}
-                      className="w-5 h-5"
+                      className="h-5 w-auto"
                       unoptimized
                     />
                     Dumbbells
