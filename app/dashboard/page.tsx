@@ -959,9 +959,9 @@ export default function DashboardPage() {
               <Image
                 src="/streakd_dumbbells.png"
                 alt="Dumbbells"
-                width={16}
-                height={16}
-                className="w-4 h-4"
+                width={20}
+                height={20}
+                className="w-5 h-5"
                 unoptimized
               />
               <span>Dumbbells</span>
@@ -1448,9 +1448,9 @@ export default function DashboardPage() {
                                 <Image
                                   src="/streakd_dumbbells.png"
                                   alt="Dumbbells"
-                                  width={16}
-                                  height={16}
-                                  className="w-4 h-4"
+                                  width={20}
+                                  height={20}
+                                  className="w-5 h-5"
                                   unoptimized
                                 />
                                 <span className="text-sm font-bold text-yellow-400">{friend.trophies.toLocaleString()}</span>
@@ -1458,14 +1458,9 @@ export default function DashboardPage() {
                             </div>
 
                             {/* Streak */}
-                            <div className="text-center">
-                              <div className="text-xs text-gray-500 flex items-center justify-center gap-1">
-                                <span>🔥</span>
-                                <span>Streak</span>
-                              </div>
-                              <div className="text-sm font-semibold text-orange-400">
-                                {friend.current_streak} days
-                              </div>
+                            <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-orange-500/20 via-orange-400/20 to-orange-500/20 border border-orange-500/40 rounded-full">
+                              <span className="text-lg">🔥</span>
+                              <span className="text-sm font-bold text-orange-400">{friend.current_streak} days</span>
                             </div>
                           </div>
                         </Link>
