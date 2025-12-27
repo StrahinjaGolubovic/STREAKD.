@@ -11,6 +11,7 @@ export async function GET(
     const username = decodeURIComponent(usernameParam);
     
     // Get user by username with crew info
+    // Also check crew_members table in case crew_id is NULL (for old crews)
     const user = db.prepare(`
       SELECT 
         u.id,
@@ -18,13 +19,14 @@ export async function GET(
         COALESCE(u.trophies, 0) as trophies,
         u.profile_picture,
         u.profile_private,
-        u.crew_id,
+        COALESCE(u.crew_id, cm.crew_id) as crew_id,
         c.name as crew_name,
         c.tag as crew_tag,
         COALESCE(c.tag_color, '#0ea5e9') as crew_tag_color,
         u.created_at
       FROM users u
-      LEFT JOIN crews c ON u.crew_id = c.id
+      LEFT JOIN crew_members cm ON u.id = cm.user_id
+      LEFT JOIN crews c ON COALESCE(u.crew_id, cm.crew_id) = c.id
       WHERE u.username = ?
     `).get(username) as {
       id: number;
@@ -61,9 +63,12 @@ export async function GET(
       // Not logged in or invalid token
     }
 
-    // Check privacy - if profile is private and user is not viewing their own profile, return 403
+    // Check privacy - if profile is private and user is not viewing their own profile, return 403 with user-friendly message
     if (user.profile_private && !isOwnProfile) {
-      return NextResponse.json({ error: 'This profile is private' }, { status: 403 });
+      return NextResponse.json({ 
+        error: 'This user has privated their account',
+        isPrivate: true 
+      }, { status: 403 });
     }
 
     // Get streak data

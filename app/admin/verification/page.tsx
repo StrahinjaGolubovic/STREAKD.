@@ -204,6 +204,12 @@ export default function AdminVerification() {
               Chat Moderation
             </Link>
             <Link
+              href="/admin/feedback"
+              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+            >
+              Feedback
+            </Link>
+            <Link
               href="/admin/system"
               className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
             >

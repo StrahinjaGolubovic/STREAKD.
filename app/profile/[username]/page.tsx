@@ -69,6 +69,9 @@ export default function ProfilePage() {
         setNewUsername(data.user.username);
       } else if (response.status === 404) {
         setError('User not found');
+      } else if (response.status === 403) {
+        const data = await response.json().catch(() => ({}));
+        setError(data.error || 'This user has privated their account');
       } else {
         setError('Failed to load profile');
       }

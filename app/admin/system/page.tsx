@@ -149,6 +149,12 @@ export default function AdminSystem() {
               Chat Moderation
             </Link>
             <Link
+              href="/admin/feedback"
+              className="px-4 py-2 bg-gray-700 text-gray-200 rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
+            >
+              Feedback
+            </Link>
+            <Link
               href="/admin/system"
               className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm sm:text-base"
             >

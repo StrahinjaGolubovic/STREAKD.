@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
 
     // Get top users by trophies, excluding private profiles
     // Join with crews to get crew name for badge display
+    // Also check crew_members table in case crew_id is NULL (for old crews)
     const leaderboard = db
       .prepare(`
         SELECT 
@@ -16,14 +17,15 @@ export async function GET(request: NextRequest) {
           u.trophies,
           u.profile_picture,
           u.profile_private,
-          u.crew_id,
+          COALESCE(u.crew_id, cm.crew_id) as crew_id,
           c.name as crew_name,
           c.tag as crew_tag,
           COALESCE(c.tag_color, '#0ea5e9') as crew_tag_color,
           s.current_streak,
           s.longest_streak
         FROM users u
-        LEFT JOIN crews c ON u.crew_id = c.id
+        LEFT JOIN crew_members cm ON u.id = cm.user_id
+        LEFT JOIN crews c ON COALESCE(u.crew_id, cm.crew_id) = c.id
         LEFT JOIN streaks s ON u.id = s.user_id
         WHERE u.profile_private = 0 OR u.profile_private IS NULL
         ORDER BY u.trophies DESC, u.id ASC
