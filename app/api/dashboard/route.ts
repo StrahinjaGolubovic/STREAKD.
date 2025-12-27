@@ -22,8 +22,28 @@ export async function GET(request: NextRequest) {
     const userId = decoded.userId;
     const dashboard = getUserDashboard(userId);
     
-    // Get user username and profile picture for admin check and display
-    const user = db.prepare('SELECT username, profile_picture, COALESCE(trophies, 0) as trophies FROM users WHERE id = ?').get(userId) as { username: string; profile_picture: string | null; trophies: number } | undefined;
+    // Get user username, profile picture, and crew info
+    const user = db.prepare(`
+      SELECT 
+        u.username, 
+        u.profile_picture, 
+        COALESCE(u.trophies, 0) as trophies,
+        u.crew_id,
+        c.name as crew_name,
+        c.tag as crew_tag,
+        COALESCE(c.tag_color, '#0ea5e9') as crew_tag_color
+      FROM users u
+      LEFT JOIN crews c ON u.crew_id = c.id
+      WHERE u.id = ?
+    `).get(userId) as { 
+      username: string; 
+      profile_picture: string | null; 
+      trophies: number;
+      crew_id: number | null;
+      crew_name: string | null;
+      crew_tag: string | null;
+      crew_tag_color: string;
+    } | undefined;
     
     // Ensure rest_days_available is always present (default to 3 if missing)
     const restDaysAvailable = dashboard.challenge.rest_days_available ?? 3;
@@ -39,6 +59,10 @@ export async function GET(request: NextRequest) {
       username: user?.username,
       profilePicture: user?.profile_picture || null,
       trophies: user?.trophies ?? 0,
+      crew_id: user?.crew_id || null,
+      crew_name: user?.crew_name || null,
+      crew_tag: user?.crew_tag || null,
+      crew_tag_color: user?.crew_tag_color || '#0ea5e9',
     });
   } catch (error: any) {
     console.error('Dashboard error:', error);

@@ -326,6 +326,8 @@ export default function CrewsPage() {
         showToast(data.message || 'Tag updated successfully', 'success');
         setShowTagSettings(false);
         await fetchCrewDetails(crewDetails!.crew.id);
+        // Refresh myCrew to update the tag in the main display
+        await fetchMyCrew();
       } else {
         showToast(data.error || 'Failed to update tag', 'error');
       }

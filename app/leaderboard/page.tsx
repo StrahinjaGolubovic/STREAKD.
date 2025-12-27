@@ -63,6 +63,29 @@ export default function LeaderboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-900">
+      <header className="bg-gray-800 border-b border-gray-700 shadow-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/dashboard" className="flex items-center">
+              <Image
+                src="/streakd_logo.png"
+                alt="STREAKD."
+                width={180}
+                height={52}
+                priority
+                unoptimized
+                className="h-10 sm:h-12 w-auto object-contain"
+              />
+            </Link>
+            <Link
+              href="/dashboard"
+              className="px-4 py-2 bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600 transition-colors font-medium text-sm sm:text-base"
+            >
+              Back to Dashboard
+            </Link>
+          </div>
+        </div>
+      </header>
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6 sm:p-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-6">Leaderboard</h1>
