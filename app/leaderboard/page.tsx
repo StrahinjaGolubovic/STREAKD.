@@ -133,13 +133,13 @@ export default function LeaderboardPage() {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-100 truncate">@{user.username}</div>
-                    {user.crew && user.crew.tag && (
-                      <div className="mt-1.5 flex justify-center sm:justify-start">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-semibold text-gray-100 truncate">@{user.username}</div>
+                      {user.crew && user.crew.tag && (
                         <Link
                           href="/crews"
                           onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center justify-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold border"
+                          className="inline-flex items-center justify-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold border flex-shrink-0"
                           style={{
                             backgroundColor: `${user.crew.tag_color}20`,
                             borderColor: user.crew.tag_color,
@@ -148,50 +148,36 @@ export default function LeaderboardPage() {
                         >
                           {user.crew.tag}
                         </Link>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
                 
                 <div className="flex items-center justify-between gap-4 pt-3 border-t border-gray-600">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-1.5">
-                    {user.crew && user.crew.tag && (
-                      <Link
-                        href="/crews"
-                        onClick={(e) => e.stopPropagation()}
-                        className="inline-flex items-center justify-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold border sm:hidden"
-                        style={{
-                          backgroundColor: `${user.crew.tag_color}20`,
-                          borderColor: user.crew.tag_color,
-                          color: user.crew.tag_color,
-                        }}
-                      >
-                        {user.crew.tag}
-                      </Link>
-                    )}
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs text-gray-400 sm:hidden">Dumbbells:</span>
-                      <Image
-                        src="/streakd_dumbbells.png"
-                        alt="Dumbbells"
-                        width={43}
-                        height={24}
-                        className="h-6 w-auto"
-                        unoptimized
-                      />
-                      <span className="font-bold text-yellow-400 text-base">{user.trophies.toLocaleString()}</span>
-                    </div>
+                  {/* Dumbbells - Far Left */}
+                  <div className="flex items-center gap-1.5">
+                    <Image
+                      src="/streakd_dumbbells.png"
+                      alt="Dumbbells"
+                      width={43}
+                      height={24}
+                      className="h-6 w-auto"
+                      unoptimized
+                    />
+                    <span className="font-bold text-yellow-400 text-base">{user.trophies.toLocaleString()}</span>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1">
-                      <span className="text-orange-500">🔥</span>
-                      <span className="text-sm font-semibold text-orange-400">{user.current_streak}</span>
-                    </div>
-                    <div className="bg-gray-900 px-3 py-1.5 rounded-full border-2 shadow-lg" style={getRankBorderStyle(user.trophies)}>
-                      <span className="text-xs font-bold rank-shine" style={{ ...getRankColorStyle(user.trophies), fontFamily: 'var(--font-orbitron), sans-serif' }}>
-                        {getTrophyRank(user.trophies)}
-                      </span>
-                    </div>
+                  
+                  {/* Streak - Middle */}
+                  <div className="flex items-center gap-1">
+                    <span className="text-orange-500">🔥</span>
+                    <span className="text-sm font-semibold text-orange-400">{user.current_streak}</span>
+                  </div>
+                  
+                  {/* Rank - Far Right */}
+                  <div className="bg-gray-900 px-3 py-1.5 rounded-full border-2 shadow-lg" style={getRankBorderStyle(user.trophies)}>
+                    <span className="text-xs font-bold rank-shine" style={{ ...getRankColorStyle(user.trophies), fontFamily: 'var(--font-orbitron), sans-serif' }}>
+                      {getTrophyRank(user.trophies)}
+                    </span>
                   </div>
                 </div>
               </Link>
@@ -261,6 +247,35 @@ export default function LeaderboardPage() {
                         <span className="font-medium text-gray-100">{user.username}</span>
                       </Link>
                     </td>
+                    <td className="py-4 px-4">
+                      {user.crew ? (
+                        user.crew.tag ? (
+                          <Link
+                            href="/crews"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-bold border-2 hover:opacity-80 transition-opacity"
+                            style={{
+                              backgroundColor: `${user.crew.tag_color}20`,
+                              borderColor: user.crew.tag_color,
+                              color: user.crew.tag_color,
+                            }}
+                          >
+                            <span>{user.crew.tag}</span>
+                          </Link>
+                        ) : (
+                          <Link
+                            href="/crews"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary-600/20 border border-primary-500/50 rounded-md text-primary-300 text-sm font-medium hover:bg-primary-600/30 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            <span>{user.crew.name}</span>
+                          </Link>
+                        )
+                      ) : (
+                        <span className="text-gray-500 text-sm">—</span>
+                      )}
+                    </td>
                     <td className="py-4 px-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <Image
@@ -286,35 +301,6 @@ export default function LeaderboardPage() {
                       <span className="text-orange-500">🔥</span>
                       <span className="text-sm font-semibold text-orange-400">{user.current_streak}</span>
                     </div>
-                    </td>
-                    <td className="py-4 px-4 text-right">
-                      {user.crew ? (
-                        user.crew.tag ? (
-                          <Link
-                            href="/crews"
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-bold border-2 hover:opacity-80 transition-opacity ml-auto"
-                            style={{
-                              backgroundColor: `${user.crew.tag_color}20`,
-                              borderColor: user.crew.tag_color,
-                              color: user.crew.tag_color,
-                            }}
-                          >
-                            <span>{user.crew.tag}</span>
-                          </Link>
-                        ) : (
-                          <Link
-                            href="/crews"
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary-600/20 border border-primary-500/50 rounded-md text-primary-300 text-sm font-medium hover:bg-primary-600/30 transition-colors ml-auto"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            <span>{user.crew.name}</span>
-                          </Link>
-                        )
-                      ) : (
-                        <span className="text-gray-500 text-sm">—</span>
-                      )}
                     </td>
                   </tr>
                 ))}

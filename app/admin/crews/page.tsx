@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ToastContainer, Toast } from '@/components/Toast';
+import { ConfirmModal } from '@/components/ConfirmModal';
 import { getImageUrl } from '@/lib/image-utils';
 
 interface Crew {
@@ -23,6 +24,18 @@ export default function AdminCrewsPage() {
   const [crews, setCrews] = useState<Crew[]>([]);
   const [loading, setLoading] = useState(true);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    variant?: 'danger' | 'default';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
 
   const fetchCrews = useCallback(async () => {
     try {
@@ -56,29 +69,41 @@ export default function AdminCrewsPage() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }
 
+  function showConfirm(
+    title: string,
+    message: string,
+    onConfirm: () => void,
+    variant: 'danger' | 'default' = 'default'
+  ) {
+    setConfirmModal({ isOpen: true, title, message, onConfirm, variant });
+  }
+
   async function handleDeleteCrew(crewId: number, crewName: string) {
-    if (!confirm(`Are you sure you want to delete crew "${crewName}"? This will remove all members from the crew.`)) {
-      return;
-    }
+    showConfirm(
+      'Delete Crew',
+      `Are you sure you want to delete crew "${crewName}"? This will remove all members from the crew.`,
+      async () => {
+        try {
+          const response = await fetch('/api/admin/crews/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ crewId }),
+          });
 
-    try {
-      const response = await fetch('/api/admin/crews/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ crewId }),
-      });
+          const data = await response.json();
 
-      const data = await response.json();
-
-      if (response.ok) {
-        showToast('Crew deleted successfully', 'success');
-        fetchCrews();
-      } else {
-        showToast(data.error || 'Failed to delete crew', 'error');
-      }
-    } catch (err) {
-      showToast('An error occurred', 'error');
-    }
+          if (response.ok) {
+            showToast('Crew deleted successfully', 'success');
+            fetchCrews();
+          } else {
+            showToast(data.error || 'Failed to delete crew', 'error');
+          }
+        } catch (err) {
+          showToast('An error occurred', 'error');
+        }
+      },
+      'danger'
+    );
   }
 
   if (loading) {
@@ -241,6 +266,17 @@ export default function AdminCrewsPage() {
       </main>
 
       <ToastContainer toasts={toasts} onRemove={removeToast} />
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        onConfirm={() => {
+          confirmModal.onConfirm();
+          setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+        }}
+        onCancel={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} })}
+        variant={confirmModal.variant}
+      />
     </div>
   );
 }
