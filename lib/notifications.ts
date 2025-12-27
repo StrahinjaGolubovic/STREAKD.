@@ -92,6 +92,18 @@ export function markAllNotificationsAsRead(userId: number): boolean {
   }
 }
 
+// Delete all notifications for a user (clear inbox)
+export function clearAllNotifications(userId: number): boolean {
+  try {
+    const result = db.prepare('DELETE FROM notifications WHERE user_id = ?').run(userId);
+    // result.changes can be 0 if already empty; still a "success"
+    return typeof result.changes === 'number';
+  } catch (error) {
+    console.error('Error clearing notifications:', error);
+    return false;
+  }
+}
+
 // Send nudge notification to a friend
 export function sendNudgeNotification(fromUserId: number, fromUsername: string, toUserId: number): Notification {
   return createNotification(

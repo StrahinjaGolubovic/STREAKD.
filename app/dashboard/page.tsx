@@ -1134,11 +1134,11 @@ export default function DashboardPage() {
                     <div className="text-xl font-bold text-gray-100 mt-1">{dayNumber}</div>
                     {day.is_rest_day ? (
                       <div className="mt-2">
-                        <div className="text-blue-400 text-[10px] font-medium flex items-center justify-center gap-1">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <div className="text-blue-400 flex items-center justify-center">
+                          <span className="sr-only">Rest Day</span>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                           </svg>
-                          Rest Day
                         </div>
                       </div>
                     ) : day.uploaded ? (

@@ -78,6 +78,18 @@ export function Notifications({ userId }: NotificationsProps) {
     }
   };
 
+  const clearAll = async () => {
+    try {
+      const response = await fetch('/api/notifications', { method: 'DELETE' });
+      if (response.ok) {
+        setNotifications([]);
+        setUnreadCount(0);
+      }
+    } catch (err) {
+      console.error('Failed to clear notifications:', err);
+    }
+  };
+
   useEffect(() => {
     setLoading(true);
     fetchNotifications();
@@ -159,14 +171,24 @@ export function Notifications({ userId }: NotificationsProps) {
         <div className="fixed top-16 left-4 right-4 sm:absolute sm:top-auto sm:left-auto sm:right-0 mt-2 sm:w-96 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 max-h-[500px] flex flex-col">
           <div className="p-4 border-b border-gray-700 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-100 text-right flex-1">Notifications</h3>
-            {unreadCount > 0 && (
-              <button
-                onClick={markAllAsRead}
-                className="text-xs text-primary-400 hover:text-primary-300 ml-2"
-              >
-                Mark all as read
-              </button>
-            )}
+            <div className="flex items-center gap-3 ml-2">
+              {notifications.length > 0 && (
+                <button
+                  onClick={clearAll}
+                  className="text-xs text-gray-300 hover:text-gray-100"
+                >
+                  Clear
+                </button>
+              )}
+              {unreadCount > 0 && (
+                <button
+                  onClick={markAllAsRead}
+                  className="text-xs text-primary-400 hover:text-primary-300"
+                >
+                  Mark all as read
+                </button>
+              )}
+            </div>
           </div>
 
             <div className="overflow-y-auto flex-1">
