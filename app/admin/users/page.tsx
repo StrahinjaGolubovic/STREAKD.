@@ -108,10 +108,10 @@ export default function AdminUsers() {
       });
 
       if (response.ok) {
-        showToast(`Trophies reset for ${username}`, 'success');
+        showToast(`Dumbbells reset for ${username}`, 'success');
         fetchUsers();
       } else {
-        showToast('Failed to reset trophies', 'error');
+        showToast('Failed to reset dumbbells', 'error');
       }
     } catch (err) {
       showToast('An error occurred', 'error');
@@ -361,7 +361,7 @@ export default function AdminUsers() {
               className="bg-gray-900 border border-gray-600 rounded-md px-4 py-2.5 text-base text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 min-h-[44px]"
             >
               <option value="username">Sort by Username</option>
-              <option value="trophies">Sort by Trophies</option>
+              <option value="trophies">Sort by Dumbbells</option>
               <option value="streak">Sort by Streak</option>
               <option value="created">Sort by Created</option>
             </select>
@@ -381,7 +381,7 @@ export default function AdminUsers() {
               <thead className="bg-gray-700/50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-200">User</th>
-                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-200">Trophies</th>
+                  <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-200">Dumbbells</th>
                   <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-200">Streak</th>
                   <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-200">Uploads</th>
                   <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-200">Joined</th>
@@ -415,9 +415,14 @@ export default function AdminUsers() {
                     <td className="px-4 py-3">
                       <span className="text-sm sm:text-base font-semibold text-yellow-400">
                         <span className="flex items-center gap-1">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                          </svg>
+                          <Image
+                            src="/streakd_dumbbells.png"
+                            alt="Dumbbells"
+                            width={16}
+                            height={16}
+                            className="w-4 h-4"
+                            unoptimized
+                          />
                           {user.trophies.toLocaleString()}
                         </span>
                       </span>
@@ -450,15 +455,15 @@ export default function AdminUsers() {
                         <button
                           onClick={() =>
                             showConfirm(
-                              'Reset Trophies',
-                              `Reset trophies for ${user.username} to 0?`,
+                              'Reset Dumbbells',
+                              `Reset dumbbells for ${user.username} to 0?`,
                               () => resetUserTrophies(user.id, user.username),
                               'default'
                             )
                           }
                           className="px-3 py-1.5 bg-blue-600 text-white rounded text-xs sm:text-sm hover:bg-blue-700 transition-colors"
                         >
-                          Reset Trophies
+                          Reset Dumbbells
                         </button>
                         <button
                           onClick={() => openPasswordReset(user)}
@@ -539,7 +544,7 @@ export default function AdminUsers() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label className="text-sm text-gray-200">
-                Trophies
+                Dumbbells
                 <input
                   type="number"
                   min={0}

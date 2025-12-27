@@ -956,11 +956,15 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
           <div className="bg-gradient-to-br from-yellow-900/40 to-yellow-800/20 border-2 border-yellow-600/50 rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
             <div className="text-xs sm:text-sm font-medium text-yellow-300 mb-1 flex items-center gap-1.5">
-              <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L8 7h2v10h4V7h2L12 2zm0 18l-4-4h8l-4 4z" />
-                <path d="M8 17v2h8v-2H8z" />
-              </svg>
-              <span>Trophies</span>
+              <Image
+                src="/streakd_dumbbells.png"
+                alt="Dumbbells"
+                width={16}
+                height={16}
+                className="w-4 h-4"
+                unoptimized
+              />
+              <span>Dumbbells</span>
             </div>
             <div className="text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400">
               {data.trophies.toLocaleString()}
@@ -1129,7 +1133,7 @@ export default function DashboardPage() {
                     <div className="text-xl font-bold text-gray-100 mt-1">{dayNumber}</div>
                     {day.is_rest_day ? (
                       <div className="mt-2">
-                        <div className="text-blue-400 text-[10px] font-medium flex items-center gap-1">
+                        <div className="text-blue-400 text-[10px] font-medium flex items-center justify-center gap-1">
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                           </svg>
@@ -1189,7 +1193,7 @@ export default function DashboardPage() {
                   <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-100 mt-1">{dayNumber}</div>
                   {day.is_rest_day ? (
                     <div className="mt-2">
-                      <div className="text-blue-400 text-xs font-medium mb-2 flex items-center gap-1">
+                      <div className="text-blue-400 text-xs font-medium mb-2 flex items-center justify-center gap-1">
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                         </svg>
@@ -1441,17 +1445,25 @@ export default function DashboardPage() {
                               
                               {/* Trophy Count - Special Display */}
                               <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-yellow-500/20 via-yellow-400/20 to-yellow-500/20 border border-yellow-500/40 rounded-full">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                                </svg>
+                                <Image
+                                  src="/streakd_dumbbells.png"
+                                  alt="Dumbbells"
+                                  width={16}
+                                  height={16}
+                                  className="w-4 h-4"
+                                  unoptimized
+                                />
                                 <span className="text-sm font-bold text-yellow-400">{friend.trophies.toLocaleString()}</span>
                               </div>
                             </div>
 
                             {/* Streak */}
                             <div className="text-center">
-                              <div className="text-xs text-gray-500">Streak</div>
-                              <div className="text-sm font-semibold text-primary-400">
+                              <div className="text-xs text-gray-500 flex items-center justify-center gap-1">
+                                <span>🔥</span>
+                                <span>Streak</span>
+                              </div>
+                              <div className="text-sm font-semibold text-orange-400">
                                 {friend.current_streak} days
                               </div>
                             </div>
@@ -1465,6 +1477,14 @@ export default function DashboardPage() {
                               e.preventDefault();
                               e.stopPropagation();
                               if (friend.nudged_today) return;
+                              
+                              // Optimistically update UI to prevent flickering
+                              setFriends((prevFriends) =>
+                                prevFriends.map((f) =>
+                                  f.id === friend.id ? { ...f, nudged_today: true } : f
+                                )
+                              );
+                              
                               try {
                                 const response = await fetch('/api/friends/nudge', {
                                   method: 'POST',
@@ -1473,16 +1493,29 @@ export default function DashboardPage() {
                                 });
                                 if (response.ok) {
                                   showToast(`Nudged @${friend.username}!`, 'success');
-                                  fetchFriends();
+                                  // Silently refresh in background without re-render flicker
+                                  setTimeout(() => fetchFriends(), 100);
                                 } else {
                                   const data = await response.json();
                                   if (response.status === 429) {
-                                    fetchFriends();
+                                    // Already nudged - keep the optimistic update
                                   } else {
+                                    // Revert optimistic update on error
+                                    setFriends((prevFriends) =>
+                                      prevFriends.map((f) =>
+                                        f.id === friend.id ? { ...f, nudged_today: false } : f
+                                      )
+                                    );
                                     showToast(data.error || 'Failed to nudge friend', 'error');
                                   }
                                 }
                               } catch (err) {
+                                // Revert optimistic update on error
+                                setFriends((prevFriends) =>
+                                  prevFriends.map((f) =>
+                                    f.id === friend.id ? { ...f, nudged_today: false } : f
+                                  )
+                                );
                                 showToast('An error occurred while nudging friend', 'error');
                               }
                             }}

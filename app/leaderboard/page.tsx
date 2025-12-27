@@ -106,10 +106,9 @@ export default function LeaderboardPage() {
                 <div className="flex items-center gap-3 mb-3">
                   <div className="flex-shrink-0 w-10 flex items-center justify-center">
                     {user.rank <= 3 ? (
-                      <svg className={`w-7 h-7 ${user.rank === 1 ? 'text-yellow-400' : user.rank === 2 ? 'text-gray-300' : 'text-orange-600'}`} fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L8 7h3v10h2V7h3L12 2zm4 13H8v2h8v-2z" />
-                        <path d="M12 22l-2-2h4l-2 2z" />
-                      </svg>
+                      <span className="text-2xl">
+                        {user.rank === 1 ? '🥇' : user.rank === 2 ? '🥈' : '🥉'}
+                      </span>
                     ) : (
                       <span className="text-lg font-bold text-gray-400">
                         #{user.rank}
@@ -156,10 +155,14 @@ export default function LeaderboardPage() {
                 
                 <div className="flex items-center justify-between gap-4 pt-3 border-t border-gray-600">
                   <div className="flex items-center gap-1.5">
-                    <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 2L8 7h2v10h4V7h2L12 2zm0 18l-4-4h8l-4 4z" />
-                      <path d="M8 17v2h8v-2H8z" />
-                    </svg>
+                    <Image
+                      src="/streakd_dumbbells.png"
+                      alt="Dumbbells"
+                      width={20}
+                      height={20}
+                      className="w-5 h-5"
+                      unoptimized
+                    />
                     <span className="font-bold text-yellow-400 text-base">{user.trophies.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center gap-4">
@@ -200,7 +203,7 @@ export default function LeaderboardPage() {
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300">Rank</th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300">User</th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300">Crew</th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-300">Trophies</th>
+                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-300">Dumbbells</th>
                   <th className="text-right py-3 px-4 text-sm font-semibold text-gray-300">Rank</th>
                   <th className="text-right py-3 px-4 text-sm font-semibold text-gray-300">Streak</th>
                 </tr>
@@ -215,10 +218,9 @@ export default function LeaderboardPage() {
                       <div className="flex items-center gap-3">
                         <span className="text-lg font-bold text-gray-400 w-8 flex items-center justify-center">
                           {user.rank <= 3 ? (
-                            <svg className={`w-6 h-6 ${user.rank === 1 ? 'text-yellow-400' : user.rank === 2 ? 'text-gray-300' : 'text-orange-600'}`} fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M12 2L8 7h3v10h2V7h3L12 2zm4 13H8v2h8v-2z" />
-                              <path d="M12 22l-2-2h4l-2 2z" />
-                            </svg>
+                            <span className="text-2xl">
+                              {user.rank === 1 ? '🥇' : user.rank === 2 ? '🥈' : '🥉'}
+                            </span>
                           ) : (
                             `#${user.rank}`
                           )}
@@ -281,10 +283,14 @@ export default function LeaderboardPage() {
                     </td>
                     <td className="py-4 px-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
-                        <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12 2L8 7h2v10h4V7h2L12 2zm0 18l-4-4h8l-4 4z" />
-                          <path d="M8 17v2h8v-2H8z" />
-                        </svg>
+                        <Image
+                          src="/streakd_dumbbells.png"
+                          alt="Dumbbells"
+                          width={20}
+                          height={20}
+                          className="w-5 h-5"
+                          unoptimized
+                        />
                         <span className="font-bold text-yellow-400">{user.trophies.toLocaleString()}</span>
                       </div>
                     </td>
@@ -297,14 +303,10 @@ export default function LeaderboardPage() {
                       </span>
                     </td>
                     <td className="py-4 px-4 text-right">
-                      <div className="flex items-center gap-1 justify-end">
-                        <svg className="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M17.657 18.657L16.243 17.243C17.807 15.807 18.75 13.75 18.75 11.5C18.75 7.5 15.5 4.25 11.5 4.25C7.5 4.25 4.25 7.5 4.25 11.5C4.25 15.5 7.5 18.75 11.5 18.75C13.75 18.75 15.807 17.807 17.243 16.243L18.657 17.657C16.971 19.343 14.321 20.25 11.5 20.25C6.394 20.25 2.25 16.106 2.25 11C2.25 5.894 6.394 1.75 11.5 1.75C16.606 1.75 20.75 5.894 20.75 11C20.75 13.821 19.843 16.471 18.157 18.157L17.657 18.657Z" />
-                          <path d="M15 11.5C15 13.433 13.433 15 11.5 15C9.567 15 8 13.433 8 11.5C8 9.567 9.567 8 11.5 8C13.433 8 15 9.567 15 11.5Z" />
-                          <path d="M19.5 19.5L18.793 18.793C19.183 18.403 19.5 17.977 19.5 17.5C19.5 16.672 18.828 16 18 16C17.172 16 16.5 16.672 16.5 17.5C16.5 17.977 16.817 18.403 17.207 18.793L16.5 19.5L19.5 19.5Z" />
-                        </svg>
-                        <span className="text-sm font-semibold text-orange-400">{user.current_streak}</span>
-                      </div>
+                    <div className="flex items-center gap-1 justify-end">
+                      <span className="text-orange-500">🔥</span>
+                      <span className="text-sm font-semibold text-orange-400">{user.current_streak}</span>
+                    </div>
                     </td>
                   </tr>
                 ))}
