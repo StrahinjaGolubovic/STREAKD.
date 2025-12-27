@@ -855,19 +855,15 @@ export default function CrewsPage() {
                             <Image
                               src="/streakd_dumbbells.png"
                               alt="Dumbbells"
-                              width={12}
+                              width={21}
                               height={12}
-                              className="w-3 h-3"
+                              className="h-3 w-auto"
                               unoptimized
                             />
                             <span>{member.trophies.toLocaleString()}</span>
                           </span>
                           <span className="flex items-center gap-1">
-                            <svg className="w-3 h-3 text-orange-500" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M17.657 18.657L16.243 17.243C17.807 15.807 18.75 13.75 18.75 11.5C18.75 7.5 15.5 4.25 11.5 4.25C7.5 4.25 4.25 7.5 4.25 11.5C4.25 15.5 7.5 18.75 11.5 18.75C13.75 18.75 15.807 17.807 17.243 16.243L18.657 17.657C16.971 19.343 14.321 20.25 11.5 20.25C6.394 20.25 2.25 16.106 2.25 11C2.25 5.894 6.394 1.75 11.5 1.75C16.606 1.75 20.75 5.894 20.75 11C20.75 13.821 19.843 16.471 18.157 18.157L17.657 18.657Z" />
-                              <path d="M15 11.5C15 13.433 13.433 15 11.5 15C9.567 15 8 13.433 8 11.5C8 9.567 9.567 8 11.5 8C13.433 8 15 9.567 15 11.5Z" />
-                              <path d="M19.5 19.5L18.793 18.793C19.183 18.403 19.5 17.977 19.5 17.5C19.5 16.672 18.828 16 18 16C17.172 16 16.5 16.672 16.5 17.5C16.5 17.977 16.817 18.403 17.207 18.793L16.5 19.5L19.5 19.5Z" />
-                            </svg>
+                            <span className="text-orange-500">🔥</span>
                             <span>{member.current_streak} day streak</span>
                           </span>
                         </div>
