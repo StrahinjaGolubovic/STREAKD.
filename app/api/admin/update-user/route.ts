@@ -8,6 +8,15 @@ function isValidYMD(value: unknown): value is string {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
 }
 
+function addDaysYMD(dateString: string, deltaDays: number): string {
+  const [year, month, day] = dateString.split('-').map(Number);
+  const dt = new Date(Date.UTC(year, month - 1, day + deltaDays));
+  const y = dt.getUTCFullYear();
+  const m = String(dt.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(dt.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies();
@@ -88,13 +97,13 @@ export async function POST(request: NextRequest) {
         // last_activity_date rules:
         // - if explicitly provided, respect it ('' means null)
         // - else if admin changes current streak:
-        //   - current > 0 -> set last_activity_date to today (Serbia) to prevent auto-reset
+        //   - current > 0 -> set last_activity_date to yesterday (Serbia) so the next upload becomes +1
         //   - current == 0 -> clear last_activity_date (unless explicitly provided)
         let desiredLast: string | null | undefined = undefined;
         if (lastActivityDate !== undefined) {
           desiredLast = lastActivityDate === null ? null : (lastActivityDate as string);
         } else if (currentInt !== undefined) {
-          desiredLast = desiredCurrent > 0 ? formatDateSerbia() : null;
+          desiredLast = desiredCurrent > 0 ? addDaysYMD(formatDateSerbia(), -1) : null;
         }
 
         db.prepare('UPDATE streaks SET current_streak = ?, longest_streak = ? WHERE user_id = ?').run(

@@ -155,9 +155,46 @@ export function recomputeUserStreakFromUploads(userId: number): Streak {
     current = lastDate < yesterday ? 0 : run;
   }
 
+  // IMPORTANT:
+  // When admins manually set streak values, they may not correspond to existing upload history.
+  // On verify/reject we recompute from uploads; to prevent "admin-set streak resets to 1",
+  // we treat the existing streak row as an authoritative baseline if it is more recent and contiguous.
+  let nextCurrent = current;
+  let nextLastDate = lastDate;
+  if (streak.last_activity_date) {
+    const prevLast = streak.last_activity_date;
+
+    // If the newest valid activity date is the same day as the stored last_activity_date,
+    // never reduce the streak (admin-set values should persist).
+    if (nextLastDate && nextLastDate === prevLast) {
+      nextCurrent = Math.max(nextCurrent, streak.current_streak);
+    }
+
+    // If the newest valid activity date is exactly one day after the stored last_activity_date,
+    // continue from the stored streak baseline rather than resetting to the computed run length.
+    if (nextLastDate && addDaysYMD(prevLast, 1) === nextLastDate && streak.current_streak > 0) {
+      nextCurrent = Math.max(nextCurrent, streak.current_streak + 1);
+    }
+
+    // If we're recomputing based on an older date (e.g. admin verifies an old upload),
+    // don't move the user's streak backwards.
+    if (nextLastDate && nextLastDate < prevLast) {
+      nextLastDate = prevLast;
+      nextCurrent = Math.max(nextCurrent, streak.current_streak);
+    }
+
+    // If there is no computed last date (no uploads/rest days), preserve manual baseline.
+    if (!nextLastDate) {
+      nextLastDate = prevLast;
+      nextCurrent = streak.current_streak;
+    }
+  }
+
+  const nextLongest = Math.max(longest, streak.longest_streak, nextCurrent);
+
   db.prepare(
     'UPDATE streaks SET current_streak = ?, longest_streak = ?, last_activity_date = ? WHERE user_id = ?'
-  ).run(current, Math.max(longest, streak.longest_streak), lastDate, userId);
+  ).run(nextCurrent, nextLongest, nextLastDate, userId);
 
   return db.prepare('SELECT * FROM streaks WHERE user_id = ?').get(userId) as Streak;
 }
