@@ -3,6 +3,7 @@ import { Inter, Orbitron } from 'next/font/google';
 import './globals.css';
 import { Footer } from '@/components/Footer';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
+import { MaintenanceGate } from '@/components/MaintenanceGate';
 
 const inter = Inter({ subsets: ['latin'] });
 const orbitron = Orbitron({ 
@@ -48,6 +49,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} ${orbitron.variable} flex flex-col min-h-screen`}>
         <ServiceWorkerRegistration />
+        <MaintenanceGate />
         <div className="flex-1">
           {children}
         </div>

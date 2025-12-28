@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { checkAdmin } from '@/lib/admin';
 import db from '@/lib/db';
+import { formatDateSerbia } from '@/lib/timezone';
 
 function isValidYMD(value: unknown): value is string {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
@@ -89,6 +90,10 @@ export async function POST(request: NextRequest) {
         }
         if (lastActivityDate !== undefined) {
           db.prepare('UPDATE streaks SET last_activity_date = ? WHERE user_id = ?').run(lastToSet, userId);
+        } else if (currentToSet !== undefined && currentToSet > 0) {
+          // If an admin sets a non-zero streak but doesn't specify last_activity_date,
+          // keep the streak from being auto-reset by aligning last_activity_date to today (Serbia).
+          db.prepare('UPDATE streaks SET last_activity_date = ? WHERE user_id = ?').run(formatDateSerbia(), userId);
         }
       }
 
