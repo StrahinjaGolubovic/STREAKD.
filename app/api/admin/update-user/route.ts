@@ -77,23 +77,35 @@ export async function POST(request: NextRequest) {
           userId
         );
 
-        const currentToSet = currentInt !== undefined ? currentInt : undefined;
-        const longestToSet = longestInt !== undefined ? longestInt : undefined;
-        const lastToSet =
-          lastActivityDate === '' || lastActivityDate === null ? null : (lastActivityDate as string | undefined);
+        const existing = db
+          .prepare('SELECT current_streak, longest_streak, last_activity_date FROM streaks WHERE user_id = ?')
+          .get(userId) as { current_streak: number; longest_streak: number; last_activity_date: string | null };
 
-        if (currentToSet !== undefined) {
-          db.prepare('UPDATE streaks SET current_streak = ? WHERE user_id = ?').run(currentToSet, userId);
-        }
-        if (longestToSet !== undefined) {
-          db.prepare('UPDATE streaks SET longest_streak = ? WHERE user_id = ?').run(longestToSet, userId);
-        }
+        const desiredCurrent = currentInt !== undefined ? currentInt : (existing?.current_streak ?? 0);
+        let desiredLongest = longestInt !== undefined ? longestInt : (existing?.longest_streak ?? 0);
+
+        // Invariant: longest_streak must always be >= current_streak
+        if (desiredCurrent > desiredLongest) desiredLongest = desiredCurrent;
+
+        // last_activity_date rules:
+        // - if explicitly provided, respect it ('' means null)
+        // - else if admin changes current streak:
+        //   - current > 0 -> set last_activity_date to today (Serbia) to prevent auto-reset
+        //   - current == 0 -> clear last_activity_date (unless explicitly provided)
+        let desiredLast: string | null | undefined = undefined;
         if (lastActivityDate !== undefined) {
-          db.prepare('UPDATE streaks SET last_activity_date = ? WHERE user_id = ?').run(lastToSet, userId);
-        } else if (currentToSet !== undefined && currentToSet > 0) {
-          // If an admin sets a non-zero streak but doesn't specify last_activity_date,
-          // keep the streak from being auto-reset by aligning last_activity_date to today (Serbia).
-          db.prepare('UPDATE streaks SET last_activity_date = ? WHERE user_id = ?').run(formatDateSerbia(), userId);
+          desiredLast = lastActivityDate === '' || lastActivityDate === null ? null : (lastActivityDate as string);
+        } else if (currentInt !== undefined) {
+          desiredLast = desiredCurrent > 0 ? formatDateSerbia() : null;
+        }
+
+        db.prepare('UPDATE streaks SET current_streak = ?, longest_streak = ? WHERE user_id = ?').run(
+          desiredCurrent,
+          desiredLongest,
+          userId
+        );
+        if (desiredLast !== undefined) {
+          db.prepare('UPDATE streaks SET last_activity_date = ? WHERE user_id = ?').run(desiredLast, userId);
         }
       }
 
@@ -107,7 +119,22 @@ export async function POST(request: NextRequest) {
       throw e;
     }
 
-    return NextResponse.json({ success: true });
+    // Return the resulting values so the admin UI can stay consistent.
+    const updated = db
+      .prepare(
+        `SELECT 
+          u.id,
+          COALESCE(u.trophies, 0) as trophies,
+          COALESCE(s.current_streak, 0) as current_streak,
+          COALESCE(s.longest_streak, 0) as longest_streak,
+          s.last_activity_date as last_activity_date
+         FROM users u
+         LEFT JOIN streaks s ON u.id = s.user_id
+         WHERE u.id = ?`
+      )
+      .get(userId);
+
+    return NextResponse.json({ success: true, user: updated });
   } catch (error) {
     console.error('Admin update user error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
