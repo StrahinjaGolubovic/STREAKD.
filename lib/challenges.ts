@@ -107,6 +107,7 @@ export function recomputeUserStreakFromUploads(userId: number): Streak {
   // Combine and deduplicate dates
   const allDates = [...uploadRows.map((r) => r.upload_date), ...restDayRows.map((r) => r.upload_date)];
   const dates = [...new Set(allDates)].sort();
+  const dateSet = new Set(dates);
 
   let longest = 0;
   let currentRun = 0;
@@ -155,46 +156,45 @@ export function recomputeUserStreakFromUploads(userId: number): Streak {
     current = lastDate < yesterday ? 0 : run;
   }
 
-  // IMPORTANT:
-  // When admins manually set streak values, they may not correspond to existing upload history.
-  // On verify/reject we recompute from uploads; to prevent "admin-set streak resets to 1",
-  // we treat the existing streak row as an authoritative baseline if it is more recent and contiguous.
+  // Admin baseline support:
+  // Admins can set a "baseline streak" that should survive verification recomputes (especially for fresh accounts).
+  // We extend that baseline only through consecutive valid activity dates.
+  const baselineDate = (streak as any).admin_baseline_date as string | null | undefined;
+  const baselineStreak = Number((streak as any).admin_baseline_streak ?? 0) || 0;
+  const baselineLongest = Number((streak as any).admin_baseline_longest ?? 0) || 0;
+
+  let baselineEnd: string | null = null;
+  let baselineCurrent = 0;
+  if (baselineDate && baselineStreak > 0) {
+    // Extend baseline through consecutive valid dates after baselineDate.
+    let k = 0;
+    while (dateSet.has(addDaysYMD(baselineDate, k + 1))) {
+      k += 1;
+    }
+    baselineEnd = addDaysYMD(baselineDate, k);
+    baselineCurrent = baselineEnd < yesterday ? 0 : baselineStreak + k;
+  }
+
+  // Choose the streak that ends most recently; if equal end date, keep the larger streak.
+  let nextLastDate: string | null = lastDate;
   let nextCurrent = current;
-  let nextLastDate = lastDate;
-  if (streak.last_activity_date) {
-    const prevLast = streak.last_activity_date;
-
-    // If the newest valid activity date is the same day as the stored last_activity_date,
-    // never reduce the streak (admin-set values should persist).
-    if (nextLastDate && nextLastDate === prevLast) {
-      nextCurrent = Math.max(nextCurrent, streak.current_streak);
-    }
-
-    // If the newest valid activity date is exactly one day after the stored last_activity_date,
-    // continue from the stored streak baseline rather than resetting to the computed run length.
-    if (nextLastDate && addDaysYMD(prevLast, 1) === nextLastDate && streak.current_streak > 0) {
-      nextCurrent = Math.max(nextCurrent, streak.current_streak + 1);
-    }
-
-    // If we're recomputing based on an older date (e.g. admin verifies an old upload),
-    // don't move the user's streak backwards.
-    if (nextLastDate && nextLastDate < prevLast) {
-      nextLastDate = prevLast;
-      nextCurrent = Math.max(nextCurrent, streak.current_streak);
-    }
-
-    // If there is no computed last date (no uploads/rest days), preserve manual baseline.
-    if (!nextLastDate) {
-      nextLastDate = prevLast;
-      nextCurrent = streak.current_streak;
+  if (baselineEnd) {
+    if (!nextLastDate || baselineEnd > nextLastDate) {
+      nextLastDate = baselineEnd;
+      nextCurrent = baselineCurrent;
+    } else if (baselineEnd === nextLastDate) {
+      nextCurrent = Math.max(nextCurrent, baselineCurrent);
     }
   }
 
-  const nextLongest = Math.max(longest, streak.longest_streak, nextCurrent);
+  const nextLongest = Math.max(longest, streak.longest_streak, baselineLongest, baselineStreak, nextCurrent);
 
-  db.prepare(
-    'UPDATE streaks SET current_streak = ?, longest_streak = ?, last_activity_date = ? WHERE user_id = ?'
-  ).run(nextCurrent, nextLongest, nextLastDate, userId);
+  db.prepare('UPDATE streaks SET current_streak = ?, longest_streak = ?, last_activity_date = ? WHERE user_id = ?').run(
+    nextCurrent,
+    nextLongest,
+    nextLastDate,
+    userId
+  );
 
   return db.prepare('SELECT * FROM streaks WHERE user_id = ?').get(userId) as Streak;
 }

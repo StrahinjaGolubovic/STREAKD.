@@ -209,9 +209,31 @@ function initDatabase(database: Database) {
       current_streak INTEGER DEFAULT 0,
       longest_streak INTEGER DEFAULT 0,
       last_activity_date DATE,
+      admin_baseline_date DATE,
+      admin_baseline_streak INTEGER DEFAULT 0,
+      admin_baseline_longest INTEGER DEFAULT 0,
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )
   `);
+
+  // Migrate existing streaks table to add admin baseline columns if missing
+  try {
+    const streaksInfo = database.prepare("PRAGMA table_info(streaks)").all() as Array<{ name: string }>;
+    const streaksCols = streaksInfo.map((c) => c.name);
+    if (!streaksCols.includes('admin_baseline_date')) {
+      database.exec(`ALTER TABLE streaks ADD COLUMN admin_baseline_date DATE;`);
+    }
+    if (!streaksCols.includes('admin_baseline_streak')) {
+      database.exec(`ALTER TABLE streaks ADD COLUMN admin_baseline_streak INTEGER DEFAULT 0;`);
+      database.exec(`UPDATE streaks SET admin_baseline_streak = 0 WHERE admin_baseline_streak IS NULL;`);
+    }
+    if (!streaksCols.includes('admin_baseline_longest')) {
+      database.exec(`ALTER TABLE streaks ADD COLUMN admin_baseline_longest INTEGER DEFAULT 0;`);
+      database.exec(`UPDATE streaks SET admin_baseline_longest = 0 WHERE admin_baseline_longest IS NULL;`);
+    }
+  } catch (error) {
+    console.log('Streaks migration note:', error);
+  }
 
   // Trophy transactions ledger (auditable)
   database.exec(`
