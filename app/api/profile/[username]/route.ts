@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
+import { purgeUserUploadsBeforeDate } from '@/lib/purge';
 
 export async function GET(
   request: NextRequest,
@@ -99,27 +100,50 @@ export async function GET(
       pending_uploads: number;
     } | undefined;
 
-    // Recent uploads (last 7 approved). Note: older uploads may be purged after week rollover.
-    const recentUploads = db
-      .prepare(`
-        SELECT 
-          id,
-          upload_date,
-          photo_path,
-          verification_status,
-          created_at
-        FROM daily_uploads 
-        WHERE user_id = ? AND verification_status = 'approved'
-        ORDER BY upload_date DESC
-        LIMIT 7
-      `)
-      .all(user.id) as Array<{
-      id: number;
-      upload_date: string;
-      photo_path: string;
-      verification_status: string;
-      created_at: string;
-    }>;
+    // Determine the current week window from the user's active challenge.
+    // Recent uploads should only reflect photos that are actually in "This Week's Progress".
+    const activeChallenge = db
+      .prepare(
+        `SELECT id, start_date, end_date
+         FROM weekly_challenges
+         WHERE user_id = ? AND status = 'active'
+         ORDER BY start_date DESC
+         LIMIT 1`
+      )
+      .get(user.id) as { id: number; start_date: string; end_date: string } | undefined;
+
+    const recentUploads = activeChallenge
+      ? (db
+          .prepare(
+            `SELECT id, upload_date, photo_path, verification_status, created_at
+             FROM daily_uploads
+             WHERE challenge_id = ?
+               AND verification_status = 'approved'
+             ORDER BY upload_date DESC
+             LIMIT 7`
+          )
+          .all(activeChallenge.id) as Array<{
+          id: number;
+          upload_date: string;
+          photo_path: string;
+          verification_status: string;
+          created_at: string;
+        }>)
+      : [];
+
+    // If this week's progress has no uploads at all, purge old uploads for the owner to save resources.
+    // (Best-effort and only for the owner to avoid side-effecting other profiles.)
+    if (isOwnProfile && activeChallenge) {
+      const hasAnyUploadThisWeek = !!db
+        .prepare('SELECT 1 FROM daily_uploads WHERE challenge_id = ? LIMIT 1')
+        .get(activeChallenge.id);
+
+      if (!hasAnyUploadThisWeek) {
+        purgeUserUploadsBeforeDate(user.id, activeChallenge.start_date).catch(() => {
+          // ignore
+        });
+      }
+    }
 
     return NextResponse.json({
       user: {

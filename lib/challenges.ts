@@ -760,6 +760,15 @@ export function getUserDashboard(userId: number): {
   const streak = getUserStreak(userId);
   const trophies = getUserTrophies(userId);
 
+  // If the new week's progress has no photos at all, purge old uploads to save resources.
+  // (Best-effort; doesn't block returning the dashboard.)
+  const hasAnyPhotoThisWeek = progress.days.some((d) => d.uploaded);
+  if (!hasAnyPhotoThisWeek) {
+    purgeUserUploadsBeforeDate(userId, challenge.start_date).catch(() => {
+      // ignore
+    });
+  }
+
   return {
     challenge,
     progress,
