@@ -36,33 +36,8 @@ function getLastApprovedDateBefore(userId: number, uploadDate: string, uploadId:
 }
 
 /**
- * Get user's current streak for multiplier calculation
- */
-function getUserCurrentStreak(userId: number): number {
-  const row = db
-    .prepare('SELECT current_streak FROM streaks WHERE user_id = ?')
-    .get(userId) as { current_streak: number } | undefined;
-  return row?.current_streak ?? 0;
-}
-
-/**
- * Calculate streak multiplier:
- * - 30+ days: 2.0x (double rewards!)
- * - 14+ days: 1.5x (50% bonus)
- * - 7+ days: 1.2x (20% bonus)
- * - Otherwise: 1.0x (base)
- */
-function getStreakMultiplier(streak: number): number {
-  if (streak >= 30) return 2.0;
-  if (streak >= 14) return 1.5;
-  if (streak >= 7) return 1.2;
-  return 1.0;
-}
-
-/**
- * Enhanced approval reward with streak multipliers:
+ * Approval reward:
  * - Base reward: 26-32 trophies (deterministic)
- * - Streak multiplier: up to 2x for long streaks
  * - Missed streak penalty: cut in half if gap exists
  */
 export function trophiesAwardForApproval(userId: number, uploadId: number, uploadDate: string): number {
@@ -80,16 +55,7 @@ export function trophiesAwardForApproval(userId: number, uploadId: number, uploa
   }
 
   // Apply missed streak penalty (half) if streak was broken
-  let reward = maintainedStreak ? base : Math.max(1, Math.round(base / 2));
-  
-  // Apply streak multiplier (only if streak was maintained)
-  if (maintainedStreak) {
-    const currentStreak = getUserCurrentStreak(userId);
-    const multiplier = getStreakMultiplier(currentStreak);
-    reward = Math.round(reward * multiplier);
-  }
-
-  return reward;
+  return maintainedStreak ? base : Math.max(1, Math.round(base / 2));
 }
 
 /**
@@ -112,10 +78,27 @@ function applyTrophyDelta(userId: number, uploadId: number | null, delta: number
   if (!delta) return;
   db.exec('BEGIN');
   try {
-    db.prepare('UPDATE users SET trophies = COALESCE(trophies, 0) + ? WHERE id = ?').run(delta, userId);
-    db.prepare(
-      'INSERT INTO trophy_transactions (user_id, upload_id, delta, reason) VALUES (?, ?, ?, ?)'
-    ).run(userId, uploadId, delta, reason);
+    // Never allow trophies (aka Dumbbells) to go negative.
+    // If we would dip below 0, clamp the applied delta to only subtract what's available.
+    const row = db
+      .prepare('SELECT COALESCE(trophies, 0) as trophies FROM users WHERE id = ?')
+      .get(userId) as { trophies: number } | undefined;
+    const current = row?.trophies ?? 0;
+
+    let appliedDelta = delta;
+    if (delta < 0 && current + delta < 0) {
+      appliedDelta = -current; // bring to 0
+    }
+
+    if (appliedDelta !== 0) {
+      db.prepare('UPDATE users SET trophies = COALESCE(trophies, 0) + ? WHERE id = ?').run(appliedDelta, userId);
+      db.prepare('INSERT INTO trophy_transactions (user_id, upload_id, delta, reason) VALUES (?, ?, ?, ?)').run(
+        userId,
+        uploadId,
+        appliedDelta,
+        reason
+      );
+    }
     db.exec('COMMIT');
   } catch (e) {
     try {
@@ -164,47 +147,39 @@ export function getUserTrophies(userId: number): number {
  * Bonus increases by +10 per consecutive completed week, capped at +70 for 7th week and beyond.
  */
 export function awardWeeklyCompletionBonus(userId: number, challengeId: number): void {
-  // Count all completed weeks up to and including this one (ordered by id to get chronological order)
-  const allCompleted = db
-    .prepare(`
-      SELECT id
-      FROM weekly_challenges
-      WHERE user_id = ? 
-        AND status = 'completed'
-        AND id <= ?
-      ORDER BY id ASC
-    `)
-    .all(userId, challengeId) as Array<{ id: number }>;
+  // Bonus is ONLY for perfect weeks (7/7). No bonus for 5/7, 6/7, etc.
+  const currentRow = db
+    .prepare('SELECT status, completed_days FROM weekly_challenges WHERE id = ? AND user_id = ?')
+    .get(challengeId, userId) as { status: string; completed_days: number } | undefined;
 
-  // Count consecutive completed weeks from the end (most recent)
-  // We need to ensure we're counting consecutive weeks, not just total
-  let consecutiveWeeks = 0;
-  if (allCompleted.length > 0) {
-    // Get all challenges for this user ordered by id DESC to check consecutiveness
-    const allChallenges = db
-      .prepare(`
-        SELECT id, status
-        FROM weekly_challenges
-        WHERE user_id = ?
-        ORDER BY id DESC
-      `)
-      .all(userId) as Array<{ id: number; status: string }>;
-    
-    // Count consecutive completed weeks from most recent backwards
-    for (const challenge of allChallenges) {
-      if (challenge.status === 'completed') {
-        consecutiveWeeks++;
-      } else {
-        break; // Stop at first non-completed week
-      }
-    }
+  if (!currentRow) return;
+  const isPerfect = currentRow.status === 'completed' && Number(currentRow.completed_days ?? 0) >= 7;
+  if (!isPerfect) return;
+
+  // Count consecutive perfect weeks from most recent backwards.
+  const allChallenges = db
+    .prepare(`
+      SELECT id, status, completed_days
+      FROM weekly_challenges
+      WHERE user_id = ?
+      ORDER BY id DESC
+    `)
+    .all(userId) as Array<{ id: number; status: string; completed_days: number }>;
+
+  let consecutivePerfectWeeks = 0;
+  for (const ch of allChallenges) {
+    const perfect = ch.status === 'completed' && Number(ch.completed_days ?? 0) >= 7;
+    if (perfect) consecutivePerfectWeeks++;
+    else break;
   }
-  
-  // Calculate bonus: +10 per week, capped at +70 for week 7 and beyond
-  // Week 1: +10, Week 2: +20, Week 3: +30, ..., Week 7+: +70
-  const bonus = Math.min(10 * consecutiveWeeks, 70);
-  
-  applyTrophyDelta(userId, null, bonus, `weekly_completion:challenge_${challengeId}:consecutive_${consecutiveWeeks}`);
+
+  const bonus = Math.min(10 * consecutivePerfectWeeks, 70);
+  applyTrophyDelta(
+    userId,
+    null,
+    bonus,
+    `weekly_completion:challenge_${challengeId}:perfect_consecutive_${consecutivePerfectWeeks}`
+  );
 }
 
 /**
