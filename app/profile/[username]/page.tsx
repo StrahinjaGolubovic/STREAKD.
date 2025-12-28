@@ -29,13 +29,6 @@ interface ProfileData {
     rejected_uploads: number;
     pending_uploads: number;
   };
-  recent_uploads: Array<{
-    id: number;
-    upload_date: string;
-    photo_path: string;
-    verification_status: string;
-    created_at: string;
-  }>;
   is_own_profile: boolean;
 }
 
@@ -184,7 +177,7 @@ export default function ProfilePage() {
     );
   }
 
-  const { user, streak, stats, recent_uploads, is_own_profile } = profileData;
+  const { user, streak, stats, is_own_profile } = profileData;
 
   return (
     <div className="bg-gray-900">
@@ -428,48 +421,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Recent Uploads - Enhanced */}
-        {recent_uploads.length > 0 && (
-          <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-6 sm:p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-1 h-8 bg-gradient-to-b from-primary-400 to-primary-600 rounded-full"></div>
-              <h2 className="text-2xl font-bold text-gray-100">Recent Uploads</h2>
-              <div className="ml-auto text-sm text-gray-400">{recent_uploads.length} photo{recent_uploads.length !== 1 ? 's' : ''}</div>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-5">
-              {recent_uploads.map((upload) => (
-                <div key={upload.id} className="group relative aspect-square rounded-xl overflow-hidden border-2 border-green-500 bg-green-900/20 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                  <Image
-                    src={getImageUrl(upload.photo_path) || ''}
-                    alt={`Upload from ${formatDateDisplay(upload.upload_date)}`}
-                    fill
-                    unoptimized
-                    className="object-cover group-hover:scale-110 transition-transform duration-300"
-                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent text-white p-2 sm:p-3">
-                    <div className="text-xs sm:text-sm font-semibold text-center">{formatDateDisplay(upload.upload_date, { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-                    <div className="text-[10px] sm:text-xs text-green-400 text-center mt-0.5">✓ Approved</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {recent_uploads.length === 0 && (
-          <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-12 text-center">
-            <div className="mb-4 flex justify-center">
-              <svg className="w-16 h-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </div>
-            <p className="text-xl text-gray-400 mb-2">No uploads yet</p>
-            <p className="text-sm text-gray-500">Start your fitness journey by uploading your first workout photo!</p>
-          </div>
-        )}
       </main>
 
       <ToastContainer toasts={toasts} onRemove={removeToast} />

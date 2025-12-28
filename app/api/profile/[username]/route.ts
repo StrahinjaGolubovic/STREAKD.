@@ -99,27 +99,6 @@ export async function GET(
       pending_uploads: number;
     } | undefined;
 
-    // Get recent uploads (last 7 approved)
-    const recentUploads = db.prepare(`
-      SELECT 
-        id,
-        upload_date,
-        photo_path,
-        verification_status,
-        created_at
-      FROM daily_uploads 
-      WHERE user_id = ? AND verification_status = 'approved'
-      ORDER BY upload_date DESC
-      LIMIT 7
-    `).all(user.id) as Array<{
-      id: number;
-      upload_date: string;
-      photo_path: string;
-      verification_status: string;
-      created_at: string;
-    }>;
-
-
     return NextResponse.json({
       user: {
         id: user.id,
@@ -145,7 +124,6 @@ export async function GET(
         rejected_uploads: uploadStats?.rejected_uploads ?? 0,
         pending_uploads: uploadStats?.pending_uploads ?? 0,
       },
-      recent_uploads: recentUploads,
       is_own_profile: isOwnProfile,
     });
   } catch (error) {

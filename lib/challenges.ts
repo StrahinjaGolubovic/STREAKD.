@@ -1,6 +1,7 @@
 import db from './db';
 import { formatDateSerbia, formatDateDisplay, isTodaySerbia, isPastSerbia, parseSerbiaDate } from './timezone';
 import { deductWeeklyFailurePenalty, awardWeeklyCompletionBonus, getUserTrophies } from './trophies';
+import { purgeUserUploadsBeforeDate } from './purge';
 
 function parseYMD(dateString: string): { year: number; month: number; day: number } {
   const [year, month, day] = dateString.split('-').map(Number);
@@ -283,6 +284,10 @@ export function getOrCreateActiveChallenge(userId: number): WeeklyChallenge {
   }
 
   if (!challenge) {
+    const hadAnyChallenge = !!db
+      .prepare('SELECT 1 FROM weekly_challenges WHERE user_id = ? LIMIT 1')
+      .get(userId);
+
     // Check if there's a previous active challenge that needs to be closed
     const previousChallengeRow = db
       .prepare('SELECT * FROM weekly_challenges WHERE user_id = ? AND status = ? ORDER BY start_date DESC LIMIT 1')
@@ -366,6 +371,16 @@ export function getOrCreateActiveChallenge(userId: number): WeeklyChallenge {
       ...challengeRow, 
       rest_days_available: challengeRow?.rest_days_available ?? 3 
     } as WeeklyChallenge;
+
+    // Resource saver:
+    // When we roll into a new week (meaning "This Week's Progress" starts empty), delete old uploads + files.
+    // We keep pending uploads so admins can still verify them.
+    // Best-effort: never block dashboard creation.
+    if (hadAnyChallenge && previousChallenge) {
+      purgeUserUploadsBeforeDate(userId, weekStart).catch(() => {
+        // ignore
+      });
+    }
   }
 
   // Final safety check - ensure rest_days_available is always present
