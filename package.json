@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "check": "npm run lint && npm run build",
     "smoke": "node scripts/smoke.mjs",
+    "test:comprehensive": "node scripts/comprehensive-test.mjs",
     "postinstall": "npm rebuild better-sqlite3 --verbose"
   },
   "keywords": [],
