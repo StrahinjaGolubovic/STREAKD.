@@ -77,16 +77,24 @@ export function getSerbiaDateSQLite(): string {
  * This creates a Date object that when formatted with timeZone: 'Europe/Belgrade' will show the correct values.
  */
 export function parseSerbiaDate(dateString: string): Date {
-  // If it's YYYY-MM-DD format, append midnight
+  // Handle YYYY-MM-DD format
   if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    dateString = dateString + 'T00:00:00';
-  } else if (dateString.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
-    // Convert space to T for ISO format
-    dateString = dateString.replace(' ', 'T');
+    const [year, month, day] = dateString.split('-').map(Number);
+    // Create UTC date at midnight, then adjust for display
+    return new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
   }
   
-  // Parse as ISO string and let the browser handle it
-  // When we format this with timeZone: 'Europe/Belgrade', it will display correctly
+  // Handle YYYY-MM-DD HH:MM:SS format
+  if (dateString.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
+    const [datePart, timePart] = dateString.split(' ');
+    const [year, month, day] = datePart.split('-').map(Number);
+    const [hour, minute, second] = timePart.split(':').map(Number);
+    // Create UTC date with the time components
+    // This ensures consistent parsing regardless of client timezone
+    return new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+  }
+  
+  // Fallback for other formats
   return new Date(dateString);
 }
 
