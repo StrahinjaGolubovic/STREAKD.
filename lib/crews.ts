@@ -490,6 +490,67 @@ export function getCrewMembers(crewId: number): CrewMemberInfo[] {
   });
 }
 
+// Kick a member from crew (leader only)
+export function kickCrewMember(leaderId: number, crewId: number, targetUserId: number): { success: boolean; message: string } {
+  // Verify leader
+  const crew = db.prepare('SELECT * FROM crews WHERE id = ? AND leader_id = ?').get(crewId, leaderId) as Crew | undefined;
+  if (!crew) {
+    return { success: false, message: 'Unauthorized or crew not found' };
+  }
+
+  // Cannot kick yourself
+  if (leaderId === targetUserId) {
+    return { success: false, message: 'You cannot kick yourself' };
+  }
+
+  // Check if target is in the crew
+  const membership = db
+    .prepare('SELECT * FROM crew_members WHERE crew_id = ? AND user_id = ?')
+    .get(crewId, targetUserId) as CrewMember | undefined;
+
+  if (!membership) {
+    return { success: false, message: 'User is not in this crew' };
+  }
+
+  try {
+    db.prepare('DELETE FROM crew_members WHERE id = ?').run(membership.id);
+    db.prepare('UPDATE users SET crew_id = NULL WHERE id = ?').run(targetUserId);
+    return { success: true, message: 'Member kicked successfully' };
+  } catch (error) {
+    return { success: false, message: 'Failed to kick member' };
+  }
+}
+
+// Transfer leadership (leader only)
+export function transferCrewLeadership(currentLeaderId: number, crewId: number, newLeaderId: number): { success: boolean; message: string } {
+  // Verify current leader
+  const crew = db.prepare('SELECT * FROM crews WHERE id = ? AND leader_id = ?').get(crewId, currentLeaderId) as Crew | undefined;
+  if (!crew) {
+    return { success: false, message: 'Unauthorized or crew not found' };
+  }
+
+  // Cannot transfer to yourself
+  if (currentLeaderId === newLeaderId) {
+    return { success: false, message: 'You are already the leader' };
+  }
+
+  // Check if new leader is in the crew
+  const membership = db
+    .prepare('SELECT * FROM crew_members WHERE crew_id = ? AND user_id = ?')
+    .get(crewId, newLeaderId) as CrewMember | undefined;
+
+  if (!membership) {
+    return { success: false, message: 'Target user is not in this crew' };
+  }
+
+  try {
+    db.prepare('UPDATE crews SET leader_id = ? WHERE id = ?').run(newLeaderId, crewId);
+    return { success: true, message: 'Leadership transferred successfully' };
+  } catch (error) {
+    return { success: false, message: 'Failed to transfer leadership' };
+  }
+}
+
 // Leave a crew
 export function leaveCrew(userId: number): { success: boolean; message: string } {
   const membership = db
@@ -503,7 +564,7 @@ export function leaveCrew(userId: number): { success: boolean; message: string }
   // Check if user is leader
   const crew = db.prepare('SELECT * FROM crews WHERE id = ?').get(membership.crew_id) as Crew | undefined;
   if (crew && crew.leader_id === userId) {
-    return { success: false, message: 'Leaders cannot leave their crew. Transfer leadership or delete the crew first.' };
+    return { success: false, message: 'You must transfer leadership before leaving the crew' };
   }
 
   try {

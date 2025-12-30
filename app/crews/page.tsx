@@ -273,7 +273,74 @@ export default function CrewsPage() {
     }
   }
 
+  async function handleKickMember(targetUserId: number, username: string) {
+    showConfirm(
+      'Kick Member',
+      `Are you sure you want to kick @${username} from the crew?`,
+      async () => {
+        try {
+          const response = await fetch('/api/crews/kick-member', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ crew_id: myCrew?.id, target_user_id: targetUserId }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            showToast('Member kicked successfully', 'success');
+            if (crewDetails) {
+              await fetchCrewDetails(crewDetails.crew.id);
+            }
+            await fetchMyCrew();
+          } else {
+            showToast(data.error || 'Failed to kick member', 'error');
+          }
+        } catch (err) {
+          showToast('An error occurred', 'error');
+        }
+      },
+      'danger'
+    );
+  }
+
+  async function handleTransferLeadership(newLeaderId: number, username: string) {
+    showConfirm(
+      'Transfer Leadership',
+      `Are you sure you want to transfer leadership to @${username}? You will no longer be the leader.`,
+      async () => {
+        try {
+          const response = await fetch('/api/crews/transfer-leadership', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ crew_id: myCrew?.id, new_leader_id: newLeaderId }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            showToast('Leadership transferred successfully', 'success');
+            if (crewDetails) {
+              await fetchCrewDetails(crewDetails.crew.id);
+            }
+            await fetchMyCrew();
+          } else {
+            showToast(data.error || 'Failed to transfer leadership', 'error');
+          }
+        } catch (err) {
+          showToast('An error occurred', 'error');
+        }
+      },
+      'danger'
+    );
+  }
+
   async function handleLeaveCrew() {
+    if (myCrew?.is_leader) {
+      showToast('You must transfer leadership before leaving the crew', 'error');
+      return;
+    }
+
     showConfirm(
       'Leave Crew',
       'Are you sure you want to leave this crew?',
@@ -452,14 +519,12 @@ export default function CrewsPage() {
                 >
                   View Details
                 </button>
-                {!myCrew.is_leader && (
-                  <button
-                    onClick={handleLeaveCrew}
-                    className="px-4 py-2.5 bg-red-600/80 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-medium text-sm sm:text-base shadow-md"
-                  >
-                    Leave
-                  </button>
-                )}
+                <button
+                  onClick={handleLeaveCrew}
+                  className="px-4 py-2.5 bg-red-600/80 text-white rounded-lg hover:bg-red-600 active:bg-red-700 transition-colors font-medium text-sm sm:text-base shadow-md"
+                >
+                  Leave
+                </button>
               </div>
             </div>
 
@@ -901,6 +966,24 @@ export default function CrewsPage() {
                           </span>
                         </div>
                       </div>
+                      {crewDetails.crew.is_leader && !member.is_leader && (
+                        <div className="flex gap-2 flex-shrink-0">
+                          <button
+                            onClick={() => handleTransferLeadership(member.user_id, member.username)}
+                            className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors text-xs font-medium"
+                            title="Transfer Leadership"
+                          >
+                            Make Leader
+                          </button>
+                          <button
+                            onClick={() => handleKickMember(member.user_id, member.username)}
+                            className="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 active:bg-red-800 transition-colors text-xs font-medium"
+                            title="Kick Member"
+                          >
+                            Kick
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
