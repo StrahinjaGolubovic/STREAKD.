@@ -327,8 +327,8 @@ export function getOrCreateActiveChallenge(userId: number): WeeklyChallenge {
       }
       // No penalty for failing weeks - users just don't get the bonus
 
-      // Update streak
-      updateStreak(userId, status === 'completed');
+      // Note: Streak is already updated via daily uploads (updateStreakOnUpload)
+      // We don't need to update it again here to avoid double-counting
     }
 
     // Create new challenge (reset rest days to 3 for new week)
