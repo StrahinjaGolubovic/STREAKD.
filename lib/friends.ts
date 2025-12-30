@@ -183,15 +183,25 @@ export function getFriendStats(friendId: number, userId: number): FriendInfo | n
 }
 
 // Remove a friend
-export function removeFriend(userId: number, friendId: number): boolean {
-  // Remove bidirectional friendship
-  const result1 = db
-    .prepare('DELETE FROM friends WHERE user_id = ? AND friend_id = ?')
-    .run(userId, friendId);
-  const result2 = db
-    .prepare('DELETE FROM friends WHERE user_id = ? AND friend_id = ?')
-    .run(friendId, userId);
+export function removeFriend(userId: number, friendId: number): { success: boolean; message: string } {
+  try {
+    // CRITICAL: Verify friendship exists before allowing removal
+    // This prevents users from breaking friendships between other users
+    const friendship = db.prepare(
+      'SELECT * FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)'
+    ).get(userId, friendId, friendId, userId) as Friend | undefined;
 
-  return result1.changes > 0 || result2.changes > 0;
+    if (!friendship) {
+      return { success: false, message: 'Not friends' };
+    }
+
+    // Delete friendship (bidirectional)
+    db.prepare(
+      'DELETE FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)'
+    ).run(userId, friendId, friendId, userId);
+
+    return { success: true, message: 'Friend removed' };
+  } catch (error) {
+    return { success: false, message: 'Failed to remove friend' };
+  }
 }
-

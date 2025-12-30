@@ -28,7 +28,6 @@ export async function POST(request: NextRequest) {
     // Get form data
     const formData = await request.formData();
     const file = formData.get('photo') as File;
-    const uploadDate = formData.get('date') as string || formatDateSerbia();
     const metadataStr = formData.get('metadata') as string | null;
 
     if (!file) {
@@ -58,11 +57,8 @@ export async function POST(request: NextRequest) {
     // Get or create active challenge
     const challenge = getOrCreateActiveChallenge(userId);
 
-    // Check if upload already exists for this date
-    const today = formatDateSerbia();
-    if (uploadDate !== today) {
-      return NextResponse.json({ error: 'Can only upload for today' }, { status: 400 });
-    }
+    // Server determines upload date - always today
+    const uploadDate = formatDateSerbia();
 
     // Save file
     const bytes = await file.arrayBuffer();

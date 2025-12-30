@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const { message, crew_id, clientTime } = await request.json();
+    const { message, crew_id } = await request.json();
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
@@ -49,7 +49,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'You are not a member of this crew' }, { status: 403 });
     }
 
-    const newMessage = addCrewChatMessage(crew_id, userId, user.username, message, clientTime);
+    // Server determines timestamp - no client control
+    const newMessage = addCrewChatMessage(crew_id, userId, user.username, message);
 
     if (!newMessage) {
       return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });

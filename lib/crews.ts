@@ -327,10 +327,11 @@ export function acceptJoinRequest(leaderId: number, requestId: number): { succes
     return { success: false, message: 'Request not found' };
   }
 
-  // Verify leader
+  // CRITICAL: Verify leader owns the crew for THIS specific request
+  // This prevents leaders from accepting requests for other crews
   const crew = db.prepare('SELECT * FROM crews WHERE id = ? AND leader_id = ?').get(request.crew_id, leaderId) as Crew | undefined;
   if (!crew) {
-    return { success: false, message: 'Unauthorized' };
+    return { success: false, message: 'Unauthorized - not your crew' };
   }
 
   // Check if crew is full
@@ -381,9 +382,11 @@ export function rejectJoinRequest(leaderId: number, requestId: number): { succes
     return { success: false, message: 'Request not found' };
   }
 
+  // CRITICAL: Verify leader owns the crew for THIS specific request
+  // This prevents leaders from rejecting requests for other crews
   const crew = db.prepare('SELECT * FROM crews WHERE id = ? AND leader_id = ?').get(request.crew_id, leaderId) as Crew | undefined;
   if (!crew) {
-    return { success: false, message: 'Unauthorized' };
+    return { success: false, message: 'Unauthorized - not your crew' };
   }
 
   try {

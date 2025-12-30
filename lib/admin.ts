@@ -1,6 +1,13 @@
 import { verifyToken, getUserById } from './auth';
 
-const ADMIN_USERNAMES = ['admin', 'seuq', 'jakow', 'nikola'];
+// Load admin usernames from environment variable
+// Format: ADMIN_USERNAMES=admin,seuq,jakow,nikola
+const ADMIN_USERNAMES = (process.env.ADMIN_USERNAMES || 'admin').split(',').map(u => u.trim()).filter(Boolean);
+
+if (ADMIN_USERNAMES.length === 0) {
+  console.warn('WARNING: No admin usernames configured. Defaulting to "admin".');
+  ADMIN_USERNAMES.push('admin');
+}
 
 export function isAdmin(userId: number): boolean {
   const user = getUserById(userId);

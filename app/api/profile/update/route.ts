@@ -25,12 +25,11 @@ export async function PUT(request: NextRequest) {
     }
 
     let trimmedUsername: string | undefined = undefined;
+
+    // Validate username if provided
     if (username !== undefined && username !== null) {
       if (typeof username !== 'string') {
-        return NextResponse.json(
-          { error: 'Username must be a string' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: 'Username must be a string' }, { status: 400 });
       }
 
       trimmedUsername = username.trim();

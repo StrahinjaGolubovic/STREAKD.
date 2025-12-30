@@ -74,36 +74,28 @@ export function getRecentMessages(limit: number = 100): ChatMessageWithProfile[]
 }
 
 // Add a new message
-export function addMessage(userId: number, username: string, message: string, clientTime?: string): ChatMessageWithProfile | null {
+export function addMessage(userId: number, username: string, message: string): ChatMessageWithProfile | null {
   try {
     // Clean up old messages before adding new one
     cleanupOldMessages();
     
-    // Validate message length
-    const trimmedMessage = message.trim();
-    if (trimmedMessage.length === 0) {
+    if (!message || message.trim().length === 0) {
       return null;
     }
-    if (trimmedMessage.length > 500) {
-      throw new Error('Message too long (max 500 characters)');
+
+    if (message.length > 500) {
+      return null;
     }
     
-    // Use client time if provided (to match user's timezone), otherwise use server time
-    let timeString: string;
-    if (clientTime) {
-      // Client sends time in format "YYYY-MM-DD HH:MM:SS" in their local timezone
-      timeString = clientTime;
-    } else {
-      // Fallback to server time in Serbia timezone
-      timeString = formatDateTimeSerbia();
-    }
+    // Server controls timestamp - always use Serbia timezone
+    const timeString = formatDateTimeSerbia();
     
     const result = db
       .prepare(
         `INSERT INTO chat_messages (user_id, username, message, created_at)
          VALUES (?, ?, ?, ?)`
       )
-      .run(userId, username, trimmedMessage, timeString);
+      .run(userId, username, message, timeString);
     
     // Return the newly created message with profile picture
     const newMessage = db

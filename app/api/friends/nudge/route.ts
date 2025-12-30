@@ -64,11 +64,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Record the nudge
+    // Record the nudge with server timestamp
     try {
+      const { formatDateTimeSerbia } = require('@/lib/timezone');
+      const createdAt = formatDateTimeSerbia();
       db.prepare(
-        'INSERT INTO nudges (from_user_id, to_user_id, nudge_date) VALUES (?, ?, ?)'
-      ).run(userId, friend_id, today);
+        'INSERT INTO nudges (from_user_id, to_user_id, nudge_date, created_at) VALUES (?, ?, ?, ?)'
+      ).run(userId, friend_id, today, createdAt);
     } catch (insertError: any) {
       // If it's a unique constraint error, someone else inserted it (race condition)
       // Check again to be sure

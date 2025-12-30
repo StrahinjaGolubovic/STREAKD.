@@ -20,10 +20,9 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = decoded.userId;
-    const { date } = await request.json();
 
-    // Use today's date if not provided
-    const restDate = date || formatDateSerbia();
+    // Server determines date - no client control
+    const restDate = formatDateSerbia();
 
     // Get active challenge
     const challenge = getOrCreateActiveChallenge(userId);

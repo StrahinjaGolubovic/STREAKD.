@@ -44,33 +44,27 @@ export function addCrewChatMessage(
   crewId: number,
   userId: number,
   username: string,
-  message: string,
-  clientTime?: string
+  message: string
 ): CrewChatMessage | null {
   try {
     // Validate message length
-    const trimmedMessage = message.trim();
-    if (trimmedMessage.length === 0) {
+    if (!message || message.trim().length === 0) {
       return null;
     }
-    if (trimmedMessage.length > 500) {
-      throw new Error('Message too long (max 500 characters)');
+
+    if (message.length > 500) {
+      return null;
     }
 
-    // Use client time if provided, otherwise use server time
-    let timeString: string;
-    if (clientTime) {
-      timeString = clientTime;
-    } else {
-      timeString = formatDateTimeSerbia();
-    }
+    // Server controls timestamp - always use Serbia timezone
+    const timeString = formatDateTimeSerbia();
 
     const result = db
       .prepare(
         `INSERT INTO crew_chat_messages (crew_id, user_id, username, message, created_at)
          VALUES (?, ?, ?, ?, ?)`
       )
-      .run(crewId, userId, username, trimmedMessage, timeString);
+      .run(crewId, userId, username, message, timeString);
 
     // Return the newly created message with profile picture
     const newMessage = db
