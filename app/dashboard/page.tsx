@@ -94,6 +94,7 @@ export default function DashboardPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [friendsScrollPosition, setFriendsScrollPosition] = useState({ atStart: true, atEnd: false });
+  const friendsContainerRef = useRef<HTMLDivElement>(null);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -191,6 +192,26 @@ export default function DashboardPage() {
     fetchImpersonationStatus();
     fetchMyCrew();
   }, [fetchDashboard, fetchFriends, fetchInviteCode, fetchImpersonationStatus, fetchMyCrew]);
+
+  // Check if friends list needs scrolling
+  useEffect(() => {
+    const checkScrollNeeded = () => {
+      const container = friendsContainerRef.current;
+      if (container) {
+        const needsScroll = container.scrollWidth > container.clientWidth;
+        const atStart = container.scrollLeft <= 0;
+        const atEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 1;
+        setFriendsScrollPosition({ 
+          atStart: needsScroll ? atStart : true, 
+          atEnd: needsScroll ? atEnd : true 
+        });
+      }
+    };
+
+    checkScrollNeeded();
+    window.addEventListener('resize', checkScrollNeeded);
+    return () => window.removeEventListener('resize', checkScrollNeeded);
+  }, [friends]);
 
   useEffect(() => {
     const sendHeartbeat = async () => {
@@ -1384,12 +1405,16 @@ export default function DashboardPage() {
                 {/* Scrollable Container */}
                 <div 
                   id="friends-scroll-container"
+                  ref={friendsContainerRef}
                   className="flex gap-3 sm:gap-4 overflow-x-auto py-2 scroll-smooth scrollbar-hide max-w-full"
                   onScroll={(e) => {
                     const container = e.currentTarget;
-                    const atStart = container.scrollLeft <= 0;
-                    const atEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 1;
-                    setFriendsScrollPosition({ atStart, atEnd });
+                    const needsScroll = container.scrollWidth > container.clientWidth;
+                    if (needsScroll) {
+                      const atStart = container.scrollLeft <= 0;
+                      const atEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 1;
+                      setFriendsScrollPosition({ atStart, atEnd });
+                    }
                   }}
                 >
                   {friends.map((friend) => {

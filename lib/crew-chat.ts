@@ -11,9 +11,40 @@ export interface CrewChatMessage {
   profile_picture?: string | null;
 }
 
-// Get recent crew chat messages
-export function getCrewChatMessages(crewId: number, limit: number = 100): CrewChatMessage[] {
+// Clean up crew chat messages older than 48 hours
+export function cleanupOldCrewMessages(): void {
   try {
+    // Delete messages older than 48 hours (using Serbia timezone)
+    const nowDate = new Date();
+    const fortyEightHoursAgo = new Date(nowDate.getTime() - 48 * 60 * 60 * 1000);
+    const cutoffTime = formatDateTimeSerbia(fortyEightHoursAgo);
+    
+    const result = db
+      .prepare(
+        `DELETE FROM crew_chat_messages 
+         WHERE created_at < ?`
+      )
+      .run(cutoffTime);
+    
+    if (result.changes > 0) {
+      console.log(`Cleaned up ${result.changes} old crew chat messages`);
+    }
+  } catch (error) {
+    console.error('Error cleaning up old crew messages:', error);
+  }
+}
+
+// Get recent crew chat messages (last 48 hours)
+export function getCrewChatMessages(crewId: number, limit: number = 100): CrewChatMessage[] {
+  // Clean up old messages first
+  cleanupOldCrewMessages();
+  
+  try {
+    // Calculate 48 hours ago in Serbia timezone
+    const nowDate = new Date();
+    const fortyEightHoursAgo = new Date(nowDate.getTime() - 48 * 60 * 60 * 1000);
+    const cutoffTime = formatDateTimeSerbia(fortyEightHoursAgo);
+    
     const messages = db
       .prepare(
         `SELECT 
@@ -26,11 +57,11 @@ export function getCrewChatMessages(crewId: number, limit: number = 100): CrewCh
           u.profile_picture
         FROM crew_chat_messages ccm
         JOIN users u ON ccm.user_id = u.id
-        WHERE ccm.crew_id = ?
+        WHERE ccm.crew_id = ? AND ccm.created_at >= ?
         ORDER BY ccm.created_at DESC
         LIMIT ?`
       )
-      .all(crewId, limit) as CrewChatMessage[];
+      .all(crewId, cutoffTime, limit) as CrewChatMessage[];
 
     return messages.reverse(); // Return in chronological order
   } catch (error) {
@@ -47,6 +78,9 @@ export function addCrewChatMessage(
   message: string
 ): CrewChatMessage | null {
   try {
+    // Clean up old messages before adding new one
+    cleanupOldCrewMessages();
+    
     // Validate message length
     if (!message || message.trim().length === 0) {
       return null;

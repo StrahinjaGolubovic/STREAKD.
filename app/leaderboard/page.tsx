@@ -137,9 +137,9 @@ export default function LeaderboardPage() {
                       <div className="font-semibold text-gray-100 truncate">@{user.username}</div>
                       {user.crew && user.crew.tag && (
                         <Link
-                          href="/crews"
+                          href={`/crews?id=${user.crew.id}`}
                           onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center justify-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold border flex-shrink-0"
+                          className="inline-flex items-center justify-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold border flex-shrink-0 hover:opacity-80 transition-opacity"
                           style={{
                             backgroundColor: `${user.crew.tag_color}20`,
                             borderColor: user.crew.tag_color,
@@ -251,7 +251,7 @@ export default function LeaderboardPage() {
                       {user.crew ? (
                         user.crew.tag ? (
                           <Link
-                            href="/crews"
+                            href={`/crews?id=${user.crew.id}`}
                             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-bold border-2 hover:opacity-80 transition-opacity"
                             style={{
                               backgroundColor: `${user.crew.tag_color}20`,

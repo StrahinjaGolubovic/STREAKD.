@@ -62,6 +62,7 @@ export default function CrewsPage() {
     requests: CrewRequestInfo[];
   } | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [autoOpenCrewId, setAutoOpenCrewId] = useState<number | null>(null);
   const [brokenPics, setBrokenPics] = useState<Set<number>>(() => new Set());
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [currentUsername, setCurrentUsername] = useState<string>('');
@@ -113,7 +114,22 @@ export default function CrewsPage() {
       .catch(() => {
         // Ignore errors
       });
+
+    // Check for crew ID in URL query parameter
+    const params = new URLSearchParams(window.location.search);
+    const crewId = params.get('id');
+    if (crewId) {
+      setAutoOpenCrewId(parseInt(crewId, 10));
+    }
   }, [fetchMyCrew]);
+
+  // Auto-open crew details if crew ID is in URL
+  useEffect(() => {
+    if (autoOpenCrewId && !showDetailsModal) {
+      fetchCrewDetails(autoOpenCrewId);
+      setAutoOpenCrewId(null); // Clear after opening
+    }
+  }, [autoOpenCrewId, showDetailsModal]);
 
   const handleSearch = useCallback(async (query: string) => {
     if (!query || query.length < 1) {

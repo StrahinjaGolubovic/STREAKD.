@@ -616,7 +616,9 @@ export function updateCrewTag(leaderId: number, crewId: number, tag: string | nu
     }
 
     try {
-      db.prepare('UPDATE crews SET tag = ?, tag_color = ? WHERE id = ?').run(trimmedTag, tagColor, crewId);
+      const { formatDateTimeSerbia } = require('./timezone');
+      const now = formatDateTimeSerbia();
+      db.prepare('UPDATE crews SET tag = ?, tag_color = ?, tag_updated_at = ? WHERE id = ?').run(trimmedTag, tagColor, now, crewId);
       return { success: true, message: 'Crew tag updated successfully' };
     } catch (error) {
       return { success: false, message: 'Failed to update crew tag' };
@@ -632,3 +634,25 @@ export function updateCrewTag(leaderId: number, crewId: number, tag: string | nu
   }
 }
 
+// Clear crew tags that are older than 48 hours
+export function clearExpiredCrewTags(): { cleared: number } {
+  try {
+    const { formatDateTimeSerbia } = require('./timezone');
+    const now = new Date();
+    const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+    const cutoffTime = formatDateTimeSerbia(fortyEightHoursAgo);
+    
+    const result = db.prepare(`
+      UPDATE crews 
+      SET tag = NULL, tag_color = '#0ea5e9' 
+      WHERE tag IS NOT NULL 
+      AND tag_updated_at IS NOT NULL 
+      AND tag_updated_at < ?
+    `).run(cutoffTime);
+    
+    return { cleared: result.changes };
+  } catch (error) {
+    console.error('Failed to clear expired crew tags:', error);
+    return { cleared: 0 };
+  }
+}

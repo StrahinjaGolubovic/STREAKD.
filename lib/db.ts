@@ -318,6 +318,9 @@ function initDatabase(database: Database) {
     if (!crewsCols.includes('tag_color')) {
       database.exec(`ALTER TABLE crews ADD COLUMN tag_color TEXT DEFAULT '#0ea5e9';`);
     }
+    if (!crewsCols.includes('tag_updated_at')) {
+      database.exec(`ALTER TABLE crews ADD COLUMN tag_updated_at DATETIME;`);
+    }
   } catch (error) {
     console.log('Crews migration note:', error);
   }
