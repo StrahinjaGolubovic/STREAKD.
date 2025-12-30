@@ -297,7 +297,7 @@ export default function ProfilePage() {
                         user.crew.tag ? (
                           <div className="flex justify-center sm:justify-start">
                             <Link
-                              href="/crews"
+                              href={`/crews?id=${user.crew.id}`}
                               className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-bold border-2 hover:opacity-80 transition-opacity"
                               style={{
                                 backgroundColor: `${user.crew.tag_color}20`,
@@ -311,7 +311,7 @@ export default function ProfilePage() {
                         ) : (
                           <div className="flex justify-center sm:justify-start">
                             <Link
-                              href="/crews"
+                              href={`/crews?id=${user.crew.id}`}
                               className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1 bg-primary-600/20 border border-primary-500/50 rounded-md text-primary-300 text-sm font-medium hover:bg-primary-600/30 transition-colors"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
