@@ -86,10 +86,10 @@ export function getSerbiaDateSQLite(): string {
 
 /**
  * Parse a date string (YYYY-MM-DD or YYYY-MM-DD HH:MM:SS) and return Date object
- * WARNING: This function is for DISPLAY purposes only (with Intl.DateTimeFormat).
- * For date arithmetic and comparisons, always use YYYY-MM-DD strings with addDaysYMD/diffDaysYMD.
+ * CRITICAL: The input string is ALREADY in Serbia timezone, so we need to interpret it as such.
+ * We create a Date object that represents the Serbia time, accounting for the UTC offset.
  * 
- * This creates a Date object that when formatted with timeZone: 'Europe/Belgrade' will show the correct values.
+ * For date arithmetic and comparisons, always use YYYY-MM-DD strings with addDaysYMD/diffDaysYMD.
  */
 export function parseSerbiaDate(dateString: string): Date {
   // Handle YYYY-MM-DD format
@@ -129,9 +129,29 @@ export function parseSerbiaDate(dateString: string): Date {
         month < 1 || month > 12 || day < 1 || day > 31 || hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59) {
       throw new Error(`Invalid datetime format: ${dateString}`);
     }
-    // Create UTC date with the time components
-    // This ensures consistent parsing regardless of client timezone
-    return new Date(Date.UTC(adjustedYear, adjustedMonth - 1, adjustedDay, hour, minute, second));
+    
+    // CRITICAL FIX: The input string is in Serbia timezone, but we're creating a UTC Date.
+    // When displayed with Serbia timezone, it will add the offset again, showing wrong time.
+    // Solution: Subtract the Serbia offset from UTC to get the correct UTC timestamp.
+    // Serbia is UTC+1 (winter) or UTC+2 (summer/DST)
+    
+    // Create a temporary date to check DST
+    const tempDate = new Date(Date.UTC(adjustedYear, adjustedMonth - 1, adjustedDay, 12, 0, 0));
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: SERBIA_TIMEZONE,
+      hour: 'numeric',
+      hour12: false,
+      timeZoneName: 'short'
+    });
+    const parts = formatter.formatToParts(tempDate);
+    const tzName = parts.find(p => p.type === 'timeZoneName')?.value || '';
+    
+    // Determine offset: CET = UTC+1, CEST = UTC+2
+    const offsetHours = tzName.includes('CEST') || tzName.includes('GMT+2') ? 2 : 1;
+    
+    // Subtract the offset to get the correct UTC time
+    // If Serbia time is 00:52, and offset is +1, UTC should be 23:52 previous day
+    return new Date(Date.UTC(adjustedYear, adjustedMonth - 1, adjustedDay, hour - offsetHours, minute, second));
   }
   
   // Throw error for unsupported formats instead of silently failing
