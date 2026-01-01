@@ -21,69 +21,25 @@ export function baseTrophiesForUpload(uploadId: number): number {
 }
 
 /**
+ * Missed day penalty:
+ * - Penalty: half of base (13-16 trophies lost)
+ * - Applied when user breaks their streak
+ */
+export function trophiesPenaltyForMissedDay(userId: number): number {
+  // Use a consistent base for missed day penalty (average of 26-32 = 29)
+  const averageBase = 29;
+  return -Math.round(averageBase / 2); // -14 or -15 trophies
+}
+
+/**
  * Approval reward:
  * - Base reward: 26-32 trophies (deterministic)
- * - Missed streak penalty: cut in half if gap exists
+ * - Always full reward (streak penalties applied separately when streak breaks)
  */
 export function trophiesAwardForApproval(userId: number, uploadId: number, uploadDate: string): number {
-  const base = baseTrophiesForUpload(uploadId);
-
-  const yesterday = addDaysYMD(uploadDate, -1);
-
-  // "Maintained streak" should consider Rest Days as valid activity.
-  const hasYesterdayApproved = !!db
-    .prepare(
-      `SELECT 1
-       FROM daily_uploads
-       WHERE user_id = ?
-         AND verification_status = 'approved'
-         AND upload_date = ?
-         AND id != ?
-       LIMIT 1`
-    )
-    .get(userId, yesterday, uploadId);
-
-  let hasYesterdayRestDay = false;
-  try {
-    hasYesterdayRestDay = !!db
-      .prepare('SELECT 1 FROM rest_days WHERE user_id = ? AND rest_date = ? LIMIT 1')
-      .get(userId, yesterday);
-  } catch (error) {
-    // rest_days may not exist in very old DBs; treat as no rest day
-    logError('trophies:hasYesterdayRestDay', error, { userId, yesterday });
-    hasYesterdayRestDay = false;
-  }
-
-  const hasYesterdayActivity = hasYesterdayApproved || hasYesterdayRestDay;
-
-  // If this is the user's first-ever activity, don't penalize.
-  const hasPriorApproved = !!db
-    .prepare(
-      `SELECT 1
-       FROM daily_uploads
-       WHERE user_id = ?
-         AND verification_status = 'approved'
-         AND upload_date < ?
-         AND id != ?
-       LIMIT 1`
-    )
-    .get(userId, uploadDate, uploadId);
-
-  let hasPriorRestDay = false;
-  try {
-    hasPriorRestDay = !!db
-      .prepare('SELECT 1 FROM rest_days WHERE user_id = ? AND rest_date < ? LIMIT 1')
-      .get(userId, uploadDate);
-  } catch (error) {
-    logError('trophies:hasPriorRestDay', error, { userId, uploadDate });
-    hasPriorRestDay = false;
-  }
-
-  const hasPriorActivity = hasPriorApproved || hasPriorRestDay;
-  const maintainedStreak = hasPriorActivity ? hasYesterdayActivity : true;
-
-  // Apply missed streak penalty (half) if streak was broken
-  return maintainedStreak ? base : Math.max(1, Math.round(base / 2));
+  // Plain and simple: approved upload always gives 26-32 trophies
+  // Missed day penalties are applied separately when streak breaks
+  return baseTrophiesForUpload(uploadId);
 }
 
 /**
@@ -102,7 +58,7 @@ function getUploadTrophiesNet(uploadId: number): number {
   return row?.net ?? 0;
 }
 
-function applyTrophyDelta(userId: number, uploadId: number | null, delta: number, reason: string) {
+export function applyTrophyDelta(userId: number, uploadId: number | null, delta: number, reason: string) {
   if (!delta) return;
   db.exec('BEGIN');
   try {

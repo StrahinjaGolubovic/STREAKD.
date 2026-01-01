@@ -1,6 +1,6 @@
 import db from './db';
 import { formatDateSerbia, formatDateTimeSerbia, formatDateDisplay, isTodaySerbia, isPastSerbia, parseSerbiaDate } from './timezone';
-import { awardWeeklyCompletionBonus, getUserTrophies } from './trophies';
+import { awardWeeklyCompletionBonus, getUserTrophies, trophiesPenaltyForMissedDay, applyTrophyDelta } from './trophies';
 import { purgeUserUploadsBeforeDate } from './purge';
 import { logError, logWarning } from './logger';
 
@@ -616,7 +616,19 @@ export function updateStreakOnUpload(userId: number, uploadDate: string): void {
       // Same day, don't increment
       // Do nothing
     } else if (daysDiff > 1) {
-      // Gap in streak, reset to 1
+      // Gap in streak - apply missed day penalty for each missed day
+      const missedDays = daysDiff - 1; // Number of days actually missed
+      const penalty = trophiesPenaltyForMissedDay(userId);
+      
+      // Apply penalty for each missed day (but cap at reasonable amount)
+      const totalPenalty = penalty * Math.min(missedDays, 3); // Cap at 3 days penalty
+      
+      // Apply trophy penalty
+      if (totalPenalty !== 0) {
+        applyTrophyDelta(userId, null, totalPenalty, `missed_days:${missedDays}`);
+      }
+      
+      // Reset streak to 1
       db.prepare('UPDATE streaks SET current_streak = 1, last_activity_date = ? WHERE user_id = ?').run(
         uploadDateStr,
         userId
@@ -739,13 +751,25 @@ export function updateStreakOnRestDay(userId: number, restDate: string): void {
       // Same day, don't increment
       // Do nothing
     } else if (daysDiff > 1) {
-      // Gap in streak, reset to 1
+      // Gap in streak - apply missed day penalty for each missed day
+      const missedDays = daysDiff - 1;
+      const penalty = trophiesPenaltyForMissedDay(userId);
+      
+      // Apply penalty for each missed day (capped at 3 days)
+      const totalPenalty = penalty * Math.min(missedDays, 3);
+      
+      if (totalPenalty !== 0) {
+        applyTrophyDelta(userId, null, totalPenalty, `missed_days:${missedDays}`);
+      }
+      
+      // Reset streak to 1
       db.prepare('UPDATE streaks SET current_streak = 1, last_activity_date = ? WHERE user_id = ?').run(
         restDateStr,
         userId
       );
+    } else {
+      // Rest day is older than last_activity_date — ignore.
     }
-    // If restDate is before last_activity_date, ignore (shouldn't happen)
   }
 }
 
