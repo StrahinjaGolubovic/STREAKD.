@@ -9,14 +9,13 @@ export interface ChatMessage {
   created_at: string;
 }
 
-// Clean up messages older than 24 hours
+// Clean up messages from previous days (resets at midnight 00:00 Serbia time)
 export function cleanupOldMessages(): void {
   try {
-    // Delete messages older than 24 hours (using Serbia timezone)
-    // CRITICAL: Use Serbia time for both current and calculation
-    const nowDate = new Date();
-    const yesterday24h = new Date(nowDate.getTime() - 24 * 60 * 60 * 1000);
-    const cutoffTime = formatDateTimeSerbia(yesterday24h);
+    // Delete messages from before today (midnight 00:00 Serbia time)
+    const { formatDateSerbia } = require('./timezone');
+    const todayDate = formatDateSerbia(); // YYYY-MM-DD in Serbia timezone
+    const cutoffTime = `${todayDate} 00:00:00`; // Today at midnight
     
     const result = db
       .prepare(
@@ -37,17 +36,16 @@ export interface ChatMessageWithProfile extends ChatMessage {
   profile_picture: string | null;
 }
 
-// Get recent messages (last 24 hours, limit 100)
+// Get recent messages (from today since midnight 00:00, limit 100)
 export function getRecentMessages(limit: number = 100): ChatMessageWithProfile[] {
   // Clean up old messages first
   cleanupOldMessages();
   
   try {
-    // Calculate 24 hours ago in Serbia timezone
-    // CRITICAL: Arithmetic on UTC, then convert to Serbia for comparison
-    const nowDate = new Date();
-    const yesterday24h = new Date(nowDate.getTime() - 24 * 60 * 60 * 1000);
-    const cutoffTime = formatDateTimeSerbia(yesterday24h);
+    // Get messages from today (since midnight 00:00 Serbia time)
+    const { formatDateSerbia } = require('./timezone');
+    const todayDate = formatDateSerbia(); // YYYY-MM-DD in Serbia timezone
+    const cutoffTime = `${todayDate} 00:00:00`; // Today at midnight
     
     const messages = db
       .prepare(
