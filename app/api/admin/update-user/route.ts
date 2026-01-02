@@ -108,9 +108,9 @@ export async function POST(request: NextRequest) {
         // NEW BASELINE LOGIC:
         // - Admin baseline is a HARD FLOOR that does NOT decay
         // - If admin sets current_streak > 0, set baseline to that value
-        // - baseline_date defaults to yesterday (so next upload extends it)
+        // - baseline_date defaults to TODAY (streak is current as of today)
         // - Setting current_streak to 0 clears the baseline
-        const defaultBaselineDate = addDaysYMD(formatDateSerbia(), -1);
+        const defaultBaselineDate = formatDateSerbia(); // TODAY, not yesterday
         const baselineDate =
           desiredCurrent > 0
             ? lastActivityDate !== undefined && lastActivityDate !== null

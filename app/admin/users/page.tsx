@@ -48,12 +48,10 @@ export default function AdminUsers() {
     trophies: string;
     current_streak: string;
     longest_streak: string;
-    last_activity_date: string;
   }>({
     trophies: '',
     current_streak: '',
     longest_streak: '',
-    last_activity_date: '',
   });
 
   const [passwordUser, setPasswordUser] = useState<User | null>(null);
@@ -143,7 +141,6 @@ export default function AdminUsers() {
       trophies: String(user.trophies ?? 0),
       current_streak: String(user.current_streak ?? 0),
       longest_streak: String(user.longest_streak ?? 0),
-      last_activity_date: user.last_activity_date ? String(user.last_activity_date) : '',
     });
   }
 
@@ -158,7 +155,7 @@ export default function AdminUsers() {
           trophies: editForm.trophies,
           current_streak: editForm.current_streak,
           longest_streak: editForm.longest_streak,
-          last_activity_date: editForm.last_activity_date,
+          // last_activity_date is automatic - defaults to yesterday when streak is set
         }),
       });
 
@@ -574,7 +571,7 @@ export default function AdminUsers() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-semibold text-gray-100 mb-1">Edit @{editUser.username}</h3>
-            <p className="text-sm text-gray-300 mb-5">Set values manually (non-negative integers). Dates must be YYYY-MM-DD.</p>
+            <p className="text-sm text-gray-300 mb-5">Set values manually. Streak baseline is set automatically.</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label className="text-sm text-gray-200">
@@ -606,17 +603,6 @@ export default function AdminUsers() {
                   min={0}
                   value={editForm.longest_streak}
                   onChange={(e) => setEditForm((p) => ({ ...p, longest_streak: e.target.value }))}
-                  className="mt-1 w-full bg-gray-900 border border-gray-600 rounded-md px-3 py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-              </label>
-
-              <label className="text-sm text-gray-200">
-                Last activity (YYYY-MM-DD)
-                <input
-                  type="text"
-                  placeholder="2025-12-23"
-                  value={editForm.last_activity_date}
-                  onChange={(e) => setEditForm((p) => ({ ...p, last_activity_date: e.target.value }))}
                   className="mt-1 w-full bg-gray-900 border border-gray-600 rounded-md px-3 py-2 text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </label>
