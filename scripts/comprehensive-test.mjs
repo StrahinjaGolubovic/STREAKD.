@@ -18,6 +18,7 @@ import jwt from 'jsonwebtoken';
 const BASE_URL = process.env.SMOKE_BASE_URL || 'http://localhost:3000';
 const DB_PATH = process.env.DATABASE_PATH || './data/gymble.db';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const CRON_SECRET = process.env.CRON_SECRET || 'dev_cron_secret';
 
 function formatDateSerbia(date = new Date()) {
   const fmt = new Intl.DateTimeFormat('en-CA', {
@@ -114,6 +115,17 @@ async function verifyUpload(adminToken, uploadId, status) {
     body: JSON.stringify({ uploadId, status }),
   });
   return { ok: res.ok, error: json?.error };
+}
+
+async function runNightlyRollupCron() {
+  const { res, json, text } = await apiFetch('/api/cron/nightly-rollup', {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${CRON_SECRET}`,
+    },
+  });
+  assert(res.ok, `nightly-rollup failed: ${res.status} ${text}`);
+  return json;
 }
 
 async function useRestDay(token, date) {
@@ -337,8 +349,73 @@ test('TROPHY-2: Approval reward = half (13-16) when streak broken', async (db, a
   const after = getTrophies(db, userId);
   const reward = after - before;
 
-  assert(reward >= 13 && reward <= 16, `Expected half reward 13-16, got ${reward}`);
-  console.log(`  ✓ Broken streak → half reward = ${reward}`);
+  assert(reward >= 26 && reward <= 32, `Expected base reward 26-32 (approval is always base), got ${reward}`);
+  console.log(`  ✓ Approval always base reward (no half) = ${reward}`);
+});
+
+test('IMMUTABLE-1: Verification cannot be changed after approval (409)', async (db, adminToken) => {
+  const userId = dbEnsureUser(db, `test_immutable1_${Date.now()}`, 'pass');
+  const token = tokenForUserId(userId);
+  const today = formatDateSerbia();
+
+  const { uploadId } = await uploadPhoto(token, today);
+  assert(uploadId, 'Upload failed');
+
+  const a1 = await apiFetch('/api/admin/verify-upload', {
+    token: adminToken,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ uploadId, status: 'approved' }),
+  });
+  assert(a1.res.ok, `approve failed: ${a1.res.status} ${a1.text}`);
+
+  const a2 = await apiFetch('/api/admin/verify-upload', {
+    token: adminToken,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ uploadId, status: 'rejected' }),
+  });
+  assert(a2.res.status === 409, `expected 409 on re-verify, got ${a2.res.status}: ${a2.text}`);
+  console.log('  ✓ Verification immutability enforced (409)');
+});
+
+test('ROLLUP-1: Missed day penalty only applies via nightly rollup (not on approve)', async (db, adminToken) => {
+  const userId = dbEnsureUser(db, `test_rollup1_${Date.now()}`, 'pass');
+  const token = tokenForUserId(userId);
+  const today = formatDateSerbia();
+  const yesterday = addDaysYMD(today, -1);
+  const twoDaysAgo = addDaysYMD(today, -2);
+
+  // Create an approved upload two days ago to set some activity history
+  const { uploadId: id1 } = await uploadPhoto(token, twoDaysAgo);
+  assert(id1, 'Upload twoDaysAgo failed');
+  await verifyUpload(adminToken, id1, 'approved');
+
+  // Intentionally miss yesterday (no upload attempt, no rest day)
+  const trophiesBeforeTodayApprove = getTrophies(db, userId);
+
+  // Approve today: should only add base reward, NOT apply missed-day penalty
+  const { uploadId: id2 } = await uploadPhoto(token, today);
+  assert(id2, 'Upload today failed');
+  await verifyUpload(adminToken, id2, 'approved');
+  const trophiesAfterTodayApprove = getTrophies(db, userId);
+  const deltaApprove = trophiesAfterTodayApprove - trophiesBeforeTodayApprove;
+  assert(deltaApprove >= 26 && deltaApprove <= 32, `expected approve delta 26-32, got ${deltaApprove}`);
+
+  // Now run rollup cron: should apply missed-day penalty for yesterday
+  const beforeCron = getTrophies(db, userId);
+  await runNightlyRollupCron();
+  const afterCron = getTrophies(db, userId);
+  const cronDelta = afterCron - beforeCron;
+
+  assert(cronDelta <= -13 && cronDelta >= -16, `expected missed-day penalty -13..-16 from cron, got ${cronDelta}`);
+
+  // Cron is idempotent for the day: second run should not change trophies
+  const beforeCron2 = getTrophies(db, userId);
+  await runNightlyRollupCron();
+  const afterCron2 = getTrophies(db, userId);
+  assert(afterCron2 === beforeCron2, `expected cron idempotent (no change), got delta ${afterCron2 - beforeCron2}`);
+  console.log(`  ✓ Missed-day penalty applied only via cron (${cronDelta}), and idempotent`);
 });
 
 test('TROPHY-3: Rest day yesterday → full reward today', async (db, adminToken) => {
@@ -498,15 +575,19 @@ test('WEEK-1: Perfect week (7/7) → bonus awarded', async (db, adminToken) => {
 
   // Manually mark challenge as completed with 7 days (simulating rollover)
   db.prepare('UPDATE weekly_challenges SET status = ?, completed_days = ? WHERE id = ?').run('completed', 7, challengeId);
-  
-  // Manually trigger bonus (simulating what happens on rollover)
-  const { awardWeeklyCompletionBonus } = await import('../lib/trophies.ts');
+
+  // Trigger bonus via cron (the only allowed place bonuses are applied)
   const before = getTrophies(db, userId);
-  // Note: We can't directly import ES modules, so we'll check the bonus logic differently
-  // Instead, verify the challenge is marked correctly
+  await runNightlyRollupCron();
+  const after = getTrophies(db, userId);
+  const bonus = after - before;
+
+  assert(bonus === 10, `Expected first perfect week bonus +10, got ${bonus}`);
+
+  // Verify the challenge is marked correctly
   const challenge = db.prepare('SELECT status, completed_days FROM weekly_challenges WHERE id = ?').get(challengeId);
   assert(challenge.status === 'completed' && challenge.completed_days === 7, 'Challenge should be perfect');
-  console.log(`  ✓ Perfect week (7/7) → challenge marked completed`);
+  console.log(`  ✓ Perfect week (7/7) → bonus awarded = ${bonus}`);
 });
 
 test('WEEK-2: Failed week (< 5/7) → no bonus, no penalty', async (db, adminToken) => {

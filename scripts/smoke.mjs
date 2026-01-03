@@ -185,8 +185,9 @@ async function main() {
     }
   }
 
-  // Approve -> reject -> approve toggle (tests streak recompute + trophy idempotency)
-  for (const status of ['approved', 'rejected', 'approved']) {
+  // Verify once (immutability rule)
+  {
+    const status = 'approved';
     const { res, text } = await apiFetch('/api/admin/verify-upload', {
       token: adminToken,
       method: 'POST',
@@ -196,17 +197,28 @@ async function main() {
     assert(res.ok, `verify-upload ${status} failed: ${res.status} ${text}`);
     console.log(`[smoke] verify-upload ${status} OK`);
 
-    // Validate streak behavior (requested rule):
-    // - After approval, streak should be 1 (fresh user with only today's upload)
-    // - After rejection, streak should be 0 immediately
     const dash = await apiFetch('/api/dashboard', { token: uploadUserToken });
     assert(dash.res.ok, `dashboard after verify ${status} failed: ${dash.res.status} ${dash.text}`);
     const s = Number(dash.json?.streak?.current_streak ?? -1);
-    if (status === 'approved') {
-      assert(s === expectedApprovedStreak, `expected current_streak=${expectedApprovedStreak} after approve, got ${s}`);
-    } else if (status === 'rejected') {
-      assert(s === 0, `expected current_streak=0 after reject, got ${s}`);
-    }
+    assert(s === expectedApprovedStreak, `expected current_streak=${expectedApprovedStreak} after approve, got ${s}`);
+  }
+
+  // Attempt to change verification (must be blocked)
+  {
+    const status = 'rejected';
+    const { res, text } = await apiFetch('/api/admin/verify-upload', {
+      token: adminToken,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uploadId, status }),
+    });
+    assert(res.status === 409, `expected 409 when re-verifying upload, got ${res.status}: ${text}`);
+    console.log('[smoke] verify-upload immutability enforced (409)');
+
+    const dash = await apiFetch('/api/dashboard', { token: uploadUserToken });
+    assert(dash.res.ok, `dashboard after rejected attempt failed: ${dash.res.status} ${dash.text}`);
+    const s = Number(dash.json?.streak?.current_streak ?? -1);
+    assert(s === expectedApprovedStreak, `expected streak unchanged after blocked re-verify, got ${s}`);
   }
 
   // Verify reward wasn't halved on the first approval (because we inserted a rest day yesterday).

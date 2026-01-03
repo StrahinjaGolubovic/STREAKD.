@@ -12,7 +12,7 @@ function getCronSecret(): string {
     if (process.env.NODE_ENV === 'production') {
       throw new Error('FATAL: CRON_SECRET environment variable must be set in production');
     }
-    throw new Error('CRITICAL: CRON_SECRET environment variable must be set');
+    return 'dev_cron_secret';
   }
   return secret;
 }
