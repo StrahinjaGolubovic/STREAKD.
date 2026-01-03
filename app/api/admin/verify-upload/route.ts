@@ -28,6 +28,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Upload not found' }, { status: 404 });
     }
 
+    if (upload.verification_status !== 'pending') {
+      return NextResponse.json(
+        { error: 'Upload has already been verified and cannot be changed' },
+        { status: 409 }
+      );
+    }
+
     // Extract metadata before verifying
     const pendingUploads = getPendingUploads();
     const pendingUpload = pendingUploads.find((u) => u.id === uploadId);
@@ -39,7 +46,10 @@ export async function POST(request: NextRequest) {
     const success = verifyUpload(uploadId, status, adminCheck.userId);
 
     if (!success) {
-      return NextResponse.json({ error: 'Upload not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Upload has already been verified and cannot be changed' },
+        { status: 409 }
+      );
     }
 
     // Use unified handler that updates streak, trophies, and challenge status atomically

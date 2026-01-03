@@ -224,6 +224,42 @@ export function evaluateChallenge(challengeId: number): {
   };
 }
 
+export function evaluateChallengeNoBonus(challengeId: number): {
+  status: ChallengeStatus;
+  completedDays: number;
+} {
+  const challenge = db
+    .prepare('SELECT * FROM weekly_challenges WHERE id = ?')
+    .get(challengeId) as WeeklyChallenge | undefined;
+
+  if (!challenge) {
+    return { status: 'failed', completedDays: 0 };
+  }
+
+  const progress = computeChallengeProgress(challengeId);
+
+  let newStatus: ChallengeStatus;
+
+  if (progress.pendingDays > 0) {
+    newStatus = 'pending_evaluation';
+  } else if (progress.completedDays >= 5) {
+    newStatus = 'completed';
+  } else {
+    newStatus = 'failed';
+  }
+
+  db.prepare(`
+    UPDATE weekly_challenges 
+    SET status = ?, completed_days = ?
+    WHERE id = ?
+  `).run(newStatus, progress.completedDays, challengeId);
+
+  return {
+    status: newStatus,
+    completedDays: progress.completedDays,
+  };
+}
+
 /**
  * Re-evaluate a challenge after verification changes.
  * This may change status from completed to failed or vice versa.
@@ -238,7 +274,7 @@ export function reevaluateChallengeAfterVerification(challengeId: number): void 
   // Only re-evaluate non-active challenges
   if (challenge.status === 'active') return;
 
-  evaluateChallenge(challengeId);
+  evaluateChallengeNoBonus(challengeId);
 }
 
 // ============================================================================
@@ -259,7 +295,7 @@ export function handleWeekRollover(
 ): WeeklyChallenge {
   // Evaluate previous challenge if exists
   if (previousChallenge) {
-    evaluateChallenge(previousChallenge.id);
+    evaluateChallengeNoBonus(previousChallenge.id);
   }
 
   // Create new challenge

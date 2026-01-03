@@ -129,7 +129,7 @@ export function verifyUpload(uploadId: number, status: 'approved' | 'rejected', 
       `
     UPDATE daily_uploads 
     SET verification_status = ?, verified_at = ?, verified_by = ?
-    WHERE id = ?
+    WHERE id = ? AND verification_status = 'pending'
   `
     )
     .run(status, verifiedAt, verifiedBy, uploadId);

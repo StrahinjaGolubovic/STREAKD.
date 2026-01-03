@@ -216,7 +216,13 @@ export default function DashboardPage() {
   useEffect(() => {
     const sendHeartbeat = async () => {
       try {
-        await fetch('/api/user-heartbeat', { method: 'POST' });
+        const res = await fetch('/api/user-heartbeat', { method: 'POST' });
+        if (res.ok) {
+          const json = await res.json();
+          if (json?.rollupApplied) {
+            fetchDashboard();
+          }
+        }
       } catch {
         // ignore - heartbeat is not critical
       }
@@ -227,7 +233,7 @@ export default function DashboardPage() {
     const heartbeatInterval = setInterval(sendHeartbeat, 30000); // Every 30 seconds
 
     return () => clearInterval(heartbeatInterval);
-  }, []);
+  }, [fetchDashboard]);
 
   useEffect(() => {
     if (!profileMenuOpen) return;

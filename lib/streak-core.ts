@@ -49,6 +49,7 @@ export interface StreakData {
   current_streak: number;
   longest_streak: number;
   last_activity_date: string | null;
+  last_rollup_date: string | null;
   admin_baseline_date: string | null;
   admin_baseline_streak: number;
   admin_baseline_longest: number;
@@ -115,6 +116,18 @@ export function computeStreakFromDatabase(userId: number): ComputedStreak {
       ORDER BY upload_date ASC
     `)
     .all(userId) as Array<{ upload_date: string }>;
+
+  // Latest rejected upload date (used as a streak breaker)
+  const rejectedRow = db
+    .prepare(
+      `
+        SELECT MAX(upload_date) as max_rejected
+        FROM daily_uploads
+        WHERE user_id = ? AND verification_status = 'rejected'
+      `
+    )
+    .get(userId) as { max_rejected: string | null } | undefined;
+  const latestRejectedDate = rejectedRow?.max_rejected ?? null;
 
   // Get all rest days
   let restDays: Array<{ rest_date: string }> = [];
@@ -213,6 +226,16 @@ export function computeStreakFromDatabase(userId: number): ComputedStreak {
     // but we DON'T zero it out - admin can still see/edit it
   }
 
+  // Rejected uploads break the streak immediately.
+  // If the most recent *action day* is a rejected upload (today/yesterday), current_streak must be 0.
+  if (latestRejectedDate && latestRejectedDate >= yesterday) {
+    if (!lastActivityDate || latestRejectedDate >= lastActivityDate) {
+      finalCurrent = 0;
+      lastActivityDate = latestRejectedDate;
+      baselineApplied = false;
+    }
+  }
+
   // longest_streak can only increase
   const finalLongest = Math.max(
     storedLongest,
@@ -274,25 +297,74 @@ export function persistComputedStreak(userId: number, computed: ComputedStreak):
  */
 export function recomputeAndPersistStreak(userId: number): ComputedStreak {
   ensureStreakRowExists(userId);
-  
-  // Get old streak before recompute
-  const oldData = getStreakData(userId);
-  const oldStreak = oldData.current_streak;
-  const oldLastActivity = oldData.last_activity_date;
-  
+
   // Compute new streak
   const computed = computeStreakFromDatabase(userId);
+  
+  persistComputedStreak(userId, computed);
+  return computed;
+}
 
-  // Apply missed-day penalties for any fully-past dates since the last activity.
-  // "Missed" means: no upload attempt (any status) AND no rest day for that date.
-  // We only consider dates up to yesterday (today isn't "missed" yet).
-  if (oldLastActivity) {
-    const today = formatDateSerbia();
-    const upTo = addDaysYMD(today, -1);
+/**
+ * Get current streak data from database (for display).
+ * This is a READ-ONLY operation with NO side effects.
+ */
+export function getStreakData(userId: number): StreakData {
+  ensureStreakRowExists(userId);
+  
+  const row = db
+    .prepare(`
+      SELECT 
+        user_id,
+        COALESCE(current_streak, 0) as current_streak,
+        COALESCE(longest_streak, 0) as longest_streak,
+        last_activity_date,
+        last_rollup_date,
+        admin_baseline_date,
+        COALESCE(admin_baseline_streak, 0) as admin_baseline_streak,
+        COALESCE(admin_baseline_longest, 0) as admin_baseline_longest
+      FROM streaks 
+      WHERE user_id = ?
+    `)
+    .get(userId) as StreakData;
 
-    if (oldLastActivity < upTo) {
-      let d = addDaysYMD(oldLastActivity, 1);
-      while (d <= upTo) {
+  return row;
+}
+
+export function runDailyRollupForUser(userId: number): { rollupApplied: boolean; today: string } {
+  ensureStreakRowExists(userId);
+
+  const today = formatDateSerbia();
+  const yesterday = addDaysYMD(today, -1);
+
+  const row = db
+    .prepare(
+      `
+        SELECT
+          last_activity_date,
+          last_rollup_date
+        FROM streaks
+        WHERE user_id = ?
+      `
+    )
+    .get(userId) as { last_activity_date: string | null; last_rollup_date: string | null } | undefined;
+
+  const lastActivity = row?.last_activity_date ?? null;
+  const lastRollup = row?.last_rollup_date ?? null;
+
+  if (lastRollup === today) {
+    return { rollupApplied: false, today };
+  }
+
+  // Determine where to start scanning for missed days.
+  // If we already rolled up before, continue from there; otherwise start from last activity.
+  const base = lastRollup ?? lastActivity;
+
+  db.exec('SAVEPOINT daily_rollup');
+  try {
+    if (base && base < yesterday) {
+      let d = addDaysYMD(base, 1);
+      while (d <= yesterday) {
         const hasAnyUpload = !!db
           .prepare('SELECT 1 FROM daily_uploads WHERE user_id = ? AND upload_date = ? LIMIT 1')
           .get(userId, d);
@@ -313,35 +385,23 @@ export function recomputeAndPersistStreak(userId: number): ComputedStreak {
         d = addDaysYMD(d, 1);
       }
     }
+
+    // Persist streak state so admin views and other queries stay in sync after midnight.
+    const computed = computeStreakFromDatabase(userId);
+    persistComputedStreak(userId, computed);
+
+    db.prepare('UPDATE streaks SET last_rollup_date = ? WHERE user_id = ?').run(today, userId);
+    db.exec('RELEASE daily_rollup');
+    return { rollupApplied: true, today };
+  } catch (e) {
+    try {
+      db.exec('ROLLBACK TO daily_rollup');
+      db.exec('RELEASE daily_rollup');
+    } catch {
+      /* ignore */
+    }
+    throw e;
   }
-  
-  persistComputedStreak(userId, computed);
-  return computed;
-}
-
-/**
- * Get current streak data from database (for display).
- * This is a READ-ONLY operation with NO side effects.
- */
-export function getStreakData(userId: number): StreakData {
-  ensureStreakRowExists(userId);
-  
-  const row = db
-    .prepare(`
-      SELECT 
-        user_id,
-        COALESCE(current_streak, 0) as current_streak,
-        COALESCE(longest_streak, 0) as longest_streak,
-        last_activity_date,
-        admin_baseline_date,
-        COALESCE(admin_baseline_streak, 0) as admin_baseline_streak,
-        COALESCE(admin_baseline_longest, 0) as admin_baseline_longest
-      FROM streaks 
-      WHERE user_id = ?
-    `)
-    .get(userId) as StreakData;
-
-  return row;
 }
 
 /**
@@ -375,6 +435,7 @@ export function setAdminBaseline(
   ensureStreakRowExists(userId);
 
   const effectiveLongest = baselineLongest ?? baselineStreak;
+  const today = formatDateSerbia();
   
   db.prepare(`
     UPDATE streaks
@@ -383,7 +444,8 @@ export function setAdminBaseline(
         admin_baseline_longest = ?,
         current_streak = ?,
         longest_streak = ?,
-        last_activity_date = ?
+        last_activity_date = ?,
+        last_rollup_date = ?
     WHERE user_id = ?
   `).run(
     baselineStreak,
@@ -392,6 +454,7 @@ export function setAdminBaseline(
     baselineStreak,
     effectiveLongest,
     baselineDate,
+    today,
     userId
   );
 

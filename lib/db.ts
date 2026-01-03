@@ -249,6 +249,7 @@ function initDatabase(database: Database) {
       current_streak INTEGER DEFAULT 0,
       longest_streak INTEGER DEFAULT 0,
       last_activity_date DATE,
+      last_rollup_date DATE,
       admin_baseline_date DATE,
       admin_baseline_streak INTEGER DEFAULT 0,
       admin_baseline_longest INTEGER DEFAULT 0,
@@ -260,6 +261,9 @@ function initDatabase(database: Database) {
   try {
     const streaksInfo = database.prepare("PRAGMA table_info(streaks)").all() as Array<{ name: string }>;
     const streaksCols = streaksInfo.map((c) => c.name);
+    if (!streaksCols.includes('last_rollup_date')) {
+      database.exec(`ALTER TABLE streaks ADD COLUMN last_rollup_date DATE;`);
+    }
     if (!streaksCols.includes('admin_baseline_date')) {
       database.exec(`ALTER TABLE streaks ADD COLUMN admin_baseline_date DATE;`);
     }

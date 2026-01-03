@@ -3,7 +3,7 @@ import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 import db from '@/lib/db';
 import { formatDateTimeSerbia } from '@/lib/timezone';
-import { getUserStreak } from '@/lib/challenges';
+import { runDailyRollupForUser } from '@/lib/streak-core';
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,10 +30,13 @@ export async function POST(request: NextRequest) {
        VALUES (?, ?)`
     ).run(userId, now);
 
-    // Also apply streak "missed day" decay on regular activity so it self-corrects after midnight (Serbia time).
-    getUserStreak(userId);
+    const rollup = runDailyRollupForUser(userId);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      serbia_today: rollup.today,
+      rollupApplied: rollup.rollupApplied,
+    });
   } catch (error: any) {
     console.error('Heartbeat error:', error);
     console.error('Error stack:', error?.stack);

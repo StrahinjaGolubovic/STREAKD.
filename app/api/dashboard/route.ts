@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import { getUserDashboard } from '@/lib/challenges';
 import { formatDateSerbia } from '@/lib/timezone';
+import { runDailyRollupForUser } from '@/lib/streak-core';
 import { cookies } from 'next/headers';
 import db from '@/lib/db';
 
@@ -21,6 +22,9 @@ export async function GET(request: NextRequest) {
     }
 
     const userId = decoded.userId;
+
+    // Apply once-per-day rollup so missed-day penalties and streak reset happen at midnight.
+    runDailyRollupForUser(userId);
     const dashboard = getUserDashboard(userId);
     
     // Get user username, profile picture, and crew info
