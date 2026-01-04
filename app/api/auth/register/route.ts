@@ -6,7 +6,7 @@ import { getSerbiaDateSQLite } from '@/lib/timezone';
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, password, altcha } = await request.json();
+    const { username, password, altcha, referralCode } = await request.json();
     
     // Verify ALTCHA solution
     if (!altcha) {
@@ -52,7 +52,25 @@ export async function POST(request: NextRequest) {
     const passwordHash = await hashPassword(password);
     // Get Serbia date as YYYY-MM-DD
     const serbiaDate = getSerbiaDateSQLite();
-    const result = db.prepare('INSERT INTO users (username, password_hash, credits, created_at) VALUES (?, ?, ?, ?)').run(username, passwordHash, 0, serbiaDate);
+    
+    // Check if referral code is valid
+    let referrerId: number | null = null;
+    if (referralCode) {
+      const referrer = db
+        .prepare('SELECT user_id FROM invite_codes WHERE code = ?')
+        .get(referralCode) as { user_id: number } | undefined;
+      if (referrer) {
+        referrerId = referrer.user_id;
+      }
+    }
+    
+    const result = db.prepare('INSERT INTO users (username, password_hash, credits, created_at, referred_by) VALUES (?, ?, ?, ?, ?)').run(username, passwordHash, 0, serbiaDate, referrerId);
+
+    // Track referral if valid
+    if (referrerId) {
+      const { trackReferral } = require('@/lib/coins');
+      trackReferral(referrerId, Number(result.lastInsertRowid));
+    }
 
     return NextResponse.json(
       {

@@ -123,6 +123,14 @@ function getDb(): Database {
           logError('db:migration', createError, { context: 'create rest_days table' });
         }
       }
+      // Initialize shop items if needed
+      try {
+        const { initializeShopItems } = require('./coins');
+        initializeShopItems();
+      } catch (shopError: any) {
+        logWarning('db:migration', 'Failed to initialize shop items', { error: shopError?.message });
+      }
+
       // Mark as complete only after all migrations succeed
       migrationsRun = true;
     } catch (error: any) {
@@ -153,13 +161,23 @@ function initDatabase(database: Database) {
     )
   `);
 
-  // Migrate existing users table to add trophies column if missing
+  // Migrate existing users table to add trophies and coins columns if missing
   try {
     const usersInfo = database.prepare("PRAGMA table_info(users)").all() as Array<{ name: string }>;
     const usersCols = usersInfo.map((c) => c.name);
     if (!usersCols.includes('trophies')) {
       database.exec(`ALTER TABLE users ADD COLUMN trophies INTEGER DEFAULT 0;`);
       database.exec(`UPDATE users SET trophies = 0 WHERE trophies IS NULL;`);
+    }
+    if (!usersCols.includes('coins')) {
+      database.exec(`ALTER TABLE users ADD COLUMN coins INTEGER DEFAULT 0;`);
+      database.exec(`UPDATE users SET coins = 0 WHERE coins IS NULL;`);
+    }
+    if (!usersCols.includes('last_daily_claim')) {
+      database.exec(`ALTER TABLE users ADD COLUMN last_daily_claim DATE;`);
+    }
+    if (!usersCols.includes('referred_by')) {
+      database.exec(`ALTER TABLE users ADD COLUMN referred_by INTEGER;`);
     }
   } catch (error) {
     console.log('Users migration note:', error);
@@ -278,6 +296,46 @@ function initDatabase(database: Database) {
   } catch (error) {
     console.log('Streaks migration note:', error);
   }
+
+  // Coin transactions ledger (auditable)
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS coin_transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      delta INTEGER NOT NULL,
+      reason TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Shop items table
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS shop_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT,
+      price INTEGER NOT NULL,
+      item_type TEXT NOT NULL,
+      enabled INTEGER DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // Referral rewards tracking
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS referral_rewards (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      referrer_id INTEGER NOT NULL,
+      referred_id INTEGER NOT NULL,
+      reward_claimed INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      claimed_at DATETIME,
+      FOREIGN KEY (referrer_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (referred_id) REFERENCES users(id) ON DELETE CASCADE,
+      UNIQUE(referrer_id, referred_id)
+    )
+  `);
 
   // Trophy transactions ledger (auditable)
   database.exec(`

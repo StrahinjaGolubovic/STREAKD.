@@ -385,6 +385,12 @@ export function onUploadVerified(
   const progress = getChallengeProgress(challengeId);
   db.prepare('UPDATE weekly_challenges SET completed_days = ? WHERE id = ?')
     .run(progress.completedDays, challengeId);
+
+  // 5. Check and reward referral if this is first approved upload
+  if (status === 'approved') {
+    const { checkAndRewardReferral } = require('./coins');
+    checkAndRewardReferral(userId);
+  }
 }
 
 // ============================================================================

@@ -27,12 +27,14 @@ export async function GET(request: NextRequest) {
     runDailyRollupForUser(userId);
     const dashboard = getUserDashboard(userId);
     
-    // Get user username, profile picture, and crew info
+    // Get user username, profile picture, coins, and crew info
     const user = db.prepare(`
       SELECT 
         u.username, 
         u.profile_picture, 
         COALESCE(u.trophies, 0) as trophies,
+        COALESCE(u.coins, 0) as coins,
+        u.last_daily_claim,
         u.crew_id,
         c.name as crew_name,
         c.tag as crew_tag,
@@ -44,6 +46,8 @@ export async function GET(request: NextRequest) {
       username: string; 
       profile_picture: string | null; 
       trophies: number;
+      coins: number;
+      last_daily_claim: string | null;
       crew_id: number | null;
       crew_name: string | null;
       crew_tag: string | null;
@@ -57,14 +61,19 @@ export async function GET(request: NextRequest) {
       rest_days_available: typeof restDaysAvailable === 'number' ? restDaysAvailable : 3,
     };
     
+    const today = formatDateSerbia();
+    const canClaimDaily = user?.last_daily_claim !== today;
+
     return NextResponse.json({
       ...dashboard,
       challenge,
       userId,
-      server_serbia_today: formatDateSerbia(),
+      server_serbia_today: today,
       username: user?.username,
       profilePicture: user?.profile_picture || null,
       trophies: user?.trophies ?? 0,
+      coins: user?.coins ?? 0,
+      canClaimDaily,
       crew_id: user?.crew_id || null,
       crew_name: user?.crew_name || null,
       crew_tag: user?.crew_tag || null,

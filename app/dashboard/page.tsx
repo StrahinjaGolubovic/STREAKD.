@@ -40,6 +40,8 @@ interface DashboardData {
     longest_streak: number;
   };
   trophies: number;
+  coins?: number;
+  canClaimDaily?: boolean;
   userId?: number;
   username?: string;
   profilePicture?: string | null;
@@ -583,6 +585,23 @@ export default function DashboardPage() {
     );
   }
 
+  async function handleClaimDailyCoins() {
+    try {
+      const res = await fetch('/api/coins/claim-daily', { method: 'POST' });
+      const json = await res.json();
+      
+      if (res.ok) {
+        showToast(`Claimed ${json.amount} coins!`, 'success');
+        fetchDashboard(); // Refresh to update coins balance
+      } else {
+        showToast(json.error || 'Failed to claim coins', 'error');
+      }
+    } catch (error) {
+      console.error('Claim error:', error);
+      showToast('An error occurred', 'error');
+    }
+  }
+
   async function handleLogout() {
     showConfirm(
       'Logout',
@@ -654,6 +673,26 @@ export default function DashboardPage() {
             
             {/* Desktop Navigation */}
             <div className="hidden sm:flex items-center gap-2 sm:gap-3">
+              {/* Coins Display - Desktop */}
+              <Link
+                href="/shop"
+                className="flex items-center gap-2 px-3 py-1.5 bg-yellow-900/50 border border-yellow-600/60 rounded-md shadow-sm hover:bg-yellow-900/70 transition-colors"
+              >
+                <span className="text-yellow-400 text-lg">🪙</span>
+                <span className="text-sm font-bold text-yellow-200">
+                  {data?.coins ?? 0}
+                </span>
+                <span className="text-xs text-yellow-300 font-medium hidden md:inline">Coins</span>
+              </Link>
+              {/* Daily Claim Button */}
+              {data?.canClaimDaily && (
+                <button
+                  onClick={handleClaimDailyCoins}
+                  className="px-3 py-1.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-md shadow-sm font-semibold text-sm transition-all"
+                >
+                  Claim Daily
+                </button>
+              )}
               {/* Rest Days Counter - Desktop */}
               <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-900/50 border border-blue-600/60 rounded-md shadow-sm">
                 <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
