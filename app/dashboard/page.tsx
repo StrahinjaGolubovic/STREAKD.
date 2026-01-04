@@ -713,7 +713,10 @@ export default function DashboardPage() {
                 href="/shop"
                 className="flex items-center gap-2 px-3 py-1.5 bg-yellow-900/50 border border-yellow-600/60 rounded-md shadow-sm hover:bg-yellow-900/70 transition-colors"
               >
-                <span className="text-yellow-400 text-lg">🪙</span>
+                <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd"/>
+                </svg>
                 <span className="text-sm font-bold text-yellow-200">
                   {data?.coins ?? 0}
                 </span>
@@ -1024,7 +1027,10 @@ export default function DashboardPage() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-yellow-400 text-lg">🪙</span>
+                    <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd"/>
+                    </svg>
                     <span className="text-base font-medium text-yellow-300">Coins</span>
                   </div>
                   <span className="text-base font-semibold text-yellow-200">
@@ -1462,7 +1468,9 @@ export default function DashboardPage() {
           {/* Referral Invite Link Section */}
           <div className="mb-4 sm:mb-6 md:mb-8 p-4 sm:p-5 bg-gradient-to-br from-primary-900/20 to-purple-900/20 border border-primary-700/30 rounded-xl">
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-2xl">🎁</span>
+              <svg className="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
               <h3 className="text-base sm:text-lg font-bold text-primary-300">Invite Friends & Earn Coins</h3>
             </div>
             <p className="text-sm text-gray-400 mb-4">
@@ -1480,7 +1488,7 @@ export default function DashboardPage() {
                   disabled={!inviteLink}
                   className="px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap min-h-[44px]"
                 >
-                  📋 Copy Link
+                  Copy Link
                 </button>
               </div>
 
@@ -1490,7 +1498,7 @@ export default function DashboardPage() {
                 disabled={!inviteLink}
                 className="w-full px-4 py-3 bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 text-white rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg min-h-[44px]"
               >
-                🚀 Share Invite Link
+                Share Invite Link
               </button>
             </div>
           </div>
@@ -1670,7 +1678,9 @@ export default function DashboardPage() {
 
                                 {/* Streak */}
                                 <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-orange-500/20 via-orange-400/20 to-orange-500/20 border border-orange-500/40 rounded-full">
-                                  <span className="text-lg">🔥</span>
+                                  <svg className="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
+                                  </svg>
                                   <span className="text-sm font-bold text-orange-400">{friend.current_streak} days</span>
                                 </div>
                               </div>

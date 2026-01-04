@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Generate the full invite link
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://streakd.com';
     const inviteLink = `${baseUrl}/register?ref=${inviteCode.code}`;
 
     return NextResponse.json({
