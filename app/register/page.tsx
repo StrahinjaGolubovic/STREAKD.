@@ -3,14 +3,13 @@
 /// <reference path="../../types/altcha.d.ts" />
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Script from 'next/script';
 import Image from 'next/image';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,11 +22,15 @@ export default function RegisterPage() {
   const [referralCode, setReferralCode] = useState<string | null>(null);
 
   useEffect(() => {
-    const ref = searchParams.get('ref');
-    if (ref) {
-      setReferralCode(ref);
+    // Get referral code from URL on client side
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get('ref');
+      if (ref) {
+        setReferralCode(ref);
+      }
     }
-  }, [searchParams]);
+  }, []);
 
   useEffect(() => {
     // Check if script is already loaded and element is defined
