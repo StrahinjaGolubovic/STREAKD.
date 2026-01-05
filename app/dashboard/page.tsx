@@ -111,8 +111,10 @@ export default function DashboardPage() {
     onConfirm: () => {},
   });
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
-  const [restDaysInfoExpanded, setRestDaysInfoExpanded] = useState(false);
-  const restDaysRef = useRef<HTMLDivElement>(null);
+  const [restDaysExpandedDesktop, setRestDaysExpandedDesktop] = useState(false);
+  const [restDaysExpandedMobile, setRestDaysExpandedMobile] = useState(false);
+  const lastRestDaysMobileTouchRef = useRef(0);
+  const restDaysDesktopRef = useRef<HTMLDivElement>(null);
   const { isInstallable, isIOS, isInstalled, install } = usePWAInstall();
 
   const fetchDashboard = useCallback(async () => {
@@ -207,11 +209,11 @@ export default function DashboardPage() {
 
   // Close rest days dropdown when clicking outside (desktop only, using mousedown)
   useEffect(() => {
-    if (!restDaysInfoExpanded) return;
+    if (!restDaysExpandedDesktop) return;
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (restDaysRef.current && !restDaysRef.current.contains(event.target as Node)) {
-        setRestDaysInfoExpanded(false);
+      if (restDaysDesktopRef.current && !restDaysDesktopRef.current.contains(event.target as Node)) {
+        setRestDaysExpandedDesktop(false);
       }
     };
 
@@ -221,7 +223,17 @@ export default function DashboardPage() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [restDaysInfoExpanded]);
+  }, [restDaysExpandedDesktop]);
+
+  // When closing the mobile hamburger menu, also close the mobile rest days panel
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      setRestDaysExpandedMobile(false);
+      return;
+    }
+    // When opening the mobile menu, ensure the desktop dropdown isn't open (it uses a fixed overlay)
+    setRestDaysExpandedDesktop(false);
+  }, [mobileMenuOpen]);
 
   // Check if friends list needs scrolling
   useEffect(() => {
@@ -752,13 +764,9 @@ export default function DashboardPage() {
                 </button>
               )}
               {/* Rest Days Counter - Desktop */}
-              <div className="relative" ref={restDaysRef}>
+              <div className="relative" ref={restDaysDesktopRef}>
                 <button
-                  onClick={() => setRestDaysInfoExpanded(!restDaysInfoExpanded)}
-                  onTouchEnd={(e) => {
-                    e.preventDefault();
-                    setRestDaysInfoExpanded(!restDaysInfoExpanded);
-                  }}
+                  onClick={() => setRestDaysExpandedDesktop((v) => !v)}
                   className="flex items-center gap-2 px-3 py-1.5 bg-blue-900/50 border border-blue-600/60 rounded-md shadow-sm hover:bg-blue-900/70 active:bg-blue-900/80 transition-colors touch-manipulation"
                 >
                   <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -768,11 +776,11 @@ export default function DashboardPage() {
                     {restDaysAvailable}/3
                   </span>
                   <span className="text-xs text-blue-300 font-medium hidden md:inline">Rest Days</span>
-                  <svg className={`w-4 h-4 text-blue-300 transition-transform ${restDaysInfoExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-4 h-4 text-blue-300 transition-transform ${restDaysExpandedDesktop ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                {restDaysInfoExpanded && (
+                {restDaysExpandedDesktop && (
                   <div className="fixed md:absolute top-20 md:top-full left-4 right-4 md:left-auto md:right-0 mt-2 md:w-64 bg-gray-800 border border-blue-600/60 rounded-lg shadow-xl p-4 z-50">
                     <div className="text-sm text-gray-300">
                       <div className="font-semibold text-blue-300 mb-2">Rest Days Reset</div>
@@ -1110,9 +1118,19 @@ export default function DashboardPage() {
                 {data && (
                   <div className="relative">
                     <button
-                      onClick={(e) => {
+                      onTouchEnd={(e) => {
+                        // On mobile, a tap often triggers touchend + a synthetic click afterwards.
+                        // We toggle on touchend and ignore the following click.
+                        lastRestDaysMobileTouchRef.current = Date.now();
+                        e.preventDefault();
                         e.stopPropagation();
-                        setRestDaysInfoExpanded((prev) => !prev);
+                        setRestDaysExpandedMobile((prev) => !prev);
+                      }}
+                      onClick={(e) => {
+                        // Ignore synthetic click that follows a touch interaction
+                        if (Date.now() - lastRestDaysMobileTouchRef.current < 600) return;
+                        e.stopPropagation();
+                        setRestDaysExpandedMobile((prev) => !prev);
                       }}
                       className="w-full px-3 py-2.5 flex items-center justify-between bg-blue-900/20 border border-blue-700/30 rounded-md hover:bg-blue-900/30 active:bg-blue-900/40 transition-colors touch-manipulation"
                     >
@@ -1126,12 +1144,12 @@ export default function DashboardPage() {
                         <span className="text-base font-semibold text-blue-200">
                           {restDaysAvailable}/3
                         </span>
-                        <svg className={`w-4 h-4 text-blue-300 transition-transform ${restDaysInfoExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className={`w-4 h-4 text-blue-300 transition-transform ${restDaysExpandedMobile ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
                     </button>
-                    {restDaysInfoExpanded && (
+                    {restDaysExpandedMobile && (
                       <div className="mt-2 bg-gray-800 border border-blue-600/60 rounded-lg shadow-xl p-4">
                         <div className="text-sm text-gray-300">
                           <div className="font-semibold text-blue-300 mb-2">Rest Days Reset</div>
