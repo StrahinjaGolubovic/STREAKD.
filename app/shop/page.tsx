@@ -98,9 +98,9 @@ export default function ShopPage() {
                 src="/streakd_logo.png"
                 alt="STREAKD."
                 width={140}
-                height={32}
+                height={36}
                 priority
-                className="h-12 w-auto"
+                className="h-7 sm:h-9 w-auto"
               />
             </Link>
             

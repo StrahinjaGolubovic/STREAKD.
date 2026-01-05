@@ -109,11 +109,11 @@ export default function LeaderboardPage() {
               <Image
                 src="/streakd_logo.png"
                 alt="STREAKD."
-                width={140}
-                height={32}
+                width={180}
+                height={52}
                 priority
                 unoptimized
-                className="h-12 w-auto"
+                className="h-10 sm:h-12 w-auto object-contain"
               />
             </Link>
             <Link
