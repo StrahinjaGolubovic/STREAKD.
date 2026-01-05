@@ -365,9 +365,11 @@ export function runDailyRollupForUser(userId: number): { rollupApplied: boolean;
     if (base && base < yesterday) {
       let d = addDaysYMD(base, 1);
       while (d <= yesterday) {
-        const hasAnyUpload = !!db
-          .prepare('SELECT 1 FROM daily_uploads WHERE user_id = ? AND upload_date = ? LIMIT 1')
-          .get(userId, d);
+        // CRITICAL: Only count APPROVED uploads (not pending or rejected)
+        // Pending/rejected uploads should NOT prevent missed day penalties
+        const hasApprovedUpload = !!db
+          .prepare('SELECT 1 FROM daily_uploads WHERE user_id = ? AND upload_date = ? AND verification_status = ? LIMIT 1')
+          .get(userId, d, 'approved');
 
         let hasRest = false;
         try {
@@ -378,7 +380,7 @@ export function runDailyRollupForUser(userId: number): { rollupApplied: boolean;
           hasRest = false;
         }
 
-        if (!hasAnyUpload && !hasRest) {
+        if (!hasApprovedUpload && !hasRest) {
           applyMissedDayPenalty(userId, d);
         }
 
