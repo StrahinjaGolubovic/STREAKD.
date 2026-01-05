@@ -754,10 +754,10 @@ export default function DashboardPage() {
                     <div className="text-sm text-gray-300">
                       <div className="font-semibold text-blue-300 mb-2">Rest Days Reset</div>
                       <p className="text-xs text-gray-400 mb-2">
-                        Rest days reset every Monday at 00:00 (Serbia time) when your new weekly challenge begins.
+                        Rest days reset at 00:00 when your new weekly challenge begins.
                       </p>
                       <div className="text-xs text-blue-200 bg-blue-900/30 px-2 py-1.5 rounded">
-                        Next reset: Monday 00:00
+                        Resets with each new week
                       </div>
                     </div>
                   </div>

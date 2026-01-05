@@ -52,6 +52,7 @@ export default function ProfilePage() {
   const [profilePicBroken, setProfilePicBroken] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [privacyUpdating, setPrivacyUpdating] = useState(false);
+  const [invitingToCrew, setInvitingToCrew] = useState(false);
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -143,6 +144,31 @@ export default function ProfilePage() {
       showToast('An error occurred while updating username', 'error');
     } finally {
       setUpdating(false);
+    }
+  }
+
+  async function handleInviteToCrew() {
+    if (!profileData) return;
+    
+    setInvitingToCrew(true);
+    try {
+      const response = await fetch('/api/crews/invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: profileData.user.id }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        showToast('Crew invite sent!', 'success');
+      } else {
+        showToast(data.error || 'Failed to send invite', 'error');
+      }
+    } catch (err) {
+      showToast('An error occurred', 'error');
+    } finally {
+      setInvitingToCrew(false);
     }
   }
 
@@ -323,39 +349,52 @@ export default function ProfilePage() {
                         )
                       )}
                     </div>
-                    {is_own_profile && (
-                      <div className="flex gap-2">
+                    <div className="flex gap-2">
+                      {is_own_profile ? (
+                        <>
+                          <button
+                            onClick={() => setEditingUsername(true)}
+                            className="px-3 py-1.5 text-sm bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600 transition-colors"
+                          >
+                            Edit Username
+                          </button>
+                          <button
+                            onClick={() => handleUpdatePrivacy(!user.profile_private)}
+                            disabled={privacyUpdating}
+                            className="px-3 py-1.5 text-sm bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50"
+                          >
+                            {privacyUpdating ? (
+                              'Updating...'
+                            ) : user.profile_private ? (
+                              <>
+                                <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                Make Public
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                                </svg>
+                                Make Private
+                              </>
+                            )}
+                          </button>
+                        </>
+                      ) : !user.crew && (
                         <button
-                          onClick={() => setEditingUsername(true)}
-                          className="px-3 py-1.5 text-sm bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600 transition-colors"
+                          onClick={handleInviteToCrew}
+                          disabled={invitingToCrew}
+                          className="px-3 py-1.5 text-sm bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50 flex items-center gap-1"
                         >
-                          Edit Username
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                          {invitingToCrew ? 'Inviting...' : 'Invite to Crew'}
                         </button>
-                        <button
-                          onClick={() => handleUpdatePrivacy(!user.profile_private)}
-                          disabled={privacyUpdating}
-                          className="px-3 py-1.5 text-sm bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50"
-                        >
-                          {privacyUpdating ? (
-                            'Updating...'
-                          ) : user.profile_private ? (
-                            <>
-                              <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                              </svg>
-                              Make Public
-                            </>
-                          ) : (
-                            <>
-                              <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                              </svg>
-                              Make Private
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </>
                 )}
               </div>

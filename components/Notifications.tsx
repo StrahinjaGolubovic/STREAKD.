@@ -11,6 +11,7 @@ interface Notification {
   type: string;
   title: string;
   message: string;
+  data?: string;
   related_user_id?: number | null;
   related_crew_id?: number | null;
   read: boolean;
@@ -88,6 +89,29 @@ export function Notifications({ userId }: NotificationsProps) {
       }
     } catch (err) {
       console.error('Failed to clear notifications:', err);
+    }
+  };
+
+  const handleCrewInvite = async (notificationId: number, accept: boolean) => {
+    try {
+      const endpoint = accept ? '/api/crews/accept-invite' : '/api/crews/reject-invite';
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationId }),
+      });
+
+      if (response.ok) {
+        // Remove notification from list
+        setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+        // Refresh to update crew status
+        if (accept) {
+          window.location.reload();
+        }
+      }
+    } catch (err) {
+      console.error('Failed to handle crew invite:', err);
     }
   };
 
@@ -202,12 +226,17 @@ export function Notifications({ userId }: NotificationsProps) {
                 <div className="divide-y divide-gray-700">
                   {notifications.map((notification) => {
                     const link = getNotificationLink(notification);
+                    const isCrewInvite = notification.type === 'crew_invite';
+                    
                     const content = (
                       <div
-                        className={`p-4 hover:bg-gray-700 transition-colors cursor-pointer ${
+                        className={`p-4 hover:bg-gray-700 transition-colors ${
+                          isCrewInvite ? '' : 'cursor-pointer'
+                        } ${
                           !notification.read ? 'bg-gray-750' : ''
                         }`}
                         onClick={() => {
+                          if (isCrewInvite) return;
                           if (!notification.read) {
                             markAsRead(notification.id);
                           }
@@ -220,6 +249,28 @@ export function Notifications({ userId }: NotificationsProps) {
                           <div className="flex-1 min-w-0 text-right">
                             <div className="font-semibold text-gray-100 text-sm">{notification.title}</div>
                             <div className="text-gray-300 text-sm mt-1">{notification.message}</div>
+                            {isCrewInvite && (
+                              <div className="flex gap-2 mt-3 justify-end">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCrewInvite(notification.id, true);
+                                  }}
+                                  className="px-3 py-1.5 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition-colors"
+                                >
+                                  Accept
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCrewInvite(notification.id, false);
+                                  }}
+                                  className="px-3 py-1.5 bg-red-600 text-white text-xs rounded-md hover:bg-red-700 transition-colors"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            )}
                             <div className="text-xs text-gray-500 mt-2">
                               {formatDateTimeDisplay(notification.created_at)}
                             </div>
@@ -231,7 +282,7 @@ export function Notifications({ userId }: NotificationsProps) {
                       </div>
                     );
 
-                    return link ? (
+                    return link && !isCrewInvite ? (
                       <Link key={notification.id} href={link}>
                         {content}
                       </Link>
