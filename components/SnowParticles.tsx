@@ -1,91 +1,51 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
 export function SnowParticles() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!reduceMotion) {
-      setMounted(true);
-    }
-  }, []);
-
-  if (!mounted) return null;
-
   return (
-    <>
+    <div className="pointer-events-none fixed inset-0 overflow-hidden z-[60]">
+      {Array.from({ length: 35 }).map((_, i) => {
+        const size = Math.random() * 3 + 2;
+        const left = Math.random() * 100;
+        const duration = Math.random() * 10 + 15;
+        const delay = Math.random() * -25;
+        const opacity = Math.random() * 0.4 + 0.3;
+        const blur = Math.random() * 1.5;
+
+        return (
+          <div
+            key={i}
+            className="absolute rounded-full bg-white"
+            style={{
+              left: `${left}%`,
+              width: `${size}px`,
+              height: `${size}px`,
+              opacity: opacity,
+              filter: blur > 0 ? `blur(${blur}px)` : 'none',
+              animation: `snowfall-${i} ${duration}s linear ${delay}s infinite`,
+              willChange: 'transform',
+            }}
+          />
+        );
+      })}
       <style jsx>{`
-        @keyframes snowfall {
-          0% {
-            transform: translateY(-10vh) translateX(0);
-            opacity: 0;
-          }
-          10% {
-            opacity: 1;
-          }
-          90% {
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(110vh) translateX(var(--drift));
-            opacity: 0;
-          }
-        }
-
-        @keyframes sway {
-          0%, 100% {
-            transform: translateX(0);
-          }
-          50% {
-            transform: translateX(var(--sway-amount));
-          }
-        }
-
-        .snowflake {
-          position: fixed;
-          top: -10vh;
-          color: rgba(255, 255, 255, 0.8);
-          font-size: var(--size);
-          animation: snowfall var(--duration) linear var(--delay) infinite,
-                     sway var(--sway-duration) ease-in-out var(--delay) infinite;
-          pointer-events: none;
-          user-select: none;
-          will-change: transform, opacity;
-          z-index: 60;
-        }
+        ${Array.from({ length: 35 }).map((_, i) => {
+          const drift = (Math.random() - 0.5) * 100;
+          const swayAmount = (Math.random() - 0.5) * 50;
+          return `
+            @keyframes snowfall-${i} {
+              0% {
+                transform: translateY(-10px) translateX(0);
+              }
+              50% {
+                transform: translateY(50vh) translateX(${swayAmount}px);
+              }
+              100% {
+                transform: translateY(100vh) translateX(${drift}px);
+              }
+            }
+          `;
+        }).join('\n')}
       `}</style>
-      
-      <div className="pointer-events-none fixed inset-0 overflow-hidden" style={{ zIndex: 60 }}>
-        {Array.from({ length: 25 }).map((_, i) => {
-          const size = Math.random() * 0.5 + 0.3;
-          const left = Math.random() * 100;
-          const duration = Math.random() * 8 + 12;
-          const delay = Math.random() * -20;
-          const drift = (Math.random() - 0.5) * 30;
-          const swayAmount = (Math.random() - 0.5) * 40;
-          const swayDuration = Math.random() * 3 + 2;
-
-          return (
-            <div
-              key={i}
-              className="snowflake"
-              style={{
-                left: `${left}%`,
-                '--size': `${size}rem`,
-                '--duration': `${duration}s`,
-                '--delay': `${delay}s`,
-                '--drift': `${drift}px`,
-                '--sway-amount': `${swayAmount}px`,
-                '--sway-duration': `${swayDuration}s`,
-              } as React.CSSProperties}
-            >
-              ❄
-            </div>
-          );
-        })}
-      </div>
-    </>
+    </div>
   );
 }
