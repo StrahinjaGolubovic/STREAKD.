@@ -100,7 +100,7 @@ export default function ShopPage() {
                 width={1080}
                 height={200}
                 priority
-                className="h-7 sm:h-9 w-auto"
+                className="h-10 sm:h-12 w-auto"
                 style={{ objectFit: 'contain' }}
               />
             </Link>

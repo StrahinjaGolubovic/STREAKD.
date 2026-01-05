@@ -734,7 +734,7 @@ export default function DashboardPage() {
                 height={200}
                 priority
                 unoptimized
-                className="h-8 sm:h-9 md:h-10 w-auto"
+                className="h-10 sm:h-12 w-auto"
                 style={{ objectFit: 'contain' }}
               />
             </div>
