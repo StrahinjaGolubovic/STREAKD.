@@ -63,11 +63,11 @@ export default function FeedbackPage() {
               <Image
                 src="/streakd_logo.png"
                 alt="STREAKD."
-                width={180}
-                height={52}
+                width={140}
+                height={32}
                 priority
                 unoptimized
-                className="h-10 sm:h-12 w-auto object-contain"
+                className="h-8 w-auto"
               />
             </Link>
             <Link

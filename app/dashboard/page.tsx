@@ -731,10 +731,10 @@ export default function DashboardPage() {
                 src="/streakd_logo.png"
                 alt="STREAKD."
                 width={140}
-                height={36}
+                height={32}
                 priority
                 unoptimized
-                className="h-8 sm:h-9 md:h-10 w-auto"
+                className="h-8 w-auto"
               />
             </div>
             
