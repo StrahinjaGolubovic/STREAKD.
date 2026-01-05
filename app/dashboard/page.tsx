@@ -1107,16 +1107,39 @@ export default function DashboardPage() {
                 
                 {/* Rest Days Counter - In Hamburger Menu */}
                 {data && (
-                  <div className="px-3 py-2.5 flex items-center justify-between bg-blue-900/20 border border-blue-700/30 rounded-md">
-                    <div className="flex items-center gap-2">
-                      <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                      </svg>
-                      <span className="text-base font-medium text-blue-300">Rest Days</span>
-                    </div>
-                    <span className="text-base font-semibold text-blue-200">
-                      {restDaysAvailable}/3
-                    </span>
+                  <div className="relative">
+                    <button
+                      onClick={() => setRestDaysInfoExpanded(!restDaysInfoExpanded)}
+                      className="w-full px-3 py-2.5 flex items-center justify-between bg-blue-900/20 border border-blue-700/30 rounded-md hover:bg-blue-900/30 active:bg-blue-900/40 transition-colors touch-manipulation"
+                    >
+                      <div className="flex items-center gap-2">
+                        <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                        <span className="text-base font-medium text-blue-300">Rest Days</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-base font-semibold text-blue-200">
+                          {restDaysAvailable}/3
+                        </span>
+                        <svg className={`w-4 h-4 text-blue-300 transition-transform ${restDaysInfoExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </button>
+                    {restDaysInfoExpanded && (
+                      <div className="mt-2 bg-gray-800 border border-blue-600/60 rounded-lg shadow-xl p-4">
+                        <div className="text-sm text-gray-300">
+                          <div className="font-semibold text-blue-300 mb-2">Rest Days Reset</div>
+                          <p className="text-xs text-gray-400 mb-2">
+                            Rest days reset at 00:00 when your new weekly challenge begins.
+                          </p>
+                          <div className="text-xs text-blue-200 bg-blue-900/30 px-2 py-1.5 rounded">
+                            Resets with each new week
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
                 <Link

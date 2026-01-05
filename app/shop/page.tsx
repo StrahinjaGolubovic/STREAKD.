@@ -91,39 +91,39 @@ export default function ShopPage() {
     <div className="min-h-screen bg-gray-900">
       {/* Header */}
       <header className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/dashboard">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <Link href="/dashboard" className="flex-shrink-0">
               <Image
                 src="/streakd_logo.png"
                 alt="STREAKD."
                 width={140}
                 height={36}
                 priority
-                className="h-9 w-auto"
+                className="h-7 sm:h-9 w-auto"
               />
             </Link>
             
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-3 bg-gradient-to-r from-yellow-900/50 to-amber-900/50 px-4 py-2 rounded-xl border border-yellow-600/40 shadow-lg">
-                <div className="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-900/50 to-amber-900/50 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-yellow-600/40 shadow-lg">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-yellow-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd"/>
                   </svg>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-yellow-300/70 font-medium">Your Balance</span>
-                  <span className="font-bold text-lg text-yellow-200">{userCoins.toLocaleString()}</span>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-xs text-yellow-300/70 font-medium hidden sm:block">Your Balance</span>
+                  <span className="font-bold text-base sm:text-lg text-yellow-200 truncate">{userCoins.toLocaleString()}</span>
                 </div>
               </div>
               <Link
                 href="/dashboard"
-                className="p-2 text-gray-400 hover:text-gray-100 transition-colors"
+                className="p-2 text-gray-400 hover:text-gray-100 active:text-white transition-colors touch-manipulation flex-shrink-0"
                 aria-label="Home"
                 title="Home"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
               </Link>
@@ -132,13 +132,13 @@ export default function ShopPage() {
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-3 bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 bg-clip-text text-transparent">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 bg-clip-text text-transparent">
             Coin Shop
           </h1>
-          <p className="text-gray-400 text-lg">Spend your coins on exclusive items and power-ups</p>
+          <p className="text-gray-400 text-base sm:text-lg px-4">Spend your coins on exclusive items and power-ups</p>
         </div>
 
         {/* Message */}
@@ -156,7 +156,7 @@ export default function ShopPage() {
         )}
 
         {/* Shop Items Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
           {items.length === 0 ? (
             <div className="col-span-full text-center py-16">
               <div className="text-6xl mb-4">🏪</div>
@@ -166,40 +166,40 @@ export default function ShopPage() {
             items.map((item) => (
               <div
                 key={item.id}
-                className="group relative bg-gradient-to-br from-gray-800 to-gray-800/50 border border-gray-700 rounded-2xl p-6 hover:border-primary-500/50 hover:shadow-xl hover:shadow-primary-500/10 transition-all duration-300"
+                className="group relative bg-gradient-to-br from-gray-800 to-gray-800/50 border border-gray-700 rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:border-primary-500/50 hover:shadow-xl hover:shadow-primary-500/10 transition-all duration-300"
               >
                 {/* Item Icon/Badge */}
-                <div className={`absolute -top-4 -right-4 w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform ${
+                <div className={`absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform ${
                   item.item_type === 'rest_day' 
                     ? 'border-2 border-blue-700/30' 
                     : 'bg-gradient-to-br from-primary-500 to-purple-600'
                 }`} style={item.item_type === 'rest_day' ? { backgroundColor: '#1f2937' } : {}}>
                   {item.item_type === 'rest_day' ? (
-                    <svg className="w-8 h-8 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <svg className="w-7 h-7 sm:w-8 sm:h-8 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                     </svg>
                   ) : (
-                    <span className="text-2xl">🎁</span>
+                    <span className="text-xl sm:text-2xl">🎁</span>
                   )}
                 </div>
 
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-primary-400 transition-colors">
+                <div className="mb-3 sm:mb-4">
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-1.5 sm:mb-2 group-hover:text-primary-400 transition-colors">
                     {item.name}
                   </h3>
                   {item.description && (
-                    <p className="text-gray-400 text-sm leading-relaxed">{item.description}</p>
+                    <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">{item.description}</p>
                   )}
                 </div>
 
                 {/* Price */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2 bg-yellow-900/30 px-3 py-2 rounded-lg border border-yellow-600/30">
-                    <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <div className="flex items-center gap-1.5 sm:gap-2 bg-yellow-900/30 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-yellow-600/30">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd"/>
                     </svg>
-                    <span className="font-bold text-yellow-200">{item.price}</span>
+                    <span className="font-bold text-sm sm:text-base text-yellow-200">{item.price}</span>
                   </div>
                 </div>
 
@@ -207,7 +207,7 @@ export default function ShopPage() {
                 <button
                   onClick={() => purchaseItem(item.id)}
                   disabled={purchasing === item.id || userCoins < item.price}
-                  className={`w-full py-3 rounded-xl font-semibold transition-all duration-200 ${
+                  className={`w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base transition-all duration-200 touch-manipulation ${
                     userCoins < item.price
                       ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                       : purchasing === item.id
@@ -235,18 +235,18 @@ export default function ShopPage() {
         </div>
 
         {/* Info Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 border border-blue-700/30 rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 border border-blue-700/30 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+            <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd"/>
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-blue-300">Earn Coins</h3>
+              <h3 className="text-base sm:text-lg font-bold text-blue-300">Earn Coins</h3>
             </div>
-            <ul className="space-y-3 text-gray-300">
+            <ul className="space-y-2 sm:space-y-3 text-gray-300 text-sm sm:text-base">
               <li className="flex items-start gap-2">
                 <span className="text-blue-400 mt-1">•</span>
                 <span>Claim <strong className="text-white">75-100 coins</strong> daily from your dashboard</span>
@@ -258,16 +258,16 @@ export default function ShopPage() {
             </ul>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-900/20 to-purple-800/10 border border-purple-700/30 rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-gradient-to-br from-purple-900/20 to-purple-800/10 border border-purple-700/30 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+            <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-purple-300">Pro Tips</h3>
+              <h3 className="text-base sm:text-lg font-bold text-purple-300">Pro Tips</h3>
             </div>
-            <ul className="space-y-3 text-gray-300">
+            <ul className="space-y-2 sm:space-y-3 text-gray-300 text-sm sm:text-base">
               <li className="flex items-start gap-2">
                 <span className="text-purple-400 mt-1">•</span>
                 <span>Save coins for strategic rest day purchases</span>

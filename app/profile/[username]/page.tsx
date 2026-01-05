@@ -349,19 +349,19 @@ export default function ProfilePage() {
                         )
                       )}
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 justify-center md:justify-start">
                       {is_own_profile ? (
                         <>
                           <button
                             onClick={() => setEditingUsername(true)}
-                            className="px-3 py-1.5 text-sm bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600 transition-colors"
+                            className="px-3 py-1.5 text-sm bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600 active:bg-gray-500 transition-colors touch-manipulation"
                           >
                             Edit Username
                           </button>
                           <button
                             onClick={() => handleUpdatePrivacy(!user.profile_private)}
                             disabled={privacyUpdating}
-                            className="px-3 py-1.5 text-sm bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600 transition-colors disabled:opacity-50"
+                            className="px-3 py-1.5 text-sm bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600 active:bg-gray-500 transition-colors disabled:opacity-50 touch-manipulation"
                           >
                             {privacyUpdating ? (
                               'Updating...'
