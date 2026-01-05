@@ -4,6 +4,7 @@ import './globals.css';
 import { Footer } from '@/components/Footer';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
 import { MaintenanceGate } from '@/components/MaintenanceGate';
+import { SnowParticles } from '@/components/SnowParticles';
 
 const inter = Inter({ subsets: ['latin'] });
 const orbitron = Orbitron({ 
@@ -50,6 +51,7 @@ export default function RootLayout({
       <body className={`${inter.className} ${orbitron.variable} flex flex-col min-h-screen`}>
         <ServiceWorkerRegistration />
         <MaintenanceGate />
+        <SnowParticles />
         <div className="flex-1">
           {children}
         </div>
