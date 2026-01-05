@@ -91,7 +91,7 @@ export default function ShopPage() {
     <div className="min-h-screen bg-gray-900">
       {/* Header */}
       <header className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2">
             <Link href="/dashboard" className="flex-shrink-0">
               <Image
@@ -100,7 +100,7 @@ export default function ShopPage() {
                 width={1080}
                 height={200}
                 priority
-                className="h-10 sm:h-12 w-auto"
+                className="h-9 sm:h-10 md:h-12 w-auto"
                 style={{ objectFit: 'contain' }}
               />
             </Link>

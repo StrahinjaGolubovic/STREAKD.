@@ -724,7 +724,7 @@ export default function DashboardPage() {
       )}
       {/* Header */}
       <header className="bg-gray-800 border-b border-gray-700 shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <Image
@@ -734,7 +734,7 @@ export default function DashboardPage() {
                 height={200}
                 priority
                 unoptimized
-                className="h-10 sm:h-12 w-auto"
+                className="h-9 sm:h-10 md:h-12 w-auto"
                 style={{ objectFit: 'contain' }}
               />
             </div>
