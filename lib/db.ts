@@ -476,6 +476,7 @@ function initDatabase(database: Database) {
       type TEXT NOT NULL,
       title TEXT NOT NULL,
       message TEXT NOT NULL,
+      data TEXT,
       related_user_id INTEGER,
       related_crew_id INTEGER,
       read BOOLEAN DEFAULT 0,
@@ -485,6 +486,13 @@ function initDatabase(database: Database) {
       FOREIGN KEY (related_crew_id) REFERENCES crews(id) ON DELETE SET NULL
     )
   `);
+  
+  // Add data column to notifications if it doesn't exist (migration)
+  try {
+    database.exec(`ALTER TABLE notifications ADD COLUMN data TEXT`);
+  } catch (e) {
+    // Column already exists, ignore
+  }
 
   // Nudges table - tracks when users nudge friends (once per day limit)
   database.exec(`

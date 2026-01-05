@@ -112,6 +112,7 @@ export default function DashboardPage() {
   });
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
   const [restDaysInfoExpanded, setRestDaysInfoExpanded] = useState(false);
+  const restDaysRef = useRef<HTMLDivElement>(null);
   const { isInstallable, isIOS, isInstalled, install } = usePWAInstall();
 
   const fetchDashboard = useCallback(async () => {
@@ -203,6 +204,23 @@ export default function DashboardPage() {
     fetchImpersonationStatus();
     fetchMyCrew();
   }, [fetchDashboard, fetchFriends, fetchInviteCode, fetchImpersonationStatus, fetchMyCrew]);
+
+  useEffect(() => {
+    if (!restDaysInfoExpanded) return;
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (restDaysRef.current && !restDaysRef.current.contains(event.target as Node)) {
+        setRestDaysInfoExpanded(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [restDaysInfoExpanded]);
 
   // Check if friends list needs scrolling
   useEffect(() => {
@@ -733,10 +751,14 @@ export default function DashboardPage() {
                 </button>
               )}
               {/* Rest Days Counter - Desktop */}
-              <div className="relative">
+              <div className="relative" ref={restDaysRef}>
                 <button
                   onClick={() => setRestDaysInfoExpanded(!restDaysInfoExpanded)}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-900/50 border border-blue-600/60 rounded-md shadow-sm hover:bg-blue-900/70 transition-colors"
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    setRestDaysInfoExpanded(!restDaysInfoExpanded);
+                  }}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-900/50 border border-blue-600/60 rounded-md shadow-sm hover:bg-blue-900/70 active:bg-blue-900/80 transition-colors touch-manipulation"
                 >
                   <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
@@ -750,7 +772,7 @@ export default function DashboardPage() {
                   </svg>
                 </button>
                 {restDaysInfoExpanded && (
-                  <div className="absolute top-full mt-2 right-0 bg-gray-800 border border-blue-600/60 rounded-lg shadow-xl p-4 z-50 w-64">
+                  <div className="fixed md:absolute top-20 md:top-full left-4 right-4 md:left-auto md:right-0 mt-2 md:w-64 bg-gray-800 border border-blue-600/60 rounded-lg shadow-xl p-4 z-50">
                     <div className="text-sm text-gray-300">
                       <div className="font-semibold text-blue-300 mb-2">Rest Days Reset</div>
                       <p className="text-xs text-gray-400 mb-2">

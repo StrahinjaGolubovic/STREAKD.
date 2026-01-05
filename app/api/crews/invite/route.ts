@@ -62,11 +62,12 @@ export async function POST(request: NextRequest) {
     // Create notification for crew invite
     const createdAt = formatDateTimeSerbia();
     db.prepare(`
-      INSERT INTO notifications (user_id, type, message, data, created_at)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO notifications (user_id, type, title, message, data, created_at)
+      VALUES (?, ?, ?, ?, ?, ?)
     `).run(
       targetUser.id,
       'crew_invite',
+      'Crew Invite',
       `You've been invited to join ${inviterCrew.name}`,
       JSON.stringify({ crewId: inviterCrew.id, crewName: inviterCrew.name, inviterId: decoded.userId }),
       createdAt
