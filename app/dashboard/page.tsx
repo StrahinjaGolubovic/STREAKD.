@@ -745,7 +745,7 @@ export default function DashboardPage() {
               {data?.canClaimDaily && (
                 <button
                   onClick={handleClaimDailyCoins}
-                  className="px-3 py-1.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-md shadow-sm font-semibold text-sm transition-all"
+                  className="px-3 py-1.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 active:from-green-800 active:to-emerald-800 text-white rounded-md shadow-sm font-semibold text-sm transition-all touch-manipulation"
                 >
                   Claim Daily
                 </button>
@@ -1099,7 +1099,7 @@ export default function DashboardPage() {
                       setMobileMenuOpen(false);
                       handleClaimDailyCoins();
                     }}
-                    className="px-3 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-md font-semibold text-base transition-all"
+                    className="px-3 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 active:from-green-800 active:to-emerald-800 text-white rounded-md font-semibold text-base transition-all touch-manipulation"
                   >
                     Claim Daily Coins
                   </button>
@@ -1109,7 +1109,15 @@ export default function DashboardPage() {
                 {data && (
                   <div className="relative">
                     <button
-                      onClick={() => setRestDaysInfoExpanded(!restDaysInfoExpanded)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setRestDaysInfoExpanded(!restDaysInfoExpanded);
+                      }}
+                      onTouchEnd={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setRestDaysInfoExpanded(!restDaysInfoExpanded);
+                      }}
                       className="w-full px-3 py-2.5 flex items-center justify-between bg-blue-900/20 border border-blue-700/30 rounded-md hover:bg-blue-900/30 active:bg-blue-900/40 transition-colors touch-manipulation"
                     >
                       <div className="flex items-center gap-2">
@@ -1583,7 +1591,7 @@ export default function DashboardPage() {
               <button
                 onClick={handleShareInviteLink}
                 disabled={!inviteLink}
-                className="w-full px-4 py-3 bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 text-white rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg min-h-[44px]"
+                className="w-full px-4 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-lg font-semibold text-lg hover:from-primary-700 hover:to-purple-700 active:from-primary-800 active:to-purple-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 touch-manipulation"
               >
                 Share Invite Link
               </button>
@@ -1825,10 +1833,10 @@ export default function DashboardPage() {
                               }
                             }}
                             disabled={friend.nudged_today}
-                            className={`flex-1 px-3 py-2 border rounded-md text-sm transition-colors ${
+                            className={`flex-1 px-3 py-2 border rounded-md text-sm transition-colors touch-manipulation min-h-[44px] flex items-center justify-center ${
                               friend.nudged_today
                                 ? 'bg-gray-700/50 border-gray-600 text-gray-500 cursor-not-allowed'
-                                : 'bg-primary-600/50 border-primary-700 text-primary-300 hover:bg-primary-600/70'
+                                : 'bg-primary-600/50 border-primary-700 text-primary-300 hover:bg-primary-600/70 active:bg-primary-600'
                             }`}
                           >
                             👋 {friend.nudged_today ? 'Nudged' : 'Nudge'}
@@ -1839,7 +1847,7 @@ export default function DashboardPage() {
                               e.stopPropagation();
                               handleRemoveFriend(friend.id);
                             }}
-                            className="px-3 py-2 bg-red-900/50 border border-red-700 text-red-300 rounded-md hover:bg-red-900/70 transition-colors text-sm"
+                            className="px-3 py-2 bg-red-900/50 border border-red-700 text-red-300 rounded-md hover:bg-red-900/70 active:bg-red-900 transition-colors text-sm touch-manipulation min-h-[44px] flex items-center justify-center"
                             title="Remove friend"
                           >
                             ✕
