@@ -67,7 +67,7 @@ export default function FeedbackPage() {
                 height={32}
                 priority
                 unoptimized
-                className="h-10 sm:h-12 w-auto"
+                className="h-12 w-auto"
               />
             </Link>
             <Link
