@@ -64,12 +64,29 @@ export async function GET(
       // Not logged in or invalid token
     }
 
-    // Check privacy - if profile is private and user is not viewing their own profile, return 403 with user-friendly message
+    // Check privacy - if profile is private and user is not viewing their own profile
+    // Allow friends to view private profiles
     if (user.profile_private && !isOwnProfile) {
-      return NextResponse.json({ 
-        error: 'This user has privated their account',
-        isPrivate: true 
-      }, { status: 403 });
+      let isFriend = false;
+      
+      if (currentUserId) {
+        // Check if current user is friends with the profile owner
+        const friendship = db.prepare(`
+          SELECT 1 FROM friends 
+          WHERE (user_id = ? AND friend_id = ?) 
+             OR (user_id = ? AND friend_id = ?)
+          LIMIT 1
+        `).get(currentUserId, user.id, user.id, currentUserId);
+        
+        isFriend = !!friendship;
+      }
+      
+      if (!isFriend) {
+        return NextResponse.json({ 
+          error: 'This user has privated their account',
+          isPrivate: true 
+        }, { status: 403 });
+      }
     }
 
     // Get streak data

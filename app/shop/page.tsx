@@ -93,15 +93,27 @@ export default function ShopPage() {
       <header className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-2 text-gray-400 hover:text-gray-100 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              <span className="font-medium">Back</span>
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link href="/dashboard">
+                <Image
+                  src="/streakd_logo.png"
+                  alt="STREAKD."
+                  width={140}
+                  height={36}
+                  priority
+                  className="h-9 w-auto"
+                />
+              </Link>
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-2 text-gray-400 hover:text-gray-100 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <span className="font-medium">Home</span>
+              </Link>
+            </div>
             
             <div className="flex items-center gap-3 bg-gradient-to-r from-yellow-900/50 to-amber-900/50 px-4 py-2 rounded-xl border border-yellow-600/40 shadow-lg">
               <div className="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center">
@@ -158,9 +170,9 @@ export default function ShopPage() {
                 {/* Item Icon/Badge */}
                 <div className={`absolute -top-4 -right-4 w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform ${
                   item.item_type === 'rest_day' 
-                    ? 'bg-blue-900/20 border-2 border-blue-700/30' 
+                    ? 'border-2 border-blue-700/30' 
                     : 'bg-gradient-to-br from-primary-500 to-purple-600'
-                }`}>
+                }`} style={item.item_type === 'rest_day' ? { backgroundColor: '#111827' } : {}}>
                   {item.item_type === 'rest_day' ? (
                     <svg className="w-8 h-8 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />

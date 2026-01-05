@@ -111,6 +111,7 @@ export default function DashboardPage() {
     onConfirm: () => {},
   });
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+  const [restDaysInfoExpanded, setRestDaysInfoExpanded] = useState(false);
   const { isInstallable, isIOS, isInstalled, install } = usePWAInstall();
 
   const fetchDashboard = useCallback(async () => {
@@ -732,14 +733,35 @@ export default function DashboardPage() {
                 </button>
               )}
               {/* Rest Days Counter - Desktop */}
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-900/50 border border-blue-600/60 rounded-md shadow-sm">
-                <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-                <span className="text-sm font-bold text-blue-200">
-                  {restDaysAvailable}/3
-                </span>
-                <span className="text-xs text-blue-300 font-medium hidden md:inline">Rest Days</span>
+              <div className="relative">
+                <button
+                  onClick={() => setRestDaysInfoExpanded(!restDaysInfoExpanded)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-900/50 border border-blue-600/60 rounded-md shadow-sm hover:bg-blue-900/70 transition-colors"
+                >
+                  <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                  <span className="text-sm font-bold text-blue-200">
+                    {restDaysAvailable}/3
+                  </span>
+                  <span className="text-xs text-blue-300 font-medium hidden md:inline">Rest Days</span>
+                  <svg className={`w-4 h-4 text-blue-300 transition-transform ${restDaysInfoExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {restDaysInfoExpanded && (
+                  <div className="absolute top-full mt-2 right-0 bg-gray-800 border border-blue-600/60 rounded-lg shadow-xl p-4 z-50 w-64">
+                    <div className="text-sm text-gray-300">
+                      <div className="font-semibold text-blue-300 mb-2">Rest Days Reset</div>
+                      <p className="text-xs text-gray-400 mb-2">
+                        Rest days reset every Monday at 00:00 (Serbia time) when your new weekly challenge begins.
+                      </p>
+                      <div className="text-xs text-blue-200 bg-blue-900/30 px-2 py-1.5 rounded">
+                        Next reset: Monday 00:00
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
               {/* Buttons */}
               <Link
