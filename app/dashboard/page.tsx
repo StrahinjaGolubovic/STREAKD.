@@ -1111,12 +1111,7 @@ export default function DashboardPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setRestDaysInfoExpanded(!restDaysInfoExpanded);
-                      }}
-                      onTouchEnd={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setRestDaysInfoExpanded(!restDaysInfoExpanded);
+                        setRestDaysInfoExpanded((prev) => !prev);
                       }}
                       className="w-full px-3 py-2.5 flex items-center justify-between bg-blue-900/20 border border-blue-700/30 rounded-md hover:bg-blue-900/30 active:bg-blue-900/40 transition-colors touch-manipulation"
                     >
