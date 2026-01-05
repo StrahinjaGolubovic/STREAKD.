@@ -37,6 +37,7 @@ interface ProfileData {
     created_at: string;
   }>;
   is_own_profile: boolean;
+  viewer_is_crew_leader?: boolean;
 }
 
 export default function ProfilePage() {
@@ -211,6 +212,7 @@ export default function ProfilePage() {
   }
 
   const { user, streak, stats, recent_uploads, is_own_profile } = profileData;
+  const viewerIsCrewLeader = !!profileData.viewer_is_crew_leader;
 
   return (
     <div className="bg-gray-900">
@@ -382,7 +384,7 @@ export default function ProfilePage() {
                             )}
                           </button>
                         </>
-                      ) : !user.crew && (
+                      ) : !user.crew && viewerIsCrewLeader && (
                         <button
                           onClick={handleInviteToCrew}
                           disabled={invitingToCrew}

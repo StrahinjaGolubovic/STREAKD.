@@ -89,6 +89,23 @@ export async function GET(
       }
     }
 
+    let viewerIsCrewLeader = false;
+    if (currentUserId) {
+      const viewerCrew = db.prepare(`
+        SELECT COALESCE(u.crew_id, cm.crew_id) as crew_id
+        FROM users u
+        LEFT JOIN crew_members cm ON u.id = cm.user_id
+        WHERE u.id = ?
+      `).get(currentUserId) as { crew_id: number | null } | undefined;
+
+      if (viewerCrew?.crew_id) {
+        const crew = db.prepare('SELECT leader_id FROM crews WHERE id = ?').get(viewerCrew.crew_id) as
+          | { leader_id: number }
+          | undefined;
+        viewerIsCrewLeader = crew?.leader_id === currentUserId;
+      }
+    }
+
     // Get streak data
     const streak = db.prepare(`
       SELECT 
@@ -189,6 +206,7 @@ export async function GET(
       },
       recent_uploads: recentUploads,
       is_own_profile: isOwnProfile,
+      viewer_is_crew_leader: viewerIsCrewLeader,
     });
   } catch (error) {
     console.error('Error fetching profile:', error);
