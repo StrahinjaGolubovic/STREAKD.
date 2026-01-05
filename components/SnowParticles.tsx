@@ -10,8 +10,6 @@ export function SnowParticles() {
     const blur = Math.random() * 2;
     const drift = (Math.random() - 0.5) * 150;
     const swayAmount = (Math.random() - 0.5) * 80;
-    const rotationSpeed = Math.random() * 10 + 10;
-    const rotationDelay = Math.random() * -20;
     
     const isGlowing = Math.random() > 0.7;
     
@@ -25,8 +23,6 @@ export function SnowParticles() {
       blur,
       drift,
       swayAmount,
-      rotationSpeed,
-      rotationDelay,
       isGlowing,
     };
   });
@@ -36,21 +32,27 @@ export function SnowParticles() {
       {particles.map((p) => (
         <div
           key={p.i}
-          className="absolute rounded-full"
+          className="absolute"
           style={{
             left: `${p.left}%`,
-            width: `${p.size}px`,
-            height: `${p.size}px`,
-            opacity: p.opacity,
-            background: p.isGlowing
-              ? `radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%)`
-              : 'white',
-            filter: p.blur > 0.5 ? `blur(${p.blur}px)` : 'none',
-            boxShadow: p.isGlowing ? `0 0 ${p.size * 2}px rgba(255,255,255,0.6)` : 'none',
-            animation: `snowfall-${p.i} ${p.duration}s ease-in-out ${p.delay}s infinite, snowrotate-${p.i} ${p.rotationSpeed}s linear ${p.rotationDelay}s infinite`,
-            willChange: 'transform, opacity',
+            animation: `snowfall-${p.i} ${p.duration}s ease-in-out ${p.delay}s infinite`,
+            willChange: 'transform',
           }}
-        />
+        >
+          <div
+            className="rounded-full"
+            style={{
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+              opacity: p.opacity,
+              background: p.isGlowing
+                ? `radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%)`
+                : 'white',
+              filter: p.blur > 0.5 ? `blur(${p.blur}px)` : 'none',
+              boxShadow: p.isGlowing ? `0 0 ${p.size * 2}px rgba(255,255,255,0.6)` : 'none',
+            }}
+          />
+        </div>
       ))}
       <style jsx>{`
         ${particles.map((p) => `
@@ -60,7 +62,7 @@ export function SnowParticles() {
               opacity: 0;
             }
             10% {
-              opacity: ${p.opacity};
+              opacity: 1;
             }
             25% {
               transform: translate3d(${p.swayAmount * 0.3}px, 25vh, 0);
@@ -72,20 +74,11 @@ export function SnowParticles() {
               transform: translate3d(${p.swayAmount}px, 75vh, 0);
             }
             90% {
-              opacity: ${p.opacity};
+              opacity: 1;
             }
             100% {
               transform: translate3d(${p.drift}px, 100vh, 0);
               opacity: 0;
-            }
-          }
-          
-          @keyframes snowrotate-${p.i} {
-            from {
-              transform: rotate(0deg);
-            }
-            to {
-              transform: rotate(360deg);
             }
           }
         `).join('\n')}
