@@ -1,7 +1,7 @@
 'use client';
 
 export function SnowParticles() {
-  const particles = Array.from({ length: 80 }).map((_, i) => {
+  const particles = Array.from({ length: 50 }).map((_, i) => {
     const size = Math.random() * 4 + 1.5;
     const left = Math.random() * 100;
     const duration = Math.random() * 12 + 18;
