@@ -730,11 +730,12 @@ export default function DashboardPage() {
               <Image
                 src="/streakd_logo.png"
                 alt="STREAKD."
-                width={140}
-                height={36}
+                width={1080}
+                height={200}
                 priority
                 unoptimized
                 className="h-8 sm:h-9 md:h-10 w-auto"
+                style={{ objectFit: 'contain' }}
               />
             </div>
             

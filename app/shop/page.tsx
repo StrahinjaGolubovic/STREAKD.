@@ -97,10 +97,11 @@ export default function ShopPage() {
               <Image
                 src="/streakd_logo.png"
                 alt="STREAKD."
-                width={140}
-                height={36}
+                width={1080}
+                height={200}
                 priority
                 className="h-7 sm:h-9 w-auto"
+                style={{ objectFit: 'contain' }}
               />
             </Link>
             
