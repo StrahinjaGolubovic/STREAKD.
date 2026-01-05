@@ -1,5 +1,6 @@
 // Service Worker for STREAKD PWA
-const CACHE_NAME = 'streakd-v2'; // Bumped version to force cache clear
+const CACHE_VERSION = '1.0.1'; // Sync with package.json version
+const CACHE_NAME = `streakd-v${CACHE_VERSION}`;
 const urlsToCache = [
   '/',
   '/login',

@@ -1,20 +1,47 @@
 'use client';
 
 import { useEffect } from 'react';
+import { APP_VERSION } from '@/lib/version';
 
 export function ServiceWorkerRegistration() {
   useEffect(() => {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      // Check version on load and force reload if outdated
+      const storedVersion = localStorage.getItem('app_version');
+      if (storedVersion && storedVersion !== APP_VERSION) {
+        console.log(`Version mismatch: stored ${storedVersion}, current ${APP_VERSION}. Clearing cache...`);
+        localStorage.setItem('app_version', APP_VERSION);
+        
+        // Clear all caches
+        if ('caches' in window) {
+          caches.keys().then((names) => {
+            names.forEach((name) => caches.delete(name));
+          });
+        }
+        
+        // Unregister all service workers and reload
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          registrations.forEach((registration) => registration.unregister());
+          window.location.reload();
+        });
+        return;
+      }
+      
+      // Set version if not set
+      if (!storedVersion) {
+        localStorage.setItem('app_version', APP_VERSION);
+      }
+
       window.addEventListener('load', () => {
         navigator.serviceWorker
           .register('/sw.js')
           .then((registration) => {
             console.log('Service Worker registered successfully:', registration.scope);
             
-            // Check for updates periodically (every 60 seconds)
+            // Check for updates periodically (every 30 seconds)
             setInterval(() => {
               registration.update();
-            }, 60000);
+            }, 30000);
 
             // Check for updates immediately
             registration.addEventListener('updatefound', () => {
