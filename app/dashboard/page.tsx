@@ -205,20 +205,21 @@ export default function DashboardPage() {
     fetchMyCrew();
   }, [fetchDashboard, fetchFriends, fetchInviteCode, fetchImpersonationStatus, fetchMyCrew]);
 
+  // Close rest days dropdown when clicking outside (desktop only, using mousedown)
   useEffect(() => {
     if (!restDaysInfoExpanded) return;
 
-    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+    const handleClickOutside = (event: MouseEvent) => {
       if (restDaysRef.current && !restDaysRef.current.contains(event.target as Node)) {
         setRestDaysInfoExpanded(false);
       }
     };
 
+    // Only use mousedown for desktop - no touch events to avoid mobile conflicts
     document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside);
+    
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleClickOutside);
     };
   }, [restDaysInfoExpanded]);
 
