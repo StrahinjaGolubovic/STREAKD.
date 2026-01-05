@@ -442,7 +442,7 @@ export default function CrewsPage() {
                 height={32}
                 priority
                 unoptimized
-                className="h-8 w-auto"
+                className="h-10 sm:h-12 w-auto"
               />
             </Link>
             <Link

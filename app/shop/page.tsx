@@ -100,7 +100,7 @@ export default function ShopPage() {
                 width={140}
                 height={32}
                 priority
-                className="h-8 w-auto"
+                className="h-8 sm:h-9 w-auto"
               />
             </Link>
             

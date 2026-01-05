@@ -734,7 +734,7 @@ export default function DashboardPage() {
                 height={32}
                 priority
                 unoptimized
-                className="h-8 w-auto"
+                className="h-8 sm:h-9 md:h-10 w-auto"
               />
             </div>
             
