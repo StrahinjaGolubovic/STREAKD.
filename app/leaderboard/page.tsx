@@ -104,7 +104,7 @@ export default function LeaderboardPage() {
     <div className="min-h-screen bg-gray-900">
       <header className="bg-gray-800 border-b border-gray-700 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between min-h-[44px] sm:min-h-[48px]">
             <Link href="/dashboard" className="flex items-center">
               <Image
                 src="/streakd_logo.png"

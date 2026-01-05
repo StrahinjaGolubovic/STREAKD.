@@ -92,7 +92,7 @@ export default function ShopPage() {
       {/* Header */}
       <header className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-between gap-2 min-h-[44px] sm:min-h-[48px]">
             <Link href="/dashboard" className="flex-shrink-0">
               <Image
                 src="/streakd_logo.png"
