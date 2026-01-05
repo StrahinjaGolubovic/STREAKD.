@@ -218,9 +218,10 @@ export function checkAndRewardReferral(referredUserId: number): void {
     .get(referredUserId);
   
   if (approvedUpload) {
-    // Reward the referrer
+    // Reward BOTH the referrer AND the referred user (150 coins each)
     const claimedAt = formatDateTimeSerbia();
-    addCoins(referral.referrer_id, 150, `referral_reward:user_${referredUserId}`);
+    addCoins(referral.referrer_id, 150, `referral_reward:referred_user_${referredUserId}`);
+    addCoins(referredUserId, 150, `referral_reward:referrer_${referral.referrer_id}`);
     db.prepare(`
       UPDATE referral_rewards 
       SET reward_claimed = 1, claimed_at = ? 

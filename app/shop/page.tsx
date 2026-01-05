@@ -157,9 +157,13 @@ export default function ShopPage() {
               >
                 {/* Item Icon/Badge */}
                 <div className="absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-br from-primary-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                  <span className="text-2xl">
-                    {item.item_type === 'rest_day' ? '😴' : '🎁'}
-                  </span>
+                  {item.item_type === 'rest_day' ? (
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                  ) : (
+                    <span className="text-2xl">🎁</span>
+                  )}
                 </div>
 
                 <div className="mb-4">
