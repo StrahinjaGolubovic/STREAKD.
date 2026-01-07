@@ -176,30 +176,28 @@ export function applyTrophyDelta(
 
   const buildTrophyNotification = (appliedDelta: number): { type: string; title: string; message: string } => {
     const sign = appliedDelta > 0 ? '+' : '';
-    const title = `🏆 ${sign}${appliedDelta} Trophies`;
-    const verb = appliedDelta > 0 ? 'earned' : 'lost';
-    const amount = Math.abs(appliedDelta);
+    const title = `${sign}${appliedDelta} Dumbbells`;
 
     if (reason.startsWith('sync:approved')) {
-      return { type: 'trophy', title, message: `You ${verb} ${amount} trophies. Your upload was approved.` };
+      return { type: 'trophy', title, message: 'Your upload was approved.' };
     }
     if (reason.startsWith('sync:rejected')) {
-      return { type: 'trophy', title, message: `You ${verb} ${amount} trophies. Your upload was rejected.` };
+      return { type: 'trophy', title, message: 'Your upload was rejected.' };
     }
     if (reason.startsWith('missed:')) {
-      return { type: 'trophy', title, message: `You ${verb} ${amount} trophies. You missed a day.` };
+      return { type: 'trophy', title, message: 'You missed a day.' };
     }
     if (reason.startsWith('weekly_bonus:') && reason.endsWith(':perfect')) {
-      return { type: 'trophy', title, message: `You ${verb} ${amount} trophies. Perfect week bonus awarded.` };
+      return { type: 'trophy', title, message: 'Perfect week bonus awarded.' };
     }
     if (reason.startsWith('weekly_bonus:') && reason.endsWith(':revoked')) {
-      return { type: 'trophy', title, message: `You ${verb} ${amount} trophies. Weekly bonus revoked.` };
+      return { type: 'trophy', title, message: 'Weekly bonus revoked.' };
     }
     if (reason === 'admin_set') {
-      return { type: 'trophy', title, message: `You ${verb} ${amount} trophies. Your trophies were adjusted by an admin.` };
+      return { type: 'trophy', title, message: 'Your dumbbells were adjusted by an admin.' };
     }
 
-    return { type: 'trophy', title, message: `You ${verb} ${amount} trophies.` };
+    return { type: 'trophy', title, message: 'Your dumbbells were updated.' };
   };
 
   db.exec('SAVEPOINT trophy_delta');

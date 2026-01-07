@@ -227,6 +227,7 @@ export function Notifications({ userId }: NotificationsProps) {
                   {notifications.map((notification) => {
                     const link = getNotificationLink(notification);
                     const isCrewInvite = notification.type === 'crew_invite';
+                    const isTrophy = notification.type === 'trophy';
                     
                     const content = (
                       <div
@@ -247,7 +248,16 @@ export function Notifications({ userId }: NotificationsProps) {
                       >
                         <div className="flex items-start gap-3 justify-end">
                           <div className="flex-1 min-w-0 text-right">
-                            <div className="font-semibold text-gray-100 text-sm">{notification.title}</div>
+                            <div className="flex items-center justify-end gap-2">
+                              {isTrophy && (
+                                <img
+                                  src="/streakd_dumbbells.png"
+                                  alt="Dumbbells"
+                                  className="w-4 h-4 object-contain flex-shrink-0"
+                                />
+                              )}
+                              <div className="font-semibold text-gray-100 text-sm">{notification.title}</div>
+                            </div>
                             <div className="text-gray-300 text-sm mt-1">{notification.message}</div>
                             {isCrewInvite && (
                               <div className="flex gap-2 mt-3 justify-end">
