@@ -13,6 +13,7 @@
 
 import db from './db';
 import { formatDateTimeSerbia } from './timezone';
+import { createNotification } from './notifications';
 
 // ============================================================================
 // Constants
@@ -173,6 +174,34 @@ export function applyTrophyDelta(
 ): void {
   if (delta === 0) return;
 
+  const buildTrophyNotification = (appliedDelta: number): { type: string; title: string; message: string } => {
+    const sign = appliedDelta > 0 ? '+' : '';
+    const title = `🏆 ${sign}${appliedDelta} Trophies`;
+    const verb = appliedDelta > 0 ? 'earned' : 'lost';
+    const amount = Math.abs(appliedDelta);
+
+    if (reason.startsWith('sync:approved')) {
+      return { type: 'trophy', title, message: `You ${verb} ${amount} trophies. Your upload was approved.` };
+    }
+    if (reason.startsWith('sync:rejected')) {
+      return { type: 'trophy', title, message: `You ${verb} ${amount} trophies. Your upload was rejected.` };
+    }
+    if (reason.startsWith('missed:')) {
+      return { type: 'trophy', title, message: `You ${verb} ${amount} trophies. You missed a day.` };
+    }
+    if (reason.startsWith('weekly_bonus:') && reason.endsWith(':perfect')) {
+      return { type: 'trophy', title, message: `You ${verb} ${amount} trophies. Perfect week bonus awarded.` };
+    }
+    if (reason.startsWith('weekly_bonus:') && reason.endsWith(':revoked')) {
+      return { type: 'trophy', title, message: `You ${verb} ${amount} trophies. Weekly bonus revoked.` };
+    }
+    if (reason === 'admin_set') {
+      return { type: 'trophy', title, message: `You ${verb} ${amount} trophies. Your trophies were adjusted by an admin.` };
+    }
+
+    return { type: 'trophy', title, message: `You ${verb} ${amount} trophies.` };
+  };
+
   db.exec('SAVEPOINT trophy_delta');
   try {
     // Get current balance
@@ -198,6 +227,12 @@ export function applyTrophyDelta(
         INSERT INTO trophy_transactions (user_id, upload_id, delta, reason, created_at)
         VALUES (?, ?, ?, ?, ?)
       `).run(userId, uploadId, appliedDelta, reason, createdAt);
+
+      const n = buildTrophyNotification(appliedDelta);
+      try {
+        createNotification(userId, n.type, n.title, n.message);
+      } catch {
+      }
     }
 
     db.exec('RELEASE trophy_delta');
