@@ -358,7 +358,7 @@ export function runDailyRollupForUser(userId: number): { rollupApplied: boolean;
 
   // Determine where to start scanning for missed days.
   // If we already rolled up before, continue from there; otherwise start from last activity.
-  const base = lastRollup ? addDaysYMD(lastRollup, -2) : lastActivity;
+  const base = lastRollup ? addDaysYMD(lastRollup, -1) : lastActivity;
 
   db.exec('SAVEPOINT daily_rollup');
   try {
