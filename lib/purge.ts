@@ -58,23 +58,7 @@ export async function purgeUserUploadsBeforeDate(
     }
   }
 
-  let deletedRows = 0;
-  db.exec('BEGIN');
-  try {
-    const del = db.prepare('DELETE FROM daily_uploads WHERE id = ?');
-    for (const r of rows) {
-      const info = del.run(r.id);
-      deletedRows += info.changes;
-    }
-    db.exec('COMMIT');
-  } catch (e) {
-    try {
-      db.exec('ROLLBACK');
-    } catch {
-      // ignore
-    }
-    throw e;
-  }
+  const deletedRows = 0;
 
   return { deletedRows, deletedFiles };
 }
