@@ -360,7 +360,47 @@ export default function DashboardPage() {
         });
         
         if (exifData && Object.keys(exifData).length > 0) {
-          metadataToSend = exifData;
+          // Convert EXIF Date objects to Serbia-local ISO strings (preserve local time)
+          const serbiaFormatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'Europe/Belgrade',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+            hourCycle: 'h23',
+          });
+          const toSerbiaISO = (date: Date): string => {
+            const parts = serbiaFormatter.formatToParts(date);
+            const getPart = (type: string) => parts.find(p => p.type === type)?.value || '0';
+            const year = getPart('year');
+            const month = getPart('month');
+            const day = getPart('day');
+            const hour = getPart('hour');
+            const minute = getPart('minute');
+            const second = getPart('second');
+            // Compute current Serbia UTC offset dynamically
+            const utcDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+            const serbiaTime = new Date(utcDate.toLocaleString('en-US', { timeZone: 'Europe/Belgrade' }));
+            const offsetMs = serbiaTime.getTime() - utcDate.getTime();
+            const offsetMinutes = Math.round(offsetMs / 60000);
+            const offsetHours = Math.floor(Math.abs(offsetMinutes) / 60);
+            const offsetMins = Math.abs(offsetMinutes) % 60;
+            const offsetSign = offsetMinutes >= 0 ? '+' : '-';
+            const offsetStr = `${offsetSign}${String(offsetHours).padStart(2, '0')}:${String(offsetMins).padStart(2, '0')}`;
+            return `${year}-${month}-${day}T${hour}:${minute}:${second}${offsetStr}`;
+          };
+          const normalized: any = {};
+          for (const [key, value] of Object.entries(exifData)) {
+            if (value instanceof Date) {
+              normalized[key] = toSerbiaISO(value);
+            } else {
+              normalized[key] = value;
+            }
+          }
+          metadataToSend = normalized;
         }
       } catch (err) {
         console.error('EXIF extraction failed:', err);
