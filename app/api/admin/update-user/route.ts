@@ -133,6 +133,12 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      // Handle premium status update
+      if (body.is_premium !== undefined) {
+        const isPremium = body.is_premium === 1 || body.is_premium === true ? 1 : 0;
+        db.prepare('UPDATE users SET is_premium = ? WHERE id = ?').run(isPremium, userId);
+      }
+
       db.exec('COMMIT');
     } catch (e) {
       try {

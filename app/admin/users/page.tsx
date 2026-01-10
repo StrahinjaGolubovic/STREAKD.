@@ -49,10 +49,12 @@ export default function AdminUsers() {
     trophies: string;
     current_streak: string;
     longest_streak: string;
+    is_premium: boolean;
   }>({
     trophies: '',
     current_streak: '',
     longest_streak: '',
+    is_premium: false,
   });
 
   const [passwordUser, setPasswordUser] = useState<User | null>(null);
@@ -142,6 +144,7 @@ export default function AdminUsers() {
       trophies: String(user.trophies ?? 0),
       current_streak: String(user.current_streak ?? 0),
       longest_streak: String(user.longest_streak ?? 0),
+      is_premium: user.is_premium === 1,
     });
   }
 
@@ -156,7 +159,7 @@ export default function AdminUsers() {
           trophies: editForm.trophies,
           current_streak: editForm.current_streak,
           longest_streak: editForm.longest_streak,
-          // last_activity_date is automatic - defaults to yesterday when streak is set
+          is_premium: editForm.is_premium ? 1 : 0,
         }),
       });
 
@@ -219,27 +222,6 @@ export default function AdminUsers() {
       } else {
         const data = await response.json().catch(() => ({}));
         showToast(data.error || 'Failed to login as user', 'error');
-      }
-    } catch (err) {
-      showToast('An error occurred', 'error');
-    }
-  }
-
-  async function togglePremium(userId: number, username: string, isPremium: boolean) {
-    try {
-      const endpoint = isPremium ? '/api/admin/premium/revoke' : '/api/admin/premium/grant';
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      });
-
-      if (response.ok) {
-        showToast(`${isPremium ? 'Revoked' : 'Granted'} premium for ${username}`, 'success');
-        fetchUsers();
-      } else {
-        const data = await response.json().catch(() => ({}));
-        showToast(data.error || 'Failed to update premium status', 'error');
       }
     } catch (err) {
       showToast('An error occurred', 'error');
@@ -508,20 +490,6 @@ export default function AdminUsers() {
                         <button
                           onClick={() =>
                             showConfirm(
-                              user.is_premium ? 'Revoke Premium' : 'Grant Premium',
-                              `${user.is_premium ? 'Remove' : 'Grant'} premium status for ${user.username}?`,
-                              () => togglePremium(user.id, user.username, !!user.is_premium),
-                              'default'
-                            )
-                          }
-                          className={`px-3 py-1.5 text-white rounded text-xs sm:text-sm transition-colors ${user.is_premium ? 'bg-purple-600 hover:bg-purple-700' : 'bg-purple-600/50 hover:bg-purple-600'
-                            }`}
-                        >
-                          {user.is_premium ? '⭐ Premium' : 'Make Premium'}
-                        </button>
-                        <button
-                          onClick={() =>
-                            showConfirm(
                               'Reset Dumbbells',
                               `Reset dumbbells for ${user.username} to 0?`,
                               () => resetUserTrophies(user.id, user.username),
@@ -644,6 +612,24 @@ export default function AdminUsers() {
               </label>
             </div>
 
+            {/* Premium Checkbox */}
+            <div className="mt-4 pt-4 border-t border-gray-700">
+              <label className="flex items-center gap-2 text-sm text-gray-200 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={editForm.is_premium}
+                  onChange={(e) => setEditForm((p) => ({ ...p, is_premium: e.target.checked }))}
+                  className="w-4 h-4 bg-gray-900 border-gray-600 rounded text-purple-600 focus:ring-purple-500 focus:ring-2"
+                />
+                <span className="flex items-center gap-1.5">
+                  <svg className="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L10 6.477l-3.763 1.105 1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" />
+                  </svg>
+                  Premium User (5 rest days, 1.5x coins)
+                </span>
+              </label>
+            </div>
+
             <div className="mt-6 flex gap-3 justify-end">
               <button
                 onClick={() => setEditUser(null)}
@@ -655,7 +641,7 @@ export default function AdminUsers() {
                 onClick={saveUserEdits}
                 className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md transition-colors font-medium"
               >
-                Save
+                Save Changes
               </button>
             </div>
           </div>
