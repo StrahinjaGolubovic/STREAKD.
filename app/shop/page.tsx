@@ -168,27 +168,29 @@ export default function ShopPage() {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 rounded-full blur-md opacity-75 animate-pulse"></div>
                 <div className="relative bg-gradient-to-r from-red-600 to-pink-600 text-white px-4 py-2 rounded-full font-bold text-sm sm:text-base shadow-xl border-2 border-red-400">
-                  🔥 50% OFF
+                  <svg className="w-4 h-4 inline-block mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 01-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
+                  </svg>
+                  50% OFF
                 </div>
               </div>
             </div>
 
-            <div className="relative bg-gradient-to-br from-yellow-900/40 via-amber-900/30 to-orange-900/40 border-2 border-yellow-500/50 rounded-2xl sm:rounded-3xl p-6 sm:p-8 overflow-hidden hover:border-yellow-400/70 hover:shadow-2xl hover:shadow-yellow-500/20 transition-all duration-300">
-              {/* Animated background gradient */}
-              <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/10 via-amber-500/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-              {/* Sparkle effects */}
-              <div className="absolute top-4 right-4 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
-              <div className="absolute top-8 right-12 w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
-              <div className="absolute top-12 right-6 w-1 h-1 bg-orange-400 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
+            <div className="relative bg-gradient-to-br from-primary-900/60 to-primary-800/60 border-2 border-primary-500/70 rounded-2xl sm:rounded-3xl p-6 sm:p-8 overflow-hidden hover:border-primary-400/90 hover:shadow-2xl transition-all duration-300"
+              style={{
+                boxShadow: '0 0 30px rgba(59, 130, 246, 0.3), 0 0 60px rgba(59, 130, 246, 0.15)',
+              }}
+            >
+              {/* Shimmer glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-400/10 to-transparent animate-shimmer-glow"></div>
 
               <div className="relative flex flex-col md:flex-row items-center gap-6 sm:gap-8">
                 {/* Icon */}
                 <div className="flex-shrink-0">
                   <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full blur-xl opacity-50 animate-pulse"></div>
-                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-yellow-400/30 group-hover:scale-110 transition-transform duration-300">
-                      <svg className="w-10 h-10 sm:w-12 sm:h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="absolute inset-0 bg-primary-400 rounded-full blur-xl opacity-50 animate-pulse"></div>
+                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center shadow-2xl border-4 border-primary-400/30 group-hover:scale-110 transition-transform duration-300">
+                      <svg className="w-10 h-10 sm:w-12 sm:h-12 text-primary-100" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
                     </div>
@@ -198,10 +200,10 @@ export default function ShopPage() {
                 {/* Content */}
                 <div className="flex-1 text-center md:text-left">
                   <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
-                    <h3 className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-300 to-orange-300">
+                    <h3 className="text-2xl sm:text-3xl font-black text-primary-200 tracking-wider uppercase" style={{ fontFamily: 'Orbitron, sans-serif' }}>
                       PREMIUM
                     </h3>
-                    <span className="px-3 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-full text-xs font-bold text-yellow-300 uppercase tracking-wider">
+                    <span className="px-3 py-1 bg-primary-500/20 border border-primary-500/40 rounded-md text-xs font-bold text-primary-300 uppercase tracking-wider">
                       Coming Soon
                     </span>
                   </div>
@@ -212,26 +214,26 @@ export default function ShopPage() {
                   {/* Features list */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
                     <div className="flex items-center gap-2 text-sm text-gray-300">
-                      <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <svg className="w-5 h-5 text-primary-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span>Custom username colors</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-300">
-                      <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <svg className="w-5 h-5 text-primary-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span>Exclusive avatar frames</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-300">
-                      <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <svg className="w-5 h-5 text-primary-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span>Premium badge</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-300">
-                      <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <svg className="w-5 h-5 text-primary-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span>Priority support</span>
                     </div>
@@ -249,31 +251,58 @@ export default function ShopPage() {
                       </svg>
                     </div>
                     <div className="flex items-baseline gap-1 justify-center">
-                      <span className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">
+                      <span className="text-4xl sm:text-5xl font-black text-primary-200" style={{ fontFamily: 'Orbitron, sans-serif' }}>
                         $2.50
                       </span>
                       <span className="text-gray-400 text-sm">/month</span>
                     </div>
-                    <p className="text-xs text-green-400 font-semibold mt-1">Save 50% 🎉</p>
+                    <div className="flex items-center gap-1 justify-center mt-1">
+                      <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <p className="text-xs text-green-400 font-semibold">Save 50%</p>
+                    </div>
                   </div>
 
                   {/* CTA Button */}
                   <button
                     onClick={() => {
-                      alert('🚧 Premium subscriptions are not yet available for purchase.\n\nWe\'re working hard to bring you premium features soon!\n\nStay tuned for updates! 🎉');
+                      alert('Premium subscriptions are not yet available for purchase.\n\nWe\'re working hard to bring you premium features soon!\n\nStay tuned for updates!');
                     }}
-                    className="relative group/btn w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 hover:from-yellow-400 hover:via-amber-400 hover:to-orange-400 text-gray-900 font-black text-base sm:text-lg rounded-xl shadow-2xl hover:shadow-yellow-500/50 transition-all duration-300 hover:scale-105 active:scale-95 border-2 border-yellow-400/50"
+                    className="relative group/btn w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-700 hover:from-primary-400 hover:to-primary-600 text-white font-black text-base sm:text-lg rounded-xl shadow-2xl hover:shadow-primary-500/50 transition-all duration-300 hover:scale-105 active:scale-95 border-2 border-primary-400/50"
+                    style={{ fontFamily: 'Orbitron, sans-serif' }}
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
-                      Get Premium
+                      GET PREMIUM
                     </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 to-orange-300 rounded-xl opacity-0 group-hover/btn:opacity-20 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary-300 to-primary-500 rounded-xl opacity-0 group-hover/btn:opacity-20 transition-opacity duration-300"></div>
                   </button>
                 </div>
               </div>
+
+              {/* Shimmer animation styles */}
+              <style jsx>{`
+                @keyframes shimmer-glow {
+                  0% { 
+                    transform: translateX(-100%); 
+                    opacity: 0;
+                  }
+                  50% {
+                    opacity: 0.3;
+                  }
+                  100% { 
+                    transform: translateX(100%); 
+                    opacity: 0;
+                  }
+                }
+                .animate-shimmer-glow { 
+                  animation: shimmer-glow 3s infinite;
+                  width: 100%;
+                }
+              `}</style>
             </div>
           </div>
 
