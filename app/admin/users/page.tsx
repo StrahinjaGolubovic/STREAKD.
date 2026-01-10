@@ -614,19 +614,21 @@ export default function AdminUsers() {
 
             {/* Premium Checkbox */}
             <div className="mt-4 pt-4 border-t border-gray-700">
-              <label className="flex items-center gap-2 text-sm text-gray-200 cursor-pointer">
+              <label className="flex items-center gap-3 text-sm text-gray-200 cursor-pointer group">
                 <input
                   type="checkbox"
                   checked={editForm.is_premium}
                   onChange={(e) => setEditForm((p) => ({ ...p, is_premium: e.target.checked }))}
-                  className="w-4 h-4 bg-gray-900 border-gray-600 rounded text-purple-600 focus:ring-purple-500 focus:ring-2"
+                  className="w-5 h-5 bg-gray-900 border-2 border-gray-600 rounded text-purple-600 focus:ring-purple-500 focus:ring-2 cursor-pointer"
                 />
-                <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L10 6.477l-3.763 1.105 1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" />
-                  </svg>
-                  Premium User (5 rest days, 1.5x coins)
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider text-white uppercase bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 rounded shadow-sm">
+                    PREMIUM
+                  </span>
+                  <span className="text-gray-300 group-hover:text-gray-100 transition-colors">
+                    5 rest days, 1.5x coins
+                  </span>
+                </div>
               </label>
             </div>
 
