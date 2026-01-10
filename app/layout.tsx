@@ -7,7 +7,7 @@ import { MaintenanceGate } from '@/components/MaintenanceGate';
 import { SnowParticles } from '@/components/SnowParticles';
 
 const inter = Inter({ subsets: ['latin'] });
-const orbitron = Orbitron({ 
+const orbitron = Orbitron({
   subsets: ['latin'],
   weight: ['900'], // Black weight
   variable: '--font-orbitron',
@@ -48,7 +48,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} ${orbitron.variable} flex flex-col min-h-screen`}>
+      <body className={`${inter.className} ${orbitron.variable} flex flex-col min-h-screen overflow-x-hidden`}>
         <ServiceWorkerRegistration />
         <MaintenanceGate />
         <SnowParticles />
