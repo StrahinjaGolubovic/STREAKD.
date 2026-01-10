@@ -1346,7 +1346,20 @@ export default function DashboardPage() {
         {/* Achievement Unlock Modal */}
         <AchievementUnlockModal
           achievement={unlockedAchievement}
-          onClose={() => setUnlockedAchievement(null)}
+          onClose={async () => {
+            if (unlockedAchievement?.id) {
+              try {
+                await fetch('/api/achievements/mark-notified', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ achievementId: unlockedAchievement.id })
+                });
+              } catch (err) {
+                console.error('Error marking achievement as notified:', err);
+              }
+            }
+            setUnlockedAchievement(null);
+          }}
         />
 
         {/* Stats Cards */}

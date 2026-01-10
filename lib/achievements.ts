@@ -115,6 +115,7 @@ export function getUserAchievements(userId: number): AchievementWithStatus[] {
         a.*,
         ua.unlocked_at,
         COALESCE(ua.progress, 0) as progress,
+        COALESCE(ua.notified, 0) as notified,
         CASE WHEN ua.id IS NOT NULL THEN 1 ELSE 0 END as unlocked
       FROM achievements a
       LEFT JOIN user_achievements ua ON a.id = ua.achievement_id AND ua.user_id = ?
