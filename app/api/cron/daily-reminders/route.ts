@@ -191,3 +191,8 @@ export async function GET(request: NextRequest) {
         }, { status: 500 });
     }
 }
+
+// Support both GET and POST for compatibility with different cron services
+export async function POST(request: NextRequest) {
+    return GET(request);
+}
