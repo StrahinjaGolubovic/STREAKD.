@@ -278,17 +278,16 @@ export default function ProfilePage() {
                 </span>
               </div>
 
+              {/* Premium Badge - Below Avatar */}
+              {user.is_premium && (
+                <div className="absolute -bottom-[2.75rem] sm:-bottom-12 left-1/2 -translate-x-1/2">
+                  <PremiumBadge size="small" />
+                </div>
+              )}
             </div>
 
-            {/* Premium Badge - Between Rank and Username */}
-            {user.is_premium && (
-              <div className="flex justify-center sm:hidden my-3">
-                <PremiumBadge size="small" />
-              </div>
-            )}
-
             {/* Profile Info */}
-            <div className="flex-1 text-center sm:text-left">
+            <div className={`flex-1 text-center sm:text-left ${user.is_premium ? 'mt-6 sm:mt-0' : ''}`}>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
                 {editingUsername ? (
                   <div className="flex-1 flex flex-col sm:flex-row gap-2">
