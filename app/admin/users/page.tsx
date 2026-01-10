@@ -635,9 +635,6 @@ export default function AdminUsers() {
                       PREMIUM
                     </span>
                   </div>
-                  <span className="text-gray-300 group-hover:text-gray-100 transition-colors">
-                    5 rest days, 1.5x coins
-                  </span>
                 </div>
               </label>
             </div>
