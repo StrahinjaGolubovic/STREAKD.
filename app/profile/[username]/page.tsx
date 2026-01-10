@@ -287,7 +287,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Profile Info */}
-            <div className="flex-1 text-center sm:text-left">
+            <div className={`flex-1 text-center sm:text-left ${user.is_premium ? 'mt-8 sm:mt-0' : ''}`}>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
                 {editingUsername ? (
                   <div className="flex-1 flex flex-col sm:flex-row gap-2">
