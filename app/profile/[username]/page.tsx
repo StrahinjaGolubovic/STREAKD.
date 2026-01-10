@@ -280,7 +280,7 @@ export default function ProfilePage() {
 
               {/* Premium Badge - Below Avatar */}
               {user.is_premium && (
-                <div className="absolute -bottom-10 sm:-bottom-12 left-1/2 -translate-x-1/2">
+                <div className="absolute -bottom-11 sm:-bottom-12 left-1/2 -translate-x-1/2">
                   <PremiumBadge size="small" />
                 </div>
               )}
