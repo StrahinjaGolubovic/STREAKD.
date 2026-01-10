@@ -13,7 +13,7 @@ export interface PremiumUser {
 // Check if user has premium status
 export function isPremiumUser(userId: number): boolean {
     try {
-        const user = db.prepare('SELECT is_premium FROM users WHERE id = ?').get(userId) as { is_premium: number } | undefined;
+        const user = db.prepare('SELECT COALESCE(is_premium, 0) as is_premium FROM users WHERE id = ?').get(userId) as { is_premium: number } | undefined;
         return user?.is_premium === 1;
     } catch (error) {
         console.error('Error checking premium status:', error);
@@ -67,9 +67,10 @@ export function revokePremium(userId: number): boolean {
 export function getPremiumUsers(): PremiumUser[] {
     try {
         return db.prepare(`
-            SELECT id, username, is_premium, premium_granted_at, premium_granted_by, username_color
+            SELECT id, username, COALESCE(is_premium, 0) as is_premium, 
+                   premium_granted_at, premium_granted_by, username_color
             FROM users
-            WHERE is_premium = 1
+            WHERE COALESCE(is_premium, 0) = 1
             ORDER BY premium_granted_at DESC
         `).all() as PremiumUser[];
     } catch (error) {
