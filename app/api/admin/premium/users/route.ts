@@ -30,7 +30,8 @@ export async function GET(request: NextRequest) {
         let users;
         if (searchQuery) {
             users = db.prepare(`
-                SELECT id, username, is_premium, premium_granted_at, username_color, created_at
+                SELECT id, username, COALESCE(is_premium, 0) as is_premium, 
+                       premium_granted_at, username_color, created_at
                 FROM users
                 WHERE username LIKE ?
                 ORDER BY username ASC
@@ -38,7 +39,8 @@ export async function GET(request: NextRequest) {
             `).all(`%${searchQuery}%`);
         } else {
             users = db.prepare(`
-                SELECT id, username, is_premium, premium_granted_at, username_color, created_at
+                SELECT id, username, COALESCE(is_premium, 0) as is_premium, 
+                       premium_granted_at, username_color, created_at
                 FROM users
                 ORDER BY id DESC
                 LIMIT 50
