@@ -105,12 +105,13 @@ export function clearAllNotifications(userId: number): boolean {
 }
 
 // Send nudge notification to a friend
-export function sendNudgeNotification(fromUserId: number, fromUsername: string, toUserId: number): Notification {
+export function sendNudgeNotification(fromUserId: number, fromUsername: string, toUserId: number, customMessage?: string): Notification {
+  const message = customMessage || `@${fromUsername} nudged you!`;
   return createNotification(
     toUserId,
     'nudge',
     'You got a nudge!',
-    `@${fromUsername} nudged you!`,
+    message,
     fromUserId
   );
 }

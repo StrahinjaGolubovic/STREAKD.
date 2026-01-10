@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const { friend_id } = await request.json();
+    const { friend_id, customMessage } = await request.json();
 
     if (!friend_id || typeof friend_id !== 'number') {
       return NextResponse.json({ error: 'friend_id is required' }, { status: 400 });
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send nudge notification
-    const notification = sendNudgeNotification(userId, user.username, friend_id);
+    const notification = sendNudgeNotification(userId, user.username, friend_id, customMessage);
 
     // Check for nudge achievements
     try {

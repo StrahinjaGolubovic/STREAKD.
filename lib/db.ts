@@ -716,6 +716,21 @@ function initDatabase(database: Database) {
     CREATE INDEX IF NOT EXISTS idx_rest_days_user ON rest_days(user_id);
     CREATE INDEX IF NOT EXISTS idx_rest_days_date ON rest_days(rest_date);
   `);
+
+  // Nudge templates table (for premium custom nudges)
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS nudge_templates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      message TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `);
+
+  database.exec(`
+    CREATE INDEX IF NOT EXISTS idx_nudge_templates_user ON nudge_templates(user_id);
+  `);
 }
 
 // Database interface for the exported db object
