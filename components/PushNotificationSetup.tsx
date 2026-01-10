@@ -28,11 +28,40 @@ export default function PushNotificationSetup({ onSubscribed }: PushNotification
         try {
             const registration = await navigator.serviceWorker.ready;
             const subscription = await registration.pushManager.getSubscription();
-            setIsSubscribed(!!subscription);
 
-            // Show prompt if not subscribed and permission not denied
-            if (!subscription && Notification.permission !== 'denied') {
-                setShowPrompt(true);
+            if (subscription) {
+                // Check if this subscription is linked to the current user
+                const checkResponse = await fetch('/api/push/check-subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subscription: subscription.toJSON() })
+                });
+
+                if (checkResponse.ok) {
+                    const { isLinkedToCurrentUser } = await checkResponse.json();
+
+                    if (isLinkedToCurrentUser) {
+                        // Subscription exists and is linked to current user
+                        setIsSubscribed(true);
+                    } else {
+                        // Subscription exists but is linked to different user
+                        // Re-subscribe to link to current user
+                        setIsSubscribed(false);
+                        setShowPrompt(true);
+                    }
+                } else {
+                    // Can't verify, assume not subscribed
+                    setIsSubscribed(false);
+                    if (Notification.permission !== 'denied') {
+                        setShowPrompt(true);
+                    }
+                }
+            } else {
+                // No subscription at all
+                setIsSubscribed(false);
+                if (Notification.permission !== 'denied') {
+                    setShowPrompt(true);
+                }
             }
         } catch (err) {
             console.error('Error checking subscription:', err);

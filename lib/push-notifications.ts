@@ -66,6 +66,19 @@ export function subscribeToPush(
     try {
         const now = formatDateTimeSerbia();
 
+        // First, check if this endpoint is already registered to a different user
+        const existing = db.prepare(`
+            SELECT user_id FROM push_subscriptions 
+            WHERE endpoint = ?
+        `).get(subscription.endpoint) as { user_id: number } | undefined;
+
+        if (existing && existing.user_id !== userId) {
+            // Delete the old subscription (different user, same device)
+            console.log(`Removing old subscription for user ${existing.user_id}, reassigning to user ${userId}`);
+            db.prepare('DELETE FROM push_subscriptions WHERE endpoint = ?').run(subscription.endpoint);
+        }
+
+        // Insert or update subscription for current user
         db.prepare(`
       INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth, user_agent, created_at, last_used_at)
       VALUES (?, ?, ?, ?, ?, ?, ?)
