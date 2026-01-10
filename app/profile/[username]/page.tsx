@@ -218,7 +218,7 @@ export default function ProfilePage() {
   const viewerIsCrewLeader = !!profileData.viewer_is_crew_leader;
 
   return (
-    <div className="bg-gray-900">
+    <div className="min-h-screen bg-gray-900 overflow-x-hidden">
       {/* Header */}
       <header className="bg-gray-800 border-b border-gray-700 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-3 md:py-4 flex justify-between items-center">
@@ -277,14 +277,14 @@ export default function ProfilePage() {
                   {getTrophyRank(user.trophies)}
                 </span>
               </div>
-            </div>
 
-            {/* Premium Badge - Below Avatar */}
-            {user.is_premium && (
-              <div className="flex justify-center mt-3">
-                <PremiumBadge size="small" />
-              </div>
-            )}
+              {/* Premium Badge - Below Avatar */}
+              {user.is_premium && (
+                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
+                  <PremiumBadge size="small" />
+                </div>
+              )}
+            </div>
 
             {/* Profile Info */}
             <div className="flex-1 text-center sm:text-left">
