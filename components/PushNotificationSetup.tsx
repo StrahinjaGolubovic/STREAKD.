@@ -12,6 +12,7 @@ export default function PushNotificationSetup({ onSubscribed }: PushNotification
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showPrompt, setShowPrompt] = useState(false);
+    const [checking, setChecking] = useState(true); // Add checking state
 
     useEffect(() => {
         checkNotificationStatus();
@@ -19,6 +20,7 @@ export default function PushNotificationSetup({ onSubscribed }: PushNotification
 
     const checkNotificationStatus = async () => {
         if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+            setChecking(false);
             return;
         }
 
@@ -65,6 +67,8 @@ export default function PushNotificationSetup({ onSubscribed }: PushNotification
             }
         } catch (err) {
             console.error('Error checking subscription:', err);
+        } finally {
+            setChecking(false); // Always set checking to false when done
         }
     };
 
@@ -151,6 +155,11 @@ export default function PushNotificationSetup({ onSubscribed }: PushNotification
 
     // Don't show if browser doesn't support notifications
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+        return null;
+    }
+
+    // Don't show while checking
+    if (checking) {
         return null;
     }
 
