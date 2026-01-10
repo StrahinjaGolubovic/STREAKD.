@@ -136,35 +136,35 @@ export default function PushNotificationSetup({ onSubscribed }: PushNotification
     }
 
     return (
-        <div className="bg-gradient-to-r from-primary-500/10 to-cyan-500/10 border border-primary-500/30 rounded-lg p-6 mb-6">
-            <div className="flex items-start gap-4">
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary-500/20">
-                    <svg className="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-gradient-to-r from-primary-500/10 to-cyan-500/10 border border-primary-500/30 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary-500/20 flex-shrink-0">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
                 </div>
-                <div className="flex-1">
-                    <h3 className="text-xl font-bold text-white mb-2">
+                <div className="flex-1 w-full">
+                    <h3 className="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">
                         {isSubscribed ? 'Notifications Enabled' : 'Enable Push Notifications'}
                     </h3>
-                    <p className="text-gray-300 mb-4">
+                    <p className="text-sm sm:text-base text-gray-300 mb-3 sm:mb-4">
                         {isSubscribed
                             ? "You're all set! You'll receive daily reminders to upload your workout photos."
                             : "Get reminded throughout the day to upload your workout photo. Never miss a day!"}
                     </p>
 
                     {error && (
-                        <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 mb-4 text-red-300 text-sm">
+                        <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-2 sm:p-3 mb-3 sm:mb-4 text-red-300 text-xs sm:text-sm">
                             {error}
                         </div>
                     )}
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                         {!isSubscribed ? (
                             <button
                                 onClick={requestPermission}
                                 disabled={loading}
-                                className="bg-gradient-to-r from-primary-500 to-cyan-500 hover:from-primary-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2 px-6 rounded-lg transition-all"
+                                className="w-full sm:w-auto bg-gradient-to-r from-primary-500 to-cyan-500 hover:from-primary-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 sm:py-2 px-6 rounded-lg transition-all text-sm sm:text-base"
                             >
                                 {loading ? 'Enabling...' : 'Enable Notifications'}
                             </button>
@@ -172,7 +172,7 @@ export default function PushNotificationSetup({ onSubscribed }: PushNotification
                             <button
                                 onClick={sendTestNotification}
                                 disabled={loading}
-                                className="bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2 px-6 rounded-lg transition-all"
+                                className="w-full sm:w-auto bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 sm:py-2 px-6 rounded-lg transition-all text-sm sm:text-base"
                             >
                                 {loading ? 'Sending...' : 'Send Test Notification'}
                             </button>
@@ -181,7 +181,7 @@ export default function PushNotificationSetup({ onSubscribed }: PushNotification
                         {showPrompt && (
                             <button
                                 onClick={() => setShowPrompt(false)}
-                                className="text-gray-400 hover:text-white transition"
+                                className="w-full sm:w-auto text-gray-400 hover:text-white transition py-2 text-sm sm:text-base"
                             >
                                 Maybe Later
                             </button>
@@ -189,7 +189,7 @@ export default function PushNotificationSetup({ onSubscribed }: PushNotification
                     </div>
 
                     {isSubscribed && (
-                        <p className="text-xs text-gray-500 mt-3">
+                        <p className="text-xs text-gray-500 mt-2 sm:mt-3">
                             Tip: You can manage notification preferences in settings
                         </p>
                     )}

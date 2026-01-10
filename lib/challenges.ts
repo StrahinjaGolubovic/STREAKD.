@@ -47,6 +47,9 @@ import {
   syncAllWeeklyBonuses,
 } from './trophy-core';
 
+import { checkAndUnlockAchievements } from './achievements';
+import { sendPushNotification } from './push-notifications';
+
 // Re-export utilities for backward compatibility
 export { addDaysYMD, diffDaysYMD };
 
@@ -383,25 +386,41 @@ export function onUploadVerified(
 
   // 4. Check and unlock achievements
   try {
-    const { checkAndUnlockAchievements, sendAchievementNotification } = require('./achievements');
-    const { sendPushNotification } = require('./push-notifications');
+    console.log('[ACHIEVEMENTS] Checking achievements for user:', userId);
 
     const unlockedAchievements = checkAndUnlockAchievements(userId, 'upload', {
       uploadTime: new Date()
     });
 
+    console.log('[ACHIEVEMENTS] Upload check result:', unlockedAchievements.length, 'unlocked');
+
     // Also check streak and trophy achievements
-    checkAndUnlockAchievements(userId, 'streak');
-    checkAndUnlockAchievements(userId, 'trophy');
+    const streakAchievements = checkAndUnlockAchievements(userId, 'streak');
+    const trophyAchievements = checkAndUnlockAchievements(userId, 'trophy');
+
+    console.log('[ACHIEVEMENTS] Streak check:', streakAchievements.length, 'Trophy check:', trophyAchievements.length);
 
     // Send push notifications for unlocked achievements
-    for (const achievement of unlockedAchievements) {
-      sendAchievementNotification(userId, achievement.name, achievement.icon).catch((err: any) => {
+    const allUnlocked = [...unlockedAchievements, ...streakAchievements, ...trophyAchievements];
+    for (const achievement of allUnlocked) {
+      console.log('[ACHIEVEMENTS] Sending notification for:', achievement.name);
+      sendPushNotification(userId, {
+        title: 'Achievement Unlocked!',
+        body: `${achievement.name} - ${achievement.description}`,
+        icon: '/android-chrome-192x192.png',
+        badge: '/favicon-48x48.png',
+        tag: `achievement-${achievement.id}`,
+        data: {
+          type: 'achievement',
+          achievementId: achievement.id,
+          url: '/achievements'
+        }
+      }).catch((err: any) => {
         console.error('Failed to send achievement notification:', err);
       });
     }
   } catch (error) {
-    console.error('Error checking achievements:', error);
+    console.error('[ACHIEVEMENTS] Error checking achievements:', error);
   }
   // 3. Re-evaluate challenge (may change status, may award/revoke bonus)
   reevaluateChallengeAfterVerification(challengeId);
