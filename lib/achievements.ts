@@ -216,15 +216,16 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
             FROM daily_uploads 
             WHERE user_id = ? 
             AND verification_status = 'approved'
-            AND upload_date >= ?
+            AND DATE(upload_date) >= DATE(?)
         `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
         // Only count friends added after achievement system launch
+        // Use DATE() to ensure proper comparison regardless of timestamp format
         const friendCount = db.prepare(`
             SELECT COUNT(*) as count 
             FROM friends 
             WHERE user_id = ? 
-            AND created_at >= ?
+            AND DATE(created_at) >= DATE(?)
         `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
         // Only count nudges after achievement system launch
@@ -232,7 +233,7 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
             SELECT COUNT(DISTINCT nudge_date) as count 
             FROM nudges 
             WHERE from_user_id = ?
-            AND nudge_date >= ?
+            AND DATE(nudge_date) >= DATE(?)
         `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
         // Check streak achievements
@@ -296,7 +297,7 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
             SELECT COUNT(*) as count FROM daily_uploads
             WHERE user_id = ? AND verification_status = 'approved'
             AND strftime('%H', created_at) < '06'
-            AND upload_date >= ?
+            AND DATE(upload_date) >= DATE(?)
           `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
                     updateAchievementProgress(userId, 'early_bird', Math.min(100, (earlyBirdCount.count / 5) * 100));
@@ -313,7 +314,7 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
             SELECT COUNT(*) as count FROM daily_uploads
             WHERE user_id = ? AND verification_status = 'approved'
             AND strftime('%H', created_at) >= '22'
-            AND upload_date >= ?
+            AND DATE(upload_date) >= DATE(?)
           `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
                     updateAchievementProgress(userId, 'night_owl', Math.min(100, (nightOwlCount.count / 5) * 100));
@@ -426,7 +427,7 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
                 FROM daily_uploads 
                 WHERE user_id = ? 
                 AND verification_status = 'approved'
-                AND upload_date >= ?
+                AND DATE(upload_date) >= DATE(?)
                 AND (CAST(strftime('%w', upload_date) AS INTEGER) = 0 OR CAST(strftime('%w', upload_date) AS INTEGER) = 6)
             `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
@@ -436,7 +437,7 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
                 FROM daily_uploads
                 WHERE user_id = ?
                 AND verification_status = 'approved'
-                AND upload_date >= ?
+                AND DATE(upload_date) >= DATE(?)
                 AND (CAST(strftime('%w', upload_date) AS INTEGER) = 0 OR CAST(strftime('%w', upload_date) AS INTEGER) = 6)
             `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
