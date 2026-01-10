@@ -246,7 +246,7 @@ export default function ProfilePage() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="max-w-5xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 overflow-x-hidden">
         {/* Profile Header - Enhanced */}
         <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-6 sm:p-8 mb-6">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
@@ -278,6 +278,13 @@ export default function ProfilePage() {
                 </span>
               </div>
             </div>
+
+            {/* Premium Badge - Below Avatar */}
+            {user.is_premium && (
+              <div className="flex justify-center mt-3">
+                <PremiumBadge size="small" />
+              </div>
+            )}
 
             {/* Profile Info */}
             <div className="flex-1 text-center sm:text-left">
@@ -334,7 +341,6 @@ export default function ProfilePage() {
                         >
                           @{user.username}
                         </h1>
-                        {user.is_premium && <PremiumBadge size="medium" showText={false} />}
                       </div>
                       {user.crew && (
                         user.crew.tag ? (
