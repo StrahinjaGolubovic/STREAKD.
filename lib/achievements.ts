@@ -210,7 +210,7 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
 
         const streak = db.prepare('SELECT * FROM streaks WHERE user_id = ?').get(userId) as any;
 
-        // Only count uploads after achievement system launch
+        // Only count UPLOADS after achievement system launch (prevents instant unlocks from old uploads)
         const uploadCount = db.prepare(`
             SELECT COUNT(*) as count 
             FROM daily_uploads 
@@ -219,22 +219,19 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
             AND DATE(upload_date) >= DATE(?)
         `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
-        // Only count friends added after achievement system launch
-        // Use DATE() to ensure proper comparison regardless of timestamp format
+        // Count ALL friends (old users should unlock based on current state)
         const friendCount = db.prepare(`
             SELECT COUNT(*) as count 
             FROM friends 
-            WHERE user_id = ? 
-            AND DATE(created_at) >= DATE(?)
-        `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
+            WHERE user_id = ?
+        `).get(userId) as { count: number };
 
-        // Only count nudges after achievement system launch
+        // Count ALL nudges (old users should unlock based on total nudges)
         const nudgeCount = db.prepare(`
             SELECT COUNT(DISTINCT nudge_date) as count 
             FROM nudges 
             WHERE from_user_id = ?
-            AND DATE(nudge_date) >= DATE(?)
-        `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
+        `).get(userId) as { count: number };
 
         // Check streak achievements
         if (trigger === 'streak' || trigger === 'upload') {
@@ -415,9 +412,57 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
                 `).get(userId, challenge.id) as { count: number };
 
                 // Perfect week = 7 uploads, 0 rest days
-                if (weekUploads.count === 7 && restDays.count === 0 && !hasAchievement(userId, 'perfect_week')) {
+                const isPerfectWeek = weekUploads.count === 7 && restDays.count === 0;
+
+                if (isPerfectWeek && !hasAchievement(userId, 'perfect_week')) {
                     const result = unlockAchievement(userId, 'perfect_week');
                     if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+                }
+
+                // Check for perfect month (4 consecutive perfect weeks)
+                if (isPerfectWeek && !hasAchievement(userId, 'perfect_month')) {
+                    // Get the last 4 completed challenges (not including current)
+                    const recentChallenges = db.prepare(`
+                        SELECT id, start_date, end_date
+                        FROM weekly_challenges
+                        WHERE user_id = ?
+                        AND status = 'completed'
+                        AND id < ?
+                        ORDER BY start_date DESC
+                        LIMIT 3
+                    `).all(userId, challenge.id) as Array<{ id: number; start_date: string; end_date: string }>;
+
+                    // Check if all 3 previous weeks were perfect
+                    let consecutivePerfectWeeks = 1; // Current week is perfect
+
+                    for (const prevChallenge of recentChallenges) {
+                        const prevUploads = db.prepare(`
+                            SELECT COUNT(*) as count 
+                            FROM daily_uploads 
+                            WHERE user_id = ? 
+                            AND challenge_id = ?
+                            AND verification_status = 'approved'
+                        `).get(userId, prevChallenge.id) as { count: number };
+
+                        const prevRestDays = db.prepare(`
+                            SELECT COUNT(*) as count 
+                            FROM rest_days 
+                            WHERE user_id = ? 
+                            AND challenge_id = ?
+                        `).get(userId, prevChallenge.id) as { count: number };
+
+                        if (prevUploads.count === 7 && prevRestDays.count === 0) {
+                            consecutivePerfectWeeks++;
+                        } else {
+                            break; // Streak broken
+                        }
+                    }
+
+                    // Unlock if 4 consecutive perfect weeks
+                    if (consecutivePerfectWeeks >= 4) {
+                        const result = unlockAchievement(userId, 'perfect_month');
+                        if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+                    }
                 }
             }
 
