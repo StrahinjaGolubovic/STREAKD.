@@ -211,13 +211,15 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
         const streak = db.prepare('SELECT * FROM streaks WHERE user_id = ?').get(userId) as any;
 
         // Only count UPLOADS after achievement system launch (prevents instant unlocks from old uploads)
+        // STRICT filtering: both upload_date AND created_at must be after launch
         const uploadCount = db.prepare(`
             SELECT COUNT(*) as count 
             FROM daily_uploads 
             WHERE user_id = ? 
             AND verification_status = 'approved'
             AND DATE(upload_date) >= DATE(?)
-        `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
+            AND DATE(created_at) >= DATE(?)
+        `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
         // Count ALL friends (old users should unlock based on current state)
         const friendCount = db.prepare(`
@@ -289,13 +291,14 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
                 const hour = new Date(data.uploadTime).getHours();
 
                 if (hour < 6) {
-                    // Early bird - only count uploads after launch date
+                    // Early bird - STRICT filtering: both upload_date AND created_at must be after launch
                     const earlyBirdCount = db.prepare(`
             SELECT COUNT(*) as count FROM daily_uploads
             WHERE user_id = ? AND verification_status = 'approved'
             AND strftime('%H', created_at) < '06'
             AND DATE(upload_date) >= DATE(?)
-          `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
+            AND DATE(created_at) >= DATE(?)
+          `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
                     updateAchievementProgress(userId, 'early_bird', Math.min(100, (earlyBirdCount.count / 5) * 100));
 
@@ -306,13 +309,14 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
                 }
 
                 if (hour >= 22) {
-                    // Night owl - only count uploads after launch date
+                    // Night owl - STRICT filtering: both upload_date AND created_at must be after launch
                     const nightOwlCount = db.prepare(`
             SELECT COUNT(*) as count FROM daily_uploads
             WHERE user_id = ? AND verification_status = 'approved'
             AND strftime('%H', created_at) >= '22'
             AND DATE(upload_date) >= DATE(?)
-          `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
+            AND DATE(created_at) >= DATE(?)
+          `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
                     updateAchievementProgress(userId, 'night_owl', Math.min(100, (nightOwlCount.count / 5) * 100));
 
@@ -467,25 +471,27 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
                 }
             }
 
-            // Check weekend warrior - only count weekends after launch date
+            // Check weekend warrior - STRICT filtering: both upload_date AND created_at must be after launch
             const weekendUploads = db.prepare(`
                 SELECT COUNT(*) as count 
                 FROM daily_uploads 
                 WHERE user_id = ? 
                 AND verification_status = 'approved'
                 AND DATE(upload_date) >= DATE(?)
+                AND DATE(created_at) >= DATE(?)
                 AND (CAST(strftime('%w', upload_date) AS INTEGER) = 0 OR CAST(strftime('%w', upload_date) AS INTEGER) = 6)
-            `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
+            `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
-            // Count unique weekends (group by year-week)
+            // Count unique weekends (group by year-week) - STRICT filtering
             const uniqueWeekends = db.prepare(`
                 SELECT COUNT(DISTINCT strftime('%Y-%W', upload_date)) as count
                 FROM daily_uploads
                 WHERE user_id = ?
                 AND verification_status = 'approved'
                 AND DATE(upload_date) >= DATE(?)
+                AND DATE(created_at) >= DATE(?)
                 AND (CAST(strftime('%w', upload_date) AS INTEGER) = 0 OR CAST(strftime('%w', upload_date) AS INTEGER) = 6)
-            `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
+            `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
             updateAchievementProgress(userId, 'weekend_warrior', Math.min(100, (uniqueWeekends.count / 10) * 100));
 
