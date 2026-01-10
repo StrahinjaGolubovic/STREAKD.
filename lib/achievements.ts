@@ -1,6 +1,10 @@
 import db from './db';
 import { formatDateTimeSerbia } from './timezone';
 
+// Achievement system launch date - only count actions after this date
+// This prevents old users from getting achievements for historical data
+export const ACHIEVEMENT_SYSTEM_LAUNCH_DATE = '2026-01-10'; // YYYY-MM-DD format
+
 // Achievement types
 export interface Achievement {
     id: number;
@@ -200,14 +204,36 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
     const unlockedAchievements: Achievement[] = [];
 
     try {
-        // Get user stats
+        // Get user stats (only count data after achievement system launch)
         const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId) as any;
         if (!user) return [];
 
         const streak = db.prepare('SELECT * FROM streaks WHERE user_id = ?').get(userId) as any;
-        const uploadCount = db.prepare('SELECT COUNT(*) as count FROM daily_uploads WHERE user_id = ? AND verification_status = ?').get(userId, 'approved') as { count: number };
-        const friendCount = db.prepare('SELECT COUNT(*) as count FROM friends WHERE user_id = ?').get(userId) as { count: number };
-        const nudgeCount = db.prepare('SELECT COUNT(DISTINCT nudge_date) as count FROM nudges WHERE from_user_id = ?').get(userId) as { count: number };
+
+        // Only count uploads after achievement system launch
+        const uploadCount = db.prepare(`
+            SELECT COUNT(*) as count 
+            FROM daily_uploads 
+            WHERE user_id = ? 
+            AND verification_status = 'approved'
+            AND upload_date >= ?
+        `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
+
+        // Only count friends added after achievement system launch
+        const friendCount = db.prepare(`
+            SELECT COUNT(*) as count 
+            FROM friends 
+            WHERE user_id = ? 
+            AND created_at >= ?
+        `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
+
+        // Only count nudges after achievement system launch
+        const nudgeCount = db.prepare(`
+            SELECT COUNT(DISTINCT nudge_date) as count 
+            FROM nudges 
+            WHERE from_user_id = ?
+            AND nudge_date >= ?
+        `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
         // Check streak achievements
         if (trigger === 'streak' || trigger === 'upload') {
@@ -265,12 +291,13 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
                 const hour = new Date(data.uploadTime).getHours();
 
                 if (hour < 6) {
-                    // Early bird
+                    // Early bird - only count uploads after launch date
                     const earlyBirdCount = db.prepare(`
             SELECT COUNT(*) as count FROM daily_uploads
             WHERE user_id = ? AND verification_status = 'approved'
             AND strftime('%H', created_at) < '06'
-          `).get(userId) as { count: number };
+            AND upload_date >= ?
+          `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
                     updateAchievementProgress(userId, 'early_bird', Math.min(100, (earlyBirdCount.count / 5) * 100));
 
@@ -281,12 +308,13 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
                 }
 
                 if (hour >= 22) {
-                    // Night owl
+                    // Night owl - only count uploads after launch date
                     const nightOwlCount = db.prepare(`
             SELECT COUNT(*) as count FROM daily_uploads
             WHERE user_id = ? AND verification_status = 'approved'
             AND strftime('%H', created_at) >= '22'
-          `).get(userId) as { count: number };
+            AND upload_date >= ?
+          `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
                     updateAchievementProgress(userId, 'night_owl', Math.min(100, (nightOwlCount.count / 5) * 100));
 
@@ -392,14 +420,15 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
                 }
             }
 
-            // Check weekend warrior
+            // Check weekend warrior - only count weekends after launch date
             const weekendUploads = db.prepare(`
                 SELECT COUNT(*) as count 
                 FROM daily_uploads 
                 WHERE user_id = ? 
                 AND verification_status = 'approved'
+                AND upload_date >= ?
                 AND (CAST(strftime('%w', upload_date) AS INTEGER) = 0 OR CAST(strftime('%w', upload_date) AS INTEGER) = 6)
-            `).get(userId) as { count: number };
+            `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
             // Count unique weekends (group by year-week)
             const uniqueWeekends = db.prepare(`
@@ -407,8 +436,9 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
                 FROM daily_uploads
                 WHERE user_id = ?
                 AND verification_status = 'approved'
+                AND upload_date >= ?
                 AND (CAST(strftime('%w', upload_date) AS INTEGER) = 0 OR CAST(strftime('%w', upload_date) AS INTEGER) = 6)
-            `).get(userId) as { count: number };
+            `).get(userId, ACHIEVEMENT_SYSTEM_LAUNCH_DATE) as { count: number };
 
             updateAchievementProgress(userId, 'weekend_warrior', Math.min(100, (uniqueWeekends.count / 10) * 100));
 
