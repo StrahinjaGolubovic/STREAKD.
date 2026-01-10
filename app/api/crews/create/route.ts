@@ -29,6 +29,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: result.message }, { status: 400 });
     }
 
+    // Check for crew achievements
+    try {
+      const { checkAndUnlockAchievements } = require('@/lib/achievements');
+      checkAndUnlockAchievements(decoded.userId, 'social');
+    } catch (error) {
+      console.error('[ACHIEVEMENTS] Error checking crew achievements:', error);
+    }
+
     return NextResponse.json({ success: true, crewId: result.crewId, message: result.message });
   } catch (error) {
     console.error('Create crew error:', error);

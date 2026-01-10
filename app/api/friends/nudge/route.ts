@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
           'SELECT id FROM nudges WHERE from_user_id = ? AND to_user_id = ? AND nudge_date = ?'
         )
         .get(userId, friend_id, today) as { id: number } | undefined;
-      
+
       if (checkAgain) {
         return NextResponse.json(
           { error: 'You can only nudge this friend once per day' },
@@ -92,6 +92,14 @@ export async function POST(request: NextRequest) {
 
     // Send nudge notification
     const notification = sendNudgeNotification(userId, user.username, friend_id);
+
+    // Check for nudge achievements
+    try {
+      const { checkAndUnlockAchievements } = require('@/lib/achievements');
+      checkAndUnlockAchievements(userId, 'social');
+    } catch (error) {
+      console.error('[ACHIEVEMENTS] Error checking nudge achievements:', error);
+    }
 
     return NextResponse.json({ success: true, notification, nudged_today: true });
   } catch (error: any) {

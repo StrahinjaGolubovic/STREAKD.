@@ -76,6 +76,14 @@ export async function POST(request: NextRequest) {
     // Delete the notification
     db.prepare('DELETE FROM notifications WHERE id = ?').run(notificationId);
 
+    // Check for crew achievements
+    try {
+      const { checkAndUnlockAchievements } = require('@/lib/achievements');
+      checkAndUnlockAchievements(decoded.userId, 'social');
+    } catch (error) {
+      console.error('[ACHIEVEMENTS] Error checking crew achievements:', error);
+    }
+
     return NextResponse.json({ success: true, message: `You joined ${crew.name}!` });
   } catch (error) {
     console.error('Error accepting crew invite:', error);

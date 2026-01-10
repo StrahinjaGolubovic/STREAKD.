@@ -29,6 +29,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: result.message }, { status: 400 });
     }
 
+    // Check for crew achievements for the user who joined
+    try {
+      const { checkAndUnlockAchievements } = require('@/lib/achievements');
+      const db = require('@/lib/db').default;
+
+      // Get the notification to find who requested to join
+      const notification = db.prepare('SELECT user_id FROM notifications WHERE id = ?').get(requestId) as { user_id: number } | undefined;
+      if (notification) {
+        checkAndUnlockAchievements(notification.user_id, 'social');
+      }
+    } catch (error) {
+      console.error('[ACHIEVEMENTS] Error checking crew achievements:', error);
+    }
+
     return NextResponse.json({ success: true, message: result.message });
   } catch (error) {
     console.error('Accept request error:', error);

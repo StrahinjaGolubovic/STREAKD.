@@ -320,7 +320,8 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
         }
 
         // Check social achievements
-        if (trigger === 'friend') {
+        if (trigger === 'social') {
+            // Friend achievements
             const count = friendCount.count;
 
             if (count === 1 && !hasAchievement(userId, 'first_friend')) {
@@ -331,47 +332,96 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
                 const result = unlockAchievement(userId, 'friends_10');
                 if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
             }
-        }
 
-        if (trigger === 'crew_join' && !hasAchievement(userId, 'crew_member')) {
-            const result = unlockAchievement(userId, 'crew_member');
-            if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
-        }
+            // Crew achievements
+            const crewMembership = db.prepare('SELECT crew_id FROM crew_members WHERE user_id = ?').get(userId) as { crew_id: number } | undefined;
+            if (crewMembership && !hasAchievement(userId, 'crew_member')) {
+                const result = unlockAchievement(userId, 'crew_member');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
 
-        if (trigger === 'crew_create' && !hasAchievement(userId, 'crew_leader')) {
-            const result = unlockAchievement(userId, 'crew_leader');
-            if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
-        }
+            const crewLeadership = db.prepare('SELECT id FROM crews WHERE leader_id = ?').get(userId) as { id: number } | undefined;
+            if (crewLeadership && !hasAchievement(userId, 'crew_leader')) {
+                const result = unlockAchievement(userId, 'crew_leader');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
 
-        if (trigger === 'nudge') {
-            const count = nudgeCount.count;
-            updateAchievementProgress(userId, 'helpful', Math.min(100, (count / 10) * 100));
+            // Nudge achievement
+            const nudges = nudgeCount.count;
+            updateAchievementProgress(userId, 'helpful', Math.min(100, (nudges / 10) * 100));
 
-            if (count >= 10 && !hasAchievement(userId, 'helpful')) {
+            if (nudges >= 10 && !hasAchievement(userId, 'helpful')) {
                 const result = unlockAchievement(userId, 'helpful');
                 if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
             }
         }
 
         // Check perfect week achievement
-        if (trigger === 'week_complete' && data?.perfectWeek) {
-            if (!hasAchievement(userId, 'perfect_week')) {
-                const result = unlockAchievement(userId, 'perfect_week');
+        if (trigger === 'upload') {
+            // Get current active challenge
+            const challenge = db.prepare(`
+                SELECT id, start_date, end_date 
+                FROM weekly_challenges 
+                WHERE user_id = ? AND status = 'active'
+                ORDER BY start_date DESC LIMIT 1
+            `).get(userId) as { id: number; start_date: string; end_date: string } | undefined;
+
+            if (challenge) {
+                // Count uploads this week
+                const weekUploads = db.prepare(`
+                    SELECT COUNT(*) as count 
+                    FROM daily_uploads 
+                    WHERE user_id = ? 
+                    AND challenge_id = ?
+                    AND verification_status = 'approved'
+                `).get(userId, challenge.id) as { count: number };
+
+                // Count rest days this week
+                const restDays = db.prepare(`
+                    SELECT COUNT(*) as count 
+                    FROM rest_days 
+                    WHERE user_id = ? 
+                    AND challenge_id = ?
+                `).get(userId, challenge.id) as { count: number };
+
+                // Perfect week = 7 uploads, 0 rest days
+                if (weekUploads.count === 7 && restDays.count === 0 && !hasAchievement(userId, 'perfect_week')) {
+                    const result = unlockAchievement(userId, 'perfect_week');
+                    if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+                }
+            }
+
+            // Check weekend warrior
+            const weekendUploads = db.prepare(`
+                SELECT COUNT(*) as count 
+                FROM daily_uploads 
+                WHERE user_id = ? 
+                AND verification_status = 'approved'
+                AND (CAST(strftime('%w', upload_date) AS INTEGER) = 0 OR CAST(strftime('%w', upload_date) AS INTEGER) = 6)
+            `).get(userId) as { count: number };
+
+            // Count unique weekends (group by year-week)
+            const uniqueWeekends = db.prepare(`
+                SELECT COUNT(DISTINCT strftime('%Y-%W', upload_date)) as count
+                FROM daily_uploads
+                WHERE user_id = ?
+                AND verification_status = 'approved'
+                AND (CAST(strftime('%w', upload_date) AS INTEGER) = 0 OR CAST(strftime('%w', upload_date) AS INTEGER) = 6)
+            `).get(userId) as { count: number };
+
+            updateAchievementProgress(userId, 'weekend_warrior', Math.min(100, (uniqueWeekends.count / 10) * 100));
+
+            if (uniqueWeekends.count >= 10 && !hasAchievement(userId, 'weekend_warrior')) {
+                const result = unlockAchievement(userId, 'weekend_warrior');
                 if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
             }
 
-            // Check perfect month (4 consecutive perfect weeks)
-            if (data?.consecutivePerfectWeeks >= 4 && !hasAchievement(userId, 'perfect_month')) {
-                const result = unlockAchievement(userId, 'perfect_month');
-                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
-            }
-        }
-
-        // Check comeback kid (rebuild streak after breaking)
-        if (trigger === 'streak' && data?.streakRebuilt) {
-            if (!hasAchievement(userId, 'comeback_kid')) {
-                const result = unlockAchievement(userId, 'comeback_kid');
-                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            // Check comeback kid (rebuilt streak after breaking it)
+            if (streak && streak.longest_streak > streak.current_streak && streak.current_streak >= 7) {
+                if (!hasAchievement(userId, 'comeback_kid')) {
+                    const result = unlockAchievement(userId, 'comeback_kid');
+                    if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+                }
             }
         }
 

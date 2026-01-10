@@ -29,6 +29,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: result.message }, { status: 400 });
     }
 
+    // Check for friend achievements
+    try {
+      const { checkAndUnlockAchievements } = require('@/lib/achievements');
+      checkAndUnlockAchievements(decoded.userId, 'social');
+    } catch (error) {
+      console.error('[ACHIEVEMENTS] Error checking friend achievements:', error);
+    }
+
     return NextResponse.json({ message: result.message });
   } catch (error) {
     console.error('Accept invite error:', error);
