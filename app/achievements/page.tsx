@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getAchievementIcon } from '@/components/icons';
 
 interface Achievement {
     id: number;
@@ -98,7 +99,7 @@ export default function AchievementsPage() {
                         </Link>
                     </div>
 
-                    <h1 className="text-4xl font-bold mb-2">🏆 Achievements</h1>
+                    <h1 className="text-4xl font-bold mb-2">Achievements</h1>
                     <p className="text-gray-400">Track your progress and unlock badges</p>
 
                     {/* Stats */}
@@ -129,8 +130,8 @@ export default function AchievementsPage() {
                             key={category}
                             onClick={() => setSelectedCategory(category)}
                             className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${selectedCategory === category
-                                    ? 'bg-primary-500 text-white'
-                                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                                ? 'bg-primary-500 text-white'
+                                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                                 }`}
                         >
                             {category === 'all' ? 'All' : CATEGORY_LABELS[category as keyof typeof CATEGORY_LABELS]}
@@ -144,8 +145,8 @@ export default function AchievementsPage() {
                         <div
                             key={achievement.id}
                             className={`relative rounded-lg p-6 border transition-all ${achievement.unlocked
-                                    ? 'bg-gray-800 border-gray-700 hover:border-gray-600'
-                                    : 'bg-gray-900 border-gray-800 opacity-60'
+                                ? 'bg-gray-800 border-gray-700 hover:border-gray-600'
+                                : 'bg-gray-900 border-gray-800 opacity-60'
                                 }`}
                         >
                             {/* Tier Badge */}
@@ -154,7 +155,9 @@ export default function AchievementsPage() {
                             </div>
 
                             {/* Icon */}
-                            <div className="text-6xl mb-4">{achievement.icon}</div>
+                            <div className="mb-4">
+                                {getAchievementIcon(achievement.icon, { className: 'w-16 h-16 mx-auto', size: 64 })}
+                            </div>
 
                             {/* Name & Description */}
                             <h3 className="text-xl font-bold mb-2">{achievement.name}</h3>

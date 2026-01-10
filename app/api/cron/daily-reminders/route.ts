@@ -86,25 +86,25 @@ export async function GET(request: NextRequest) {
 
                 // Determine notification message based on time of day and streak
                 const streak = user.current_streak || 0;
-                let title = '💪 Time to hit the gym!';
+                let title = 'Time to hit the gym!';
                 let body = "Don't break your streak! Upload your workout photo today.";
                 let urgency: 'low' | 'medium' | 'high' = 'low';
 
                 // Morning (6am - 12pm)
                 if (currentHour >= 6 && currentHour < 12) {
-                    title = '🌅 Good morning!';
+                    title = 'Good morning!';
                     body = 'Start your day strong! Time for your workout.';
                     urgency = 'low';
                 }
                 // Afternoon (12pm - 6pm)
                 else if (currentHour >= 12 && currentHour < 18) {
-                    title = '💪 Afternoon reminder';
+                    title = 'Afternoon reminder';
                     body = "Don't forget to upload your gym photo today!";
                     urgency = 'low';
                 }
                 // Evening (6pm - 9pm)
                 else if (currentHour >= 18 && currentHour < 21) {
-                    title = '⏰ Evening reminder';
+                    title = 'Evening reminder';
                     body = streak > 0
                         ? `Protect your ${streak}-day streak! Upload before midnight.`
                         : 'Upload your workout photo before the day ends!';
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
                 }
                 // Late evening (9pm - 11pm) - URGENT
                 else if (currentHour >= 21 && currentHour < 23) {
-                    title = '🚨 URGENT: Upload needed!';
+                    title = 'URGENT: Upload needed!';
                     body = streak > 0
                         ? `Your ${streak}-day streak is at risk! Upload NOW before midnight.`
                         : 'Last chance to upload today! Only a few hours left.';
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
                 }
                 // Night (11pm - midnight) - CRITICAL
                 else if (currentHour >= 23) {
-                    title = '⚠️ FINAL WARNING!';
+                    title = 'FINAL WARNING!';
                     body = streak > 0
                         ? `STREAK ENDING! ${streak} days will be lost! Upload immediately!`
                         : 'Less than 1 hour left! Upload your photo NOW!';

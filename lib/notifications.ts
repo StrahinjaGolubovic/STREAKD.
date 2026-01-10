@@ -23,7 +23,7 @@ export function createNotification(
   relatedCrewId?: number
 ): Notification {
   const now = formatDateTimeSerbia();
-  
+
   const result = db
     .prepare(
       `INSERT INTO notifications (user_id, type, title, message, related_user_id, related_crew_id, read, created_at)
@@ -109,7 +109,7 @@ export function sendNudgeNotification(fromUserId: number, fromUsername: string, 
   return createNotification(
     toUserId,
     'nudge',
-    '👋 You got a nudge!',
+    'You got a nudge!',
     `@${fromUsername} nudged you!`,
     fromUserId
   );

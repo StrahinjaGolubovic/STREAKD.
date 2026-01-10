@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
         // Send test notification
         const result = await sendPushNotification(userId, {
-            title: '🔔 Test Notification',
+            title: 'Test Notification',
             body: 'Push notifications are working! You\'re all set.',
             icon: '/android-chrome-192x192.png',
             badge: '/favicon-48x48.png',

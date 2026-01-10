@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getAchievementIcon } from './icons';
 
 interface Achievement {
     id: number;
@@ -91,7 +92,7 @@ export default function AchievementUnlockModal({ achievement, onClose }: Achieve
                                     transition={{ delay: 0.2 }}
                                     className="text-yellow-400 font-bold text-sm mb-2 tracking-wider"
                                 >
-                                    🎉 ACHIEVEMENT UNLOCKED! 🎉
+                                    ACHIEVEMENT UNLOCKED!
                                 </motion.div>
 
                                 {/* Icon */}
@@ -104,9 +105,9 @@ export default function AchievementUnlockModal({ achievement, onClose }: Achieve
                                         stiffness: 200,
                                         damping: 10
                                     }}
-                                    className="text-9xl mb-4"
+                                    className="mb-4 flex justify-center"
                                 >
-                                    {achievement.icon}
+                                    {getAchievementIcon(achievement.icon, { className: 'w-24 h-24 text-white', size: 96 })}
                                 </motion.div>
 
                                 {/* Tier Badge */}
@@ -146,7 +147,9 @@ export default function AchievementUnlockModal({ achievement, onClose }: Achieve
                                     transition={{ delay: 0.7, type: 'spring' }}
                                     className="inline-flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/50 rounded-full px-6 py-3 mb-6"
                                 >
-                                    <span className="text-2xl">⭐</span>
+                                    <svg className="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                    </svg>
                                     <span className="text-yellow-400 font-bold text-xl">+{achievement.points} Points</span>
                                 </motion.div>
 

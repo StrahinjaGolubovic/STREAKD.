@@ -250,7 +250,7 @@ export function cleanupExpiredSubscriptions(): number {
 // Helper: Send achievement unlock notification
 export async function sendAchievementNotification(userId: number, achievementName: string, achievementIcon: string) {
     return sendPushNotification(userId, {
-        title: '🏆 Achievement Unlocked!',
+        title: 'Achievement Unlocked!',
         body: `${achievementIcon} ${achievementName}`,
         icon: '/android-chrome-192x192.png',
         badge: '/favicon-48x48.png',
@@ -265,7 +265,7 @@ export async function sendAchievementNotification(userId: number, achievementNam
 // Helper: Send daily reminder notification
 export async function sendDailyReminderNotification(userId: number) {
     return sendPushNotification(userId, {
-        title: '💪 Time to hit the gym!',
+        title: 'Time to hit the gym!',
         body: "Don't break your streak! Upload your workout photo today.",
         icon: '/android-chrome-192x192.png',
         badge: '/favicon-48x48.png',
@@ -281,7 +281,7 @@ export async function sendDailyReminderNotification(userId: number) {
 // Helper: Send streak warning notification
 export async function sendStreakWarningNotification(userId: number, currentStreak: number) {
     return sendPushNotification(userId, {
-        title: '⚠️ Your streak is at risk!',
+        title: 'Your streak is at risk!',
         body: `Don't lose your ${currentStreak}-day streak! Upload before midnight.`,
         icon: '/android-chrome-192x192.png',
         badge: '/favicon-48x48.png',
@@ -303,11 +303,11 @@ export async function sendFriendActivityNotification(
     const messages = {
         upload: `${friendName} just uploaded their workout!`,
         milestone: `${friendName} reached a new milestone!`,
-        nudge: `${friendName} nudged you! 👋`
+        nudge: `${friendName} nudged you!`
     };
 
     return sendPushNotification(userId, {
-        title: '👥 Friend Activity',
+        title: 'Friend Activity',
         body: messages[activityType],
         icon: '/android-chrome-192x192.png',
         badge: '/favicon-48x48.png',
@@ -332,7 +332,7 @@ export async function sendCrewNotification(
     };
 
     return sendPushNotification(userId, {
-        title: '🤝 Crew Update',
+        title: 'Crew Update',
         body: messages[notificationType],
         icon: '/android-chrome-192x192.png',
         badge: '/favicon-48x48.png',

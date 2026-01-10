@@ -1957,7 +1957,7 @@ export default function DashboardPage() {
                               : 'bg-primary-600/50 border-primary-700 text-primary-300 hover:bg-primary-600/70 active:bg-primary-600'
                               }`}
                           >
-                            👋 {friend.nudged_today ? 'Nudged' : 'Nudge'}
+                            {friend.nudged_today ? 'Nudged' : 'Nudge'}
                           </button>
                           <button
                             onClick={(e) => {

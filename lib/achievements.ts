@@ -33,39 +33,39 @@ export interface AchievementWithStatus extends Achievement {
 // Achievement definitions
 const ACHIEVEMENT_DEFINITIONS = [
     // Streak Achievements
-    { key: 'first_upload', name: 'First Steps', description: 'Upload your first photo', icon: '🎯', category: 'upload', tier: 'bronze', points: 10 },
-    { key: 'streak_3', name: 'Getting Started', description: 'Maintain a 3-day streak', icon: '🔥', category: 'streak', tier: 'bronze', points: 15 },
-    { key: 'streak_7', name: 'Week Warrior', description: 'Complete your first week', icon: '💪', category: 'streak', tier: 'silver', points: 25 },
-    { key: 'streak_30', name: 'Monthly Master', description: 'Reach a 30-day streak', icon: '⭐', category: 'streak', tier: 'gold', points: 50 },
-    { key: 'streak_100', name: 'Century Club', description: 'Reach a 100-day streak', icon: '💯', category: 'streak', tier: 'gold', points: 100 },
-    { key: 'streak_365', name: 'The Iron Will', description: 'Reach a 365-day streak', icon: '👑', category: 'streak', tier: 'platinum', points: 365 },
+    { key: 'first_upload', name: 'First Steps', description: 'Upload your first photo', icon: 'target', category: 'upload', tier: 'bronze', points: 10 },
+    { key: 'streak_3', name: 'Getting Started', description: 'Maintain a 3-day streak', icon: 'flame', category: 'streak', tier: 'bronze', points: 15 },
+    { key: 'streak_7', name: 'Week Warrior', description: 'Complete your first week', icon: 'muscle', category: 'streak', tier: 'silver', points: 25 },
+    { key: 'streak_30', name: 'Monthly Master', description: 'Reach a 30-day streak', icon: 'star', category: 'streak', tier: 'gold', points: 50 },
+    { key: 'streak_100', name: 'Century Club', description: 'Reach a 100-day streak', icon: 'hundred', category: 'streak', tier: 'gold', points: 100 },
+    { key: 'streak_365', name: 'The Iron Will', description: 'Reach a 365-day streak', icon: 'iron', category: 'streak', tier: 'platinum', points: 365 },
 
     // Upload Achievements
-    { key: 'uploads_10', name: 'Dedicated', description: 'Upload 10 photos', icon: '📸', category: 'upload', tier: 'bronze', points: 20 },
-    { key: 'uploads_50', name: 'Committed', description: 'Upload 50 photos', icon: '📷', category: 'upload', tier: 'silver', points: 50 },
-    { key: 'uploads_100', name: 'Unstoppable', description: 'Upload 100 photos', icon: '🎬', category: 'upload', tier: 'gold', points: 100 },
-    { key: 'uploads_500', name: 'Legend', description: 'Upload 500 photos', icon: '🏆', category: 'upload', tier: 'platinum', points: 500 },
-    { key: 'perfect_week', name: 'Perfectionist', description: 'Complete a perfect week (7/7)', icon: '✨', category: 'upload', tier: 'silver', points: 30 },
-    { key: 'perfect_month', name: 'Flawless', description: 'Complete 4 consecutive perfect weeks', icon: '💎', category: 'upload', tier: 'gold', points: 100 },
+    { key: 'uploads_10', name: 'Dedicated', description: 'Upload 10 photos', icon: 'camera', category: 'upload', tier: 'bronze', points: 20 },
+    { key: 'uploads_50', name: 'Committed', description: 'Upload 50 photos', icon: 'camera', category: 'upload', tier: 'silver', points: 50 },
+    { key: 'uploads_100', name: 'Unstoppable', description: 'Upload 100 photos', icon: 'video', category: 'upload', tier: 'gold', points: 100 },
+    { key: 'uploads_500', name: 'Legend', description: 'Upload 500 photos', icon: 'trophy', category: 'upload', tier: 'platinum', points: 500 },
+    { key: 'perfect_week', name: 'Perfectionist', description: 'Complete a perfect week (7/7)', icon: 'sparkles', category: 'upload', tier: 'silver', points: 30 },
+    { key: 'perfect_month', name: 'Flawless', description: 'Complete 4 consecutive perfect weeks', icon: 'diamond', category: 'upload', tier: 'gold', points: 100 },
 
     // Trophy Achievements
-    { key: 'trophies_100', name: 'Collector', description: 'Earn 100 trophies', icon: '🥉', category: 'trophy', tier: 'bronze', points: 20 },
-    { key: 'trophies_500', name: 'Hoarder', description: 'Earn 500 trophies', icon: '🥈', category: 'trophy', tier: 'silver', points: 50 },
-    { key: 'trophies_1000', name: 'Wealthy', description: 'Earn 1,000 trophies', icon: '🥇', category: 'trophy', tier: 'gold', points: 100 },
-    { key: 'trophies_5000', name: 'Tycoon', description: 'Earn 5,000 trophies', icon: '💰', category: 'trophy', tier: 'platinum', points: 500 },
+    { key: 'trophies_100', name: 'Collector', description: 'Earn 100 trophies', icon: 'medal_bronze', category: 'trophy', tier: 'bronze', points: 20 },
+    { key: 'trophies_500', name: 'Hoarder', description: 'Earn 500 trophies', icon: 'medal_silver', category: 'trophy', tier: 'silver', points: 50 },
+    { key: 'trophies_1000', name: 'Wealthy', description: 'Earn 1,000 trophies', icon: 'medal_gold', category: 'trophy', tier: 'gold', points: 100 },
+    { key: 'trophies_5000', name: 'Tycoon', description: 'Earn 5,000 trophies', icon: 'coins', category: 'trophy', tier: 'platinum', points: 500 },
 
     // Social Achievements
-    { key: 'first_friend', name: 'Friendly', description: 'Add your first friend', icon: '👋', category: 'social', tier: 'bronze', points: 10 },
-    { key: 'friends_10', name: 'Popular', description: 'Have 10 friends', icon: '👥', category: 'social', tier: 'silver', points: 30 },
-    { key: 'crew_member', name: 'Team Player', description: 'Join a crew', icon: '🤝', category: 'social', tier: 'bronze', points: 15 },
-    { key: 'crew_leader', name: 'Leader', description: 'Create a crew', icon: '👨‍✈️', category: 'social', tier: 'silver', points: 40 },
-    { key: 'helpful', name: 'Motivator', description: 'Nudge friends 10 times', icon: '🔔', category: 'social', tier: 'silver', points: 25 },
+    { key: 'first_friend', name: 'Friendly', description: 'Add your first friend', icon: 'hand_wave', category: 'social', tier: 'bronze', points: 10 },
+    { key: 'friends_10', name: 'Popular', description: 'Have 10 friends', icon: 'users', category: 'social', tier: 'silver', points: 30 },
+    { key: 'crew_member', name: 'Team Player', description: 'Join a crew', icon: 'handshake', category: 'social', tier: 'bronze', points: 15 },
+    { key: 'crew_leader', name: 'Leader', description: 'Create a crew', icon: 'shield', category: 'social', tier: 'silver', points: 40 },
+    { key: 'helpful', name: 'Motivator', description: 'Nudge friends 10 times', icon: 'bell', category: 'social', tier: 'silver', points: 25 },
 
     // Special Achievements
-    { key: 'early_bird', name: 'Early Bird', description: 'Upload before 6am (5 times)', icon: '🌅', category: 'special', tier: 'silver', points: 35 },
-    { key: 'night_owl', name: 'Night Owl', description: 'Upload after 10pm (5 times)', icon: '🦉', category: 'special', tier: 'silver', points: 35 },
-    { key: 'weekend_warrior', name: 'Weekend Warrior', description: 'Upload on Saturday and Sunday (10 weekends)', icon: '🏋️', category: 'special', tier: 'gold', points: 75 },
-    { key: 'comeback_kid', name: 'Comeback Kid', description: 'Rebuild a streak after breaking it', icon: '🔄', category: 'special', tier: 'silver', points: 40 },
+    { key: 'early_bird', name: 'Early Bird', description: 'Upload before 6am (5 times)', icon: 'sunrise', category: 'special', tier: 'silver', points: 35 },
+    { key: 'night_owl', name: 'Night Owl', description: 'Upload after 10pm (5 times)', icon: 'moon', category: 'special', tier: 'silver', points: 35 },
+    { key: 'weekend_warrior', name: 'Weekend Warrior', description: 'Upload on Saturday and Sunday (10 weekends)', icon: 'dumbbell', category: 'special', tier: 'gold', points: 75 },
+    { key: 'comeback_kid', name: 'Comeback Kid', description: 'Rebuild a streak after breaking it', icon: 'refresh', category: 'special', tier: 'silver', points: 40 },
 ];
 
 // Initialize achievements in database
