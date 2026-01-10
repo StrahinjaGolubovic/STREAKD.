@@ -44,6 +44,7 @@ import {
   getUserTrophies,
   syncTrophiesForUpload,
   syncWeeklyBonus,
+  syncAllWeeklyBonuses,
 } from './trophy-core';
 
 // Re-export utilities for backward compatibility
@@ -106,7 +107,7 @@ export interface Streak {
 export function getUserStreak(userId: number): Streak {
   ensureStreakRowExists(userId);
   const data = getStreakData(userId);
-  
+
   return {
     id: 0, // Not used
     user_id: userId,
@@ -141,8 +142,8 @@ export function recomputeUserStreakFromUploads(userId: number): Streak {
  * Get week start for user based on registration date.
  */
 export function getWeekStartForUser(registrationDate: string | Date, currentDate?: Date): string {
-  const regDateStr = typeof registrationDate === 'string' 
-    ? registrationDate 
+  const regDateStr = typeof registrationDate === 'string'
+    ? registrationDate
     : formatDateSerbia(registrationDate);
   const currentDateStr = currentDate ? formatDateSerbia(currentDate) : undefined;
   return getWeekStartForUserCore(regDateStr, currentDateStr);
@@ -172,18 +173,18 @@ export function formatDate(date: Date = new Date()): string {
  */
 export function getOrCreateActiveChallenge(userId: number): WeeklyChallenge {
   const challenge = getOrCreateActiveChallengeCore(userId);
-  
+
   // Trigger async purge if this is a new week with no uploads
   // This is best-effort cleanup, NOT correctness-critical
   const progress = getChallengeProgressCore(challenge.id);
   const hasAnyUpload = progress.days.some(d => d.uploaded);
-  
+
   if (!hasAnyUpload) {
     purgeUserUploadsBeforeDate(userId, challenge.start_date).catch(() => {
       // Ignore purge errors - not correctness-critical
     });
   }
-  
+
   return challenge as WeeklyChallenge;
 }
 
@@ -195,11 +196,11 @@ export function getOrCreateActiveChallenge(userId: number): WeeklyChallenge {
 export function getChallengeProgress(challengeId: number): {
   totalDays: number;
   completedDays: number;
-  days: Array<{ 
-    date: string; 
-    uploaded: boolean; 
-    photo_path?: string; 
-    verification_status?: string; 
+  days: Array<{
+    date: string;
+    uploaded: boolean;
+    photo_path?: string;
+    verification_status?: string;
     is_rest_day?: boolean;
   }>;
 } {
@@ -287,8 +288,8 @@ export function addDailyUpload(
  *   (rest days don't need verification)
  */
 export function useRestDay(
-  userId: number, 
-  challengeId: number, 
+  userId: number,
+  challengeId: number,
   restDate: string
 ): { success: boolean; message: string } {
   // Get challenge
@@ -371,13 +372,37 @@ export function onUploadVerified(
   challengeId: number,
   status: 'approved' | 'rejected'
 ): void {
-  // 1. Sync trophies for this upload (idempotent)
+  // 1. Sync trophies for this upload
   syncTrophiesForUpload({ userId, uploadId, status });
 
-  // 2. Recompute streak (only approved uploads count)
-  // This will also apply missed day penalty if streak broke
-  recomputeAndPersistStreak(userId);
+  // 2. Recompute streak from all uploads
+  recomputeUserStreakFromUploads(userId);
 
+  // 3. Sync weekly bonuses (in case this approval completes a perfect week)
+  syncAllWeeklyBonuses(userId);
+
+  // 4. Check and unlock achievements
+  try {
+    const { checkAndUnlockAchievements, sendAchievementNotification } = require('./achievements');
+    const { sendPushNotification } = require('./push-notifications');
+
+    const unlockedAchievements = checkAndUnlockAchievements(userId, 'upload', {
+      uploadTime: new Date()
+    });
+
+    // Also check streak and trophy achievements
+    checkAndUnlockAchievements(userId, 'streak');
+    checkAndUnlockAchievements(userId, 'trophy');
+
+    // Send push notifications for unlocked achievements
+    for (const achievement of unlockedAchievements) {
+      sendAchievementNotification(userId, achievement.name, achievement.icon).catch((err: any) => {
+        console.error('Failed to send achievement notification:', err);
+      });
+    }
+  } catch (error) {
+    console.error('Error checking achievements:', error);
+  }
   // 3. Re-evaluate challenge (may change status, may award/revoke bonus)
   reevaluateChallengeAfterVerification(challengeId);
 

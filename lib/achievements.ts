@@ -1,0 +1,451 @@
+import db from './db';
+import { formatDateTimeSerbia } from './timezone';
+
+// Achievement types
+export interface Achievement {
+    id: number;
+    key: string;
+    name: string;
+    description: string;
+    icon: string;
+    category: 'streak' | 'upload' | 'trophy' | 'social' | 'special';
+    tier: 'bronze' | 'silver' | 'gold' | 'platinum';
+    points: number;
+    hidden: boolean;
+    created_at: string;
+}
+
+export interface UserAchievement {
+    id: number;
+    user_id: number;
+    achievement_id: number;
+    unlocked_at: string;
+    progress: number;
+    notified: boolean;
+}
+
+export interface AchievementWithStatus extends Achievement {
+    unlocked: boolean;
+    unlocked_at?: string;
+    progress: number;
+}
+
+// Achievement definitions
+const ACHIEVEMENT_DEFINITIONS = [
+    // Streak Achievements
+    { key: 'first_upload', name: 'First Steps', description: 'Upload your first photo', icon: '🎯', category: 'upload', tier: 'bronze', points: 10 },
+    { key: 'streak_3', name: 'Getting Started', description: 'Maintain a 3-day streak', icon: '🔥', category: 'streak', tier: 'bronze', points: 15 },
+    { key: 'streak_7', name: 'Week Warrior', description: 'Complete your first week', icon: '💪', category: 'streak', tier: 'silver', points: 25 },
+    { key: 'streak_30', name: 'Monthly Master', description: 'Reach a 30-day streak', icon: '⭐', category: 'streak', tier: 'gold', points: 50 },
+    { key: 'streak_100', name: 'Century Club', description: 'Reach a 100-day streak', icon: '💯', category: 'streak', tier: 'gold', points: 100 },
+    { key: 'streak_365', name: 'The Iron Will', description: 'Reach a 365-day streak', icon: '👑', category: 'streak', tier: 'platinum', points: 365 },
+
+    // Upload Achievements
+    { key: 'uploads_10', name: 'Dedicated', description: 'Upload 10 photos', icon: '📸', category: 'upload', tier: 'bronze', points: 20 },
+    { key: 'uploads_50', name: 'Committed', description: 'Upload 50 photos', icon: '📷', category: 'upload', tier: 'silver', points: 50 },
+    { key: 'uploads_100', name: 'Unstoppable', description: 'Upload 100 photos', icon: '🎬', category: 'upload', tier: 'gold', points: 100 },
+    { key: 'uploads_500', name: 'Legend', description: 'Upload 500 photos', icon: '🏆', category: 'upload', tier: 'platinum', points: 500 },
+    { key: 'perfect_week', name: 'Perfectionist', description: 'Complete a perfect week (7/7)', icon: '✨', category: 'upload', tier: 'silver', points: 30 },
+    { key: 'perfect_month', name: 'Flawless', description: 'Complete 4 consecutive perfect weeks', icon: '💎', category: 'upload', tier: 'gold', points: 100 },
+
+    // Trophy Achievements
+    { key: 'trophies_100', name: 'Collector', description: 'Earn 100 trophies', icon: '🥉', category: 'trophy', tier: 'bronze', points: 20 },
+    { key: 'trophies_500', name: 'Hoarder', description: 'Earn 500 trophies', icon: '🥈', category: 'trophy', tier: 'silver', points: 50 },
+    { key: 'trophies_1000', name: 'Wealthy', description: 'Earn 1,000 trophies', icon: '🥇', category: 'trophy', tier: 'gold', points: 100 },
+    { key: 'trophies_5000', name: 'Tycoon', description: 'Earn 5,000 trophies', icon: '💰', category: 'trophy', tier: 'platinum', points: 500 },
+
+    // Social Achievements
+    { key: 'first_friend', name: 'Friendly', description: 'Add your first friend', icon: '👋', category: 'social', tier: 'bronze', points: 10 },
+    { key: 'friends_10', name: 'Popular', description: 'Have 10 friends', icon: '👥', category: 'social', tier: 'silver', points: 30 },
+    { key: 'crew_member', name: 'Team Player', description: 'Join a crew', icon: '🤝', category: 'social', tier: 'bronze', points: 15 },
+    { key: 'crew_leader', name: 'Leader', description: 'Create a crew', icon: '👨‍✈️', category: 'social', tier: 'silver', points: 40 },
+    { key: 'helpful', name: 'Motivator', description: 'Nudge friends 10 times', icon: '🔔', category: 'social', tier: 'silver', points: 25 },
+
+    // Special Achievements
+    { key: 'early_bird', name: 'Early Bird', description: 'Upload before 6am (5 times)', icon: '🌅', category: 'special', tier: 'silver', points: 35 },
+    { key: 'night_owl', name: 'Night Owl', description: 'Upload after 10pm (5 times)', icon: '🦉', category: 'special', tier: 'silver', points: 35 },
+    { key: 'weekend_warrior', name: 'Weekend Warrior', description: 'Upload on Saturday and Sunday (10 weekends)', icon: '🏋️', category: 'special', tier: 'gold', points: 75 },
+    { key: 'comeback_kid', name: 'Comeback Kid', description: 'Rebuild a streak after breaking it', icon: '🔄', category: 'special', tier: 'silver', points: 40 },
+];
+
+// Initialize achievements in database
+export function initializeAchievements(): void {
+    try {
+        // Check if achievements already exist
+        const count = db.prepare('SELECT COUNT(*) as count FROM achievements').get() as { count: number };
+
+        if (count.count === 0) {
+            // Insert all achievement definitions
+            const insertStmt = db.prepare(`
+        INSERT INTO achievements (key, name, description, icon, category, tier, points, hidden, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?)
+      `);
+
+            const now = formatDateTimeSerbia();
+            for (const achievement of ACHIEVEMENT_DEFINITIONS) {
+                try {
+                    insertStmt.run(
+                        achievement.key,
+                        achievement.name,
+                        achievement.description,
+                        achievement.icon,
+                        achievement.category,
+                        achievement.tier,
+                        achievement.points,
+                        now
+                    );
+                } catch (error) {
+                    // Skip if already exists
+                    console.log(`Achievement ${achievement.key} already exists, skipping`);
+                }
+            }
+
+            console.log(`Initialized ${ACHIEVEMENT_DEFINITIONS.length} achievements`);
+        }
+    } catch (error) {
+        console.error('Error initializing achievements:', error);
+    }
+}
+
+// Get all achievements with user's unlock status
+export function getUserAchievements(userId: number): AchievementWithStatus[] {
+    try {
+        const achievements = db.prepare(`
+      SELECT 
+        a.*,
+        ua.unlocked_at,
+        COALESCE(ua.progress, 0) as progress,
+        CASE WHEN ua.id IS NOT NULL THEN 1 ELSE 0 END as unlocked
+      FROM achievements a
+      LEFT JOIN user_achievements ua ON a.id = ua.achievement_id AND ua.user_id = ?
+      ORDER BY a.category, a.points
+    `).all(userId) as AchievementWithStatus[];
+
+        return achievements;
+    } catch (error) {
+        console.error('Error fetching user achievements:', error);
+        return [];
+    }
+}
+
+// Check if user has unlocked an achievement
+export function hasAchievement(userId: number, achievementKey: string): boolean {
+    try {
+        const result = db.prepare(`
+      SELECT 1 FROM user_achievements ua
+      JOIN achievements a ON ua.achievement_id = a.id
+      WHERE ua.user_id = ? AND a.key = ?
+    `).get(userId, achievementKey);
+
+        return !!result;
+    } catch (error) {
+        console.error('Error checking achievement:', error);
+        return false;
+    }
+}
+
+// Unlock an achievement for a user
+export function unlockAchievement(userId: number, achievementKey: string): { unlocked: boolean; achievement?: Achievement } {
+    try {
+        // Check if already unlocked
+        if (hasAchievement(userId, achievementKey)) {
+            return { unlocked: false };
+        }
+
+        // Get achievement
+        const achievement = db.prepare('SELECT * FROM achievements WHERE key = ?').get(achievementKey) as Achievement | undefined;
+        if (!achievement) {
+            console.error(`Achievement ${achievementKey} not found`);
+            return { unlocked: false };
+        }
+
+        // Unlock achievement
+        const now = formatDateTimeSerbia();
+        db.prepare(`
+      INSERT INTO user_achievements (user_id, achievement_id, unlocked_at, progress, notified)
+      VALUES (?, ?, ?, 100, 0)
+    `).run(userId, achievement.id, now);
+
+        console.log(`User ${userId} unlocked achievement: ${achievementKey}`);
+        return { unlocked: true, achievement };
+    } catch (error) {
+        console.error('Error unlocking achievement:', error);
+        return { unlocked: false };
+    }
+}
+
+// Update progress for an achievement
+export function updateAchievementProgress(userId: number, achievementKey: string, progress: number): void {
+    try {
+        const achievement = db.prepare('SELECT * FROM achievements WHERE key = ?').get(achievementKey) as Achievement | undefined;
+        if (!achievement) return;
+
+        // Check if already unlocked
+        if (hasAchievement(userId, achievementKey)) return;
+
+        // Update or insert progress
+        db.prepare(`
+      INSERT INTO user_achievements (user_id, achievement_id, progress, notified)
+      VALUES (?, ?, ?, 0)
+      ON CONFLICT(user_id, achievement_id) DO UPDATE SET progress = ?
+    `).run(userId, achievement.id, progress, progress);
+    } catch (error) {
+        console.error('Error updating achievement progress:', error);
+    }
+}
+
+// Check and unlock achievements based on trigger
+export function checkAndUnlockAchievements(userId: number, trigger: string, data?: any): Achievement[] {
+    const unlockedAchievements: Achievement[] = [];
+
+    try {
+        // Get user stats
+        const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId) as any;
+        if (!user) return [];
+
+        const streak = db.prepare('SELECT * FROM streaks WHERE user_id = ?').get(userId) as any;
+        const uploadCount = db.prepare('SELECT COUNT(*) as count FROM daily_uploads WHERE user_id = ? AND verification_status = ?').get(userId, 'approved') as { count: number };
+        const friendCount = db.prepare('SELECT COUNT(*) as count FROM friends WHERE user_id = ?').get(userId) as { count: number };
+        const nudgeCount = db.prepare('SELECT COUNT(DISTINCT nudge_date) as count FROM nudges WHERE from_user_id = ?').get(userId) as { count: number };
+
+        // Check streak achievements
+        if (trigger === 'streak' || trigger === 'upload') {
+            const currentStreak = streak?.current_streak || 0;
+
+            if (currentStreak >= 3 && !hasAchievement(userId, 'streak_3')) {
+                const result = unlockAchievement(userId, 'streak_3');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+            if (currentStreak >= 7 && !hasAchievement(userId, 'streak_7')) {
+                const result = unlockAchievement(userId, 'streak_7');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+            if (currentStreak >= 30 && !hasAchievement(userId, 'streak_30')) {
+                const result = unlockAchievement(userId, 'streak_30');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+            if (currentStreak >= 100 && !hasAchievement(userId, 'streak_100')) {
+                const result = unlockAchievement(userId, 'streak_100');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+            if (currentStreak >= 365 && !hasAchievement(userId, 'streak_365')) {
+                const result = unlockAchievement(userId, 'streak_365');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+        }
+
+        // Check upload achievements
+        if (trigger === 'upload') {
+            const count = uploadCount.count;
+
+            if (count === 1 && !hasAchievement(userId, 'first_upload')) {
+                const result = unlockAchievement(userId, 'first_upload');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+            if (count >= 10 && !hasAchievement(userId, 'uploads_10')) {
+                const result = unlockAchievement(userId, 'uploads_10');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+            if (count >= 50 && !hasAchievement(userId, 'uploads_50')) {
+                const result = unlockAchievement(userId, 'uploads_50');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+            if (count >= 100 && !hasAchievement(userId, 'uploads_100')) {
+                const result = unlockAchievement(userId, 'uploads_100');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+            if (count >= 500 && !hasAchievement(userId, 'uploads_500')) {
+                const result = unlockAchievement(userId, 'uploads_500');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+
+            // Check time-based achievements
+            if (data?.uploadTime) {
+                const hour = new Date(data.uploadTime).getHours();
+
+                if (hour < 6) {
+                    // Early bird
+                    const earlyBirdCount = db.prepare(`
+            SELECT COUNT(*) as count FROM daily_uploads
+            WHERE user_id = ? AND verification_status = 'approved'
+            AND strftime('%H', created_at) < '06'
+          `).get(userId) as { count: number };
+
+                    updateAchievementProgress(userId, 'early_bird', Math.min(100, (earlyBirdCount.count / 5) * 100));
+
+                    if (earlyBirdCount.count >= 5 && !hasAchievement(userId, 'early_bird')) {
+                        const result = unlockAchievement(userId, 'early_bird');
+                        if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+                    }
+                }
+
+                if (hour >= 22) {
+                    // Night owl
+                    const nightOwlCount = db.prepare(`
+            SELECT COUNT(*) as count FROM daily_uploads
+            WHERE user_id = ? AND verification_status = 'approved'
+            AND strftime('%H', created_at) >= '22'
+          `).get(userId) as { count: number };
+
+                    updateAchievementProgress(userId, 'night_owl', Math.min(100, (nightOwlCount.count / 5) * 100));
+
+                    if (nightOwlCount.count >= 5 && !hasAchievement(userId, 'night_owl')) {
+                        const result = unlockAchievement(userId, 'night_owl');
+                        if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+                    }
+                }
+            }
+        }
+
+        // Check trophy achievements
+        if (trigger === 'trophy') {
+            const trophies = user.trophies || 0;
+
+            if (trophies >= 100 && !hasAchievement(userId, 'trophies_100')) {
+                const result = unlockAchievement(userId, 'trophies_100');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+            if (trophies >= 500 && !hasAchievement(userId, 'trophies_500')) {
+                const result = unlockAchievement(userId, 'trophies_500');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+            if (trophies >= 1000 && !hasAchievement(userId, 'trophies_1000')) {
+                const result = unlockAchievement(userId, 'trophies_1000');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+            if (trophies >= 5000 && !hasAchievement(userId, 'trophies_5000')) {
+                const result = unlockAchievement(userId, 'trophies_5000');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+        }
+
+        // Check social achievements
+        if (trigger === 'friend') {
+            const count = friendCount.count;
+
+            if (count === 1 && !hasAchievement(userId, 'first_friend')) {
+                const result = unlockAchievement(userId, 'first_friend');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+            if (count >= 10 && !hasAchievement(userId, 'friends_10')) {
+                const result = unlockAchievement(userId, 'friends_10');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+        }
+
+        if (trigger === 'crew_join' && !hasAchievement(userId, 'crew_member')) {
+            const result = unlockAchievement(userId, 'crew_member');
+            if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+        }
+
+        if (trigger === 'crew_create' && !hasAchievement(userId, 'crew_leader')) {
+            const result = unlockAchievement(userId, 'crew_leader');
+            if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+        }
+
+        if (trigger === 'nudge') {
+            const count = nudgeCount.count;
+            updateAchievementProgress(userId, 'helpful', Math.min(100, (count / 10) * 100));
+
+            if (count >= 10 && !hasAchievement(userId, 'helpful')) {
+                const result = unlockAchievement(userId, 'helpful');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+        }
+
+        // Check perfect week achievement
+        if (trigger === 'week_complete' && data?.perfectWeek) {
+            if (!hasAchievement(userId, 'perfect_week')) {
+                const result = unlockAchievement(userId, 'perfect_week');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+
+            // Check perfect month (4 consecutive perfect weeks)
+            if (data?.consecutivePerfectWeeks >= 4 && !hasAchievement(userId, 'perfect_month')) {
+                const result = unlockAchievement(userId, 'perfect_month');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+        }
+
+        // Check comeback kid (rebuild streak after breaking)
+        if (trigger === 'streak' && data?.streakRebuilt) {
+            if (!hasAchievement(userId, 'comeback_kid')) {
+                const result = unlockAchievement(userId, 'comeback_kid');
+                if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
+            }
+        }
+
+    } catch (error) {
+        console.error('Error checking achievements:', error);
+    }
+
+    return unlockedAchievements;
+}
+
+// Set featured badges on user profile
+export function setFeaturedBadges(userId: number, achievementIds: number[]): boolean {
+    try {
+        // Validate that user has unlocked all these achievements
+        for (const achievementId of achievementIds) {
+            const unlocked = db.prepare(`
+        SELECT 1 FROM user_achievements
+        WHERE user_id = ? AND achievement_id = ?
+      `).get(userId, achievementId);
+
+            if (!unlocked) {
+                console.error(`User ${userId} has not unlocked achievement ${achievementId}`);
+                return false;
+            }
+        }
+
+        // Limit to 3 featured badges
+        const featured = achievementIds.slice(0, 3);
+
+        // Update user
+        db.prepare('UPDATE users SET featured_badges = ? WHERE id = ?')
+            .run(JSON.stringify(featured), userId);
+
+        return true;
+    } catch (error) {
+        console.error('Error setting featured badges:', error);
+        return false;
+    }
+}
+
+// Get achievement statistics
+export function getAchievementStats(): any {
+    try {
+        const totalAchievements = db.prepare('SELECT COUNT(*) as count FROM achievements').get() as { count: number };
+        const totalUnlocks = db.prepare('SELECT COUNT(*) as count FROM user_achievements').get() as { count: number };
+        const totalUsers = db.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number };
+
+        const mostUnlocked = db.prepare(`
+      SELECT a.name, a.icon, COUNT(*) as unlock_count
+      FROM user_achievements ua
+      JOIN achievements a ON ua.achievement_id = a.id
+      GROUP BY a.id
+      ORDER BY unlock_count DESC
+      LIMIT 5
+    `).all();
+
+        const rarest = db.prepare(`
+      SELECT a.name, a.icon, COUNT(*) as unlock_count
+      FROM achievements a
+      LEFT JOIN user_achievements ua ON a.id = ua.achievement_id
+      GROUP BY a.id
+      ORDER BY unlock_count ASC
+      LIMIT 5
+    `).all();
+
+        return {
+            totalAchievements: totalAchievements.count,
+            totalUnlocks: totalUnlocks.count,
+            averagePerUser: totalUsers.count > 0 ? (totalUnlocks.count / totalUsers.count).toFixed(1) : 0,
+            mostUnlocked,
+            rarest
+        };
+    } catch (error) {
+        console.error('Error getting achievement stats:', error);
+        return null;
+    }
+}

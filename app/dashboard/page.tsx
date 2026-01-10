@@ -10,6 +10,8 @@ import { getImageUrl } from '@/lib/image-utils';
 import { Chat } from '@/components/Chat';
 import { ImageCropper } from '@/components/ImageCropper';
 import { Notifications } from '@/components/Notifications';
+import PushNotificationSetup from '@/components/PushNotificationSetup';
+import AchievementUnlockModal from '@/components/AchievementUnlockModal';
 import { formatDateSerbia, isTodaySerbia, isPastSerbia, formatDateDisplay, formatDateTimeDisplay } from '@/lib/timezone';
 import { compressImageToJpeg } from '@/lib/image-compress';
 import { getTrophyRank, getRankColorStyle, getRankGradient, getRankBorderStyle } from '@/lib/ranks';
@@ -108,7 +110,7 @@ export default function DashboardPage() {
     isOpen: false,
     title: '',
     message: '',
-    onConfirm: () => {},
+    onConfirm: () => { },
   });
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
   const [restDaysExpandedDesktop, setRestDaysExpandedDesktop] = useState(false);
@@ -116,6 +118,32 @@ export default function DashboardPage() {
   const lastRestDaysMobileTouchRef = useRef(0);
   const restDaysDesktopRef = useRef<HTMLDivElement>(null);
   const { isInstallable, isIOS, isInstalled, install } = usePWAInstall();
+  const [unlockedAchievement, setUnlockedAchievement] = useState<any>(null);
+
+  // Poll for new achievements
+  useEffect(() => {
+    const checkAchievements = async () => {
+      try {
+        const response = await fetch('/api/achievements');
+        if (response.ok) {
+          const data = await response.json();
+          const newlyUnlocked = data.achievements.find((a: any) =>
+            a.unlocked && !a.notified && a.unlocked_at
+          );
+          if (newlyUnlocked) {
+            setUnlockedAchievement(newlyUnlocked);
+          }
+        }
+      } catch (err) {
+        console.error('Error checking achievements:', err);
+      }
+    };
+
+    // Check on mount and every 30 seconds
+    checkAchievements();
+    const interval = setInterval(checkAchievements, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchDashboard = useCallback(async () => {
     try {
@@ -219,7 +247,7 @@ export default function DashboardPage() {
 
     // Only use mousedown for desktop - no touch events to avoid mobile conflicts
     document.addEventListener('mousedown', handleClickOutside);
-    
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -243,9 +271,9 @@ export default function DashboardPage() {
         const needsScroll = container.scrollWidth > container.clientWidth;
         const atStart = container.scrollLeft <= 0;
         const atEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 1;
-        setFriendsScrollPosition({ 
-          atStart: needsScroll ? atStart : true, 
-          atEnd: needsScroll ? atEnd : true 
+        setFriendsScrollPosition({
+          atStart: needsScroll ? atStart : true,
+          atEnd: needsScroll ? atEnd : true
         });
       }
     };
@@ -284,11 +312,11 @@ export default function DashboardPage() {
       const desktopEl = profileMenuRef.current;
       const mobileEl = profileMenuMobileRef.current;
       const target = e.target as Node;
-      
+
       if (desktopEl?.contains(target) || mobileEl?.contains(target)) {
         return;
       }
-      
+
       setProfileMenuOpen(false);
     };
 
@@ -342,7 +370,7 @@ export default function DashboardPage() {
       // Step 2: Extract metadata from the converted file (AFTER HEIC conversion)
       // This is more reliable for iPhones because we're extracting from JPEG, not HEIC
       let metadataToSend: any = null;
-      
+
       try {
         const mod: any = await import('exifr');
         const exifr = mod?.default || mod;
@@ -358,7 +386,7 @@ export default function DashboardPage() {
             'Software',
           ],
         });
-        
+
         if (exifData && Object.keys(exifData).length > 0) {
           // Convert EXIF Date objects to Serbia-local ISO strings (preserve local time)
           const serbiaFormatter = new Intl.DateTimeFormat('en-US', {
@@ -421,25 +449,25 @@ export default function DashboardPage() {
           hour12: false,
           hourCycle: 'h23',
         });
-        
+
         const parts = serbiaFormatter.formatToParts(now);
         const getPart = (type: string) => parts.find(p => p.type === type)?.value || '0';
-        
+
         const year = getPart('year');
         const month = getPart('month');
         const day = getPart('day');
         const hour = getPart('hour');
         const minute = getPart('minute');
         const second = getPart('second');
-        
+
         // Calculate UTC offset for Serbia at this moment
         const utcTimestamp = now.getTime();
         const localTimestamp = Date.UTC(
-          parseInt(year), 
-          parseInt(month) - 1, 
-          parseInt(day), 
-          parseInt(hour), 
-          parseInt(minute), 
+          parseInt(year),
+          parseInt(month) - 1,
+          parseInt(day),
+          parseInt(hour),
+          parseInt(minute),
           parseInt(second)
         );
         const offsetMinutes = Math.round((localTimestamp - utcTimestamp) / 60000);
@@ -447,10 +475,10 @@ export default function DashboardPage() {
         const offsetMins = Math.abs(offsetMinutes) % 60;
         const offsetSign = offsetMinutes >= 0 ? '+' : '-';
         const offsetStr = `${offsetSign}${String(offsetHours).padStart(2, '0')}:${String(offsetMins).padStart(2, '0')}`;
-        
+
         // Create ISO timestamp with Serbia timezone offset
         const serbiaISO = `${year}-${month}-${day}T${hour}:${minute}:${second}${offsetStr}`;
-        
+
         metadataToSend = {
           DateTimeOriginal: serbiaISO,
           CreateDate: serbiaISO,
@@ -696,7 +724,7 @@ export default function DashboardPage() {
     try {
       const res = await fetch('/api/coins/claim-daily', { method: 'POST' });
       const json = await res.json();
-      
+
       if (res.ok) {
         showToast(`Claimed ${json.amount} coins!`, 'success');
         fetchDashboard(); // Refresh to update coins balance
@@ -778,7 +806,7 @@ export default function DashboardPage() {
                 style={{ objectFit: 'contain' }}
               />
             </div>
-            
+
             {/* Desktop Navigation */}
             <div className="hidden sm:flex items-center gap-2 sm:gap-3">
               {/* Coins Display - Desktop */}
@@ -848,6 +876,16 @@ export default function DashboardPage() {
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </Link>
+              <Link
+                href="/achievements"
+                className="p-2 text-gray-400 hover:text-gray-100 transition-colors"
+                aria-label="Achievements"
+                title="Achievements"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                 </svg>
               </Link>
               <Link
@@ -992,7 +1030,7 @@ export default function DashboardPage() {
             <div className="flex sm:hidden items-center gap-2">
               {/* Notifications on mobile */}
               {data?.userId && <Notifications userId={data.userId} />}
-              
+
               {/* Profile Picture on mobile */}
               <div className="relative" ref={profileMenuMobileRef}>
                 <input
@@ -1149,7 +1187,7 @@ export default function DashboardPage() {
                     {data?.coins ?? 0}
                   </span>
                 </Link>
-                
+
                 {/* Daily Claim Button - Mobile */}
                 {data?.canClaimDaily && (
                   <button
@@ -1162,7 +1200,7 @@ export default function DashboardPage() {
                     Claim Daily Coins
                   </button>
                 )}
-                
+
                 {/* Rest Days Counter - In Hamburger Menu */}
                 {data && (
                   <div className="relative">
@@ -1223,6 +1261,18 @@ export default function DashboardPage() {
                   </svg>
                   Shop
                 </Link>
+
+                <Link
+                  href="/achievements"
+                  className="text-primary-400 hover:text-primary-300 px-3 py-2 rounded-md hover:bg-gray-700 transition-colors text-base flex items-center gap-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                  </svg>
+                  Achievements
+                </Link>
+
                 <Link
                   href="/leaderboard"
                   className="text-primary-400 hover:text-primary-300 px-3 py-2 rounded-md hover:bg-gray-700 transition-colors text-base flex items-center gap-2"
@@ -1290,6 +1340,15 @@ export default function DashboardPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6 lg:py-8">
+        {/* Push Notification Setup */}
+        <PushNotificationSetup />
+
+        {/* Achievement Unlock Modal */}
+        <AchievementUnlockModal
+          achievement={unlockedAchievement}
+          onClose={() => setUnlockedAchievement(null)}
+        />
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
           <div className="bg-gradient-to-br from-yellow-900/40 to-yellow-800/20 border-2 border-yellow-600/50 rounded-lg shadow-lg p-4 sm:p-5 md:p-6">
@@ -1352,9 +1411,8 @@ export default function DashboardPage() {
             </div>
             <div className="w-full bg-gray-700 rounded-full h-3">
               <div
-                className={`h-3 rounded-full transition-all ${
-                  progressPercentage >= 71.4 ? 'bg-green-500' : 'bg-primary-500'
-                }`}
+                className={`h-3 rounded-full transition-all ${progressPercentage >= 71.4 ? 'bg-green-500' : 'bg-primary-500'
+                  }`}
                 style={{ width: `${progressPercentage}%` }}
               ></div>
             </div>
@@ -1383,7 +1441,7 @@ export default function DashboardPage() {
                   onClick={async () => {
                     const today = formatDateSerbia();
                     const todayProgress = data.progress.days.find(d => d.date === today);
-                    
+
                     // Check if already uploaded or used rest day today
                     if (todayProgress?.uploaded || todayProgress?.is_rest_day) {
                       showToast('You have already logged activity for today', 'error');
@@ -1446,21 +1504,20 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={day.date}
-                    className={`border-2 rounded-lg p-3 text-center flex-shrink-0 w-[85px] ${
-                      day.is_rest_day
-                        ? 'border-blue-500 bg-blue-900/20'
-                        : day.uploaded
+                    className={`border-2 rounded-lg p-3 text-center flex-shrink-0 w-[85px] ${day.is_rest_day
+                      ? 'border-blue-500 bg-blue-900/20'
+                      : day.uploaded
                         ? day.verification_status === 'pending'
                           ? 'border-yellow-500 bg-yellow-900/20'
                           : day.verification_status === 'rejected'
-                          ? 'border-red-500 bg-red-900/20'
-                          : 'border-green-500 bg-green-900/20'
+                            ? 'border-red-500 bg-red-900/20'
+                            : 'border-green-500 bg-green-900/20'
                         : isToday
-                        ? 'border-yellow-500 bg-yellow-900/20'
-                        : isPast
-                        ? 'border-red-700 bg-red-900/20'
-                        : 'border-gray-700 bg-gray-700/50'
-                    }`}
+                          ? 'border-yellow-500 bg-yellow-900/20'
+                          : isPast
+                            ? 'border-red-700 bg-red-900/20'
+                            : 'border-gray-700 bg-gray-700/50'
+                      }`}
                   >
                     <div className="text-xs font-medium text-gray-400">{dayName}</div>
                     <div className="text-xl font-bold text-gray-100 mt-1">{dayNumber}</div>
@@ -1507,21 +1564,20 @@ export default function DashboardPage() {
               return (
                 <div
                   key={day.date}
-                  className={`border-2 rounded-lg p-2 sm:p-3 md:p-4 text-center ${
-                    day.is_rest_day
-                      ? 'border-blue-500 bg-blue-900/20'
-                      : day.uploaded
+                  className={`border-2 rounded-lg p-2 sm:p-3 md:p-4 text-center ${day.is_rest_day
+                    ? 'border-blue-500 bg-blue-900/20'
+                    : day.uploaded
                       ? day.verification_status === 'pending'
                         ? 'border-yellow-500 bg-yellow-900/20'
                         : day.verification_status === 'rejected'
-                        ? 'border-red-500 bg-red-900/20'
-                        : 'border-green-500 bg-green-900/20'
+                          ? 'border-red-500 bg-red-900/20'
+                          : 'border-green-500 bg-green-900/20'
                       : isToday
-                      ? 'border-yellow-500 bg-yellow-900/20'
-                      : isPast
-                      ? 'border-red-700 bg-red-900/20'
-                      : 'border-gray-700 bg-gray-700/50'
-                  }`}
+                        ? 'border-yellow-500 bg-yellow-900/20'
+                        : isPast
+                          ? 'border-red-700 bg-red-900/20'
+                          : 'border-gray-700 bg-gray-700/50'
+                    }`}
                 >
                   <div className="text-xs sm:text-sm font-medium text-gray-400">{dayName}</div>
                   <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-100 mt-1">{dayNumber}</div>
@@ -1634,7 +1690,7 @@ export default function DashboardPage() {
             <p className="text-sm text-gray-400 mb-4">
               Share your invite link and earn <strong className="text-yellow-400">150 coins</strong> when your friend uploads their first verified photo!
             </p>
-            
+
             <div className="space-y-3">
               {/* Invite Link */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -1755,7 +1811,7 @@ export default function DashboardPage() {
                 )}
 
                 {/* Scrollable Container */}
-                <div 
+                <div
                   id="friends-scroll-container"
                   ref={friendsContainerRef}
                   className="flex gap-3 sm:gap-4 overflow-x-auto py-2 scroll-smooth scrollbar-hide max-w-full"
@@ -1812,13 +1868,13 @@ export default function DashboardPage() {
                                 </span>
                               </div>
                             )}
-                            
+
                             {/* Username */}
                             <div className="text-center w-full">
                               <h4 className="text-sm sm:text-base font-semibold text-gray-100 truncate">
                                 @{friend.username}
                               </h4>
-                              
+
                               {/* Dumbbells and Streak - Side by Side */}
                               <div className="mt-2 flex items-center justify-center gap-1.5 flex-wrap">
                                 {/* Trophy Count - Special Display */}
@@ -1845,7 +1901,7 @@ export default function DashboardPage() {
                             </div>
                           </div>
                         </Link>
-                        
+
                         {/* Action Buttons - Below card */}
                         <div className="flex gap-2 mt-2">
                           <button
@@ -1853,14 +1909,14 @@ export default function DashboardPage() {
                               e.preventDefault();
                               e.stopPropagation();
                               if (friend.nudged_today) return;
-                              
+
                               // Optimistically update UI to prevent flickering
                               setFriends((prevFriends) =>
                                 prevFriends.map((f) =>
                                   f.id === friend.id ? { ...f, nudged_today: true } : f
                                 )
                               );
-                              
+
                               try {
                                 const response = await fetch('/api/friends/nudge', {
                                   method: 'POST',
@@ -1896,11 +1952,10 @@ export default function DashboardPage() {
                               }
                             }}
                             disabled={friend.nudged_today}
-                            className={`flex-1 px-3 py-2 border rounded-md text-sm transition-colors touch-manipulation min-h-[44px] flex items-center justify-center ${
-                              friend.nudged_today
-                                ? 'bg-gray-700/50 border-gray-600 text-gray-500 cursor-not-allowed'
-                                : 'bg-primary-600/50 border-primary-700 text-primary-300 hover:bg-primary-600/70 active:bg-primary-600'
-                            }`}
+                            className={`flex-1 px-3 py-2 border rounded-md text-sm transition-colors touch-manipulation min-h-[44px] flex items-center justify-center ${friend.nudged_today
+                              ? 'bg-gray-700/50 border-gray-600 text-gray-500 cursor-not-allowed'
+                              : 'bg-primary-600/50 border-primary-700 text-primary-300 hover:bg-primary-600/70 active:bg-primary-600'
+                              }`}
                           >
                             👋 {friend.nudged_today ? 'Nudged' : 'Nudge'}
                           </button>
@@ -1951,9 +2006,9 @@ export default function DashboardPage() {
         message={confirmModal.message}
         onConfirm={() => {
           confirmModal.onConfirm();
-          setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+          setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => { } });
         }}
-        onCancel={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} })}
+        onCancel={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => { } })}
         variant={confirmModal.variant}
       />
 
@@ -1979,7 +2034,7 @@ export default function DashboardPage() {
                 <ol className="list-decimal list-inside space-y-2 ml-2">
                   <li>Tap the <span className="inline-flex items-center mx-1 px-2 py-0.5 bg-gray-700 rounded text-sm font-medium">
                     <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                      <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
                     </svg>
                     Share
                   </span> button at the bottom</li>
@@ -1992,7 +2047,7 @@ export default function DashboardPage() {
                 <ol className="list-decimal list-inside space-y-2 ml-2">
                   <li>Tap the <span className="inline-flex items-center mx-1 px-2 py-0.5 bg-gray-700 rounded text-sm font-medium">
                     <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                      <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
                     </svg>
                     Menu
                   </span> button (three dots)</li>

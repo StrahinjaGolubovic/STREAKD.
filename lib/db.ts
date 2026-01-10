@@ -131,6 +131,117 @@ function getDb(): Database {
         logWarning('db:migration', 'Failed to initialize shop items', { error: shopError?.message });
       }
 
+      // Check if achievements table exists
+      const achievementsTableCheck = databaseInstance.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='achievements'").get() as { name: string } | undefined;
+      if (!achievementsTableCheck) {
+        try {
+          databaseInstance.exec(`
+            CREATE TABLE IF NOT EXISTS achievements (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              key TEXT UNIQUE NOT NULL,
+              name TEXT NOT NULL,
+              description TEXT NOT NULL,
+              icon TEXT NOT NULL,
+              category TEXT NOT NULL,
+              tier TEXT DEFAULT 'bronze',
+              points INTEGER DEFAULT 0,
+              hidden BOOLEAN DEFAULT 0,
+              created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+          `);
+          databaseInstance.exec(`
+            CREATE INDEX IF NOT EXISTS idx_achievements_key ON achievements(key);
+            CREATE INDEX IF NOT EXISTS idx_achievements_category ON achievements(category);
+          `);
+        } catch (createError: any) {
+          logError('db:migration', createError, { context: 'create achievements table' });
+        }
+      }
+
+      // Check if user_achievements table exists
+      const userAchievementsTableCheck = databaseInstance.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='user_achievements'").get() as { name: string } | undefined;
+      if (!userAchievementsTableCheck) {
+        try {
+          databaseInstance.exec(`
+            CREATE TABLE IF NOT EXISTS user_achievements (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              user_id INTEGER NOT NULL,
+              achievement_id INTEGER NOT NULL,
+              unlocked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+              progress INTEGER DEFAULT 0,
+              notified BOOLEAN DEFAULT 0,
+              FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+              FOREIGN KEY (achievement_id) REFERENCES achievements(id) ON DELETE CASCADE,
+              UNIQUE(user_id, achievement_id)
+            )
+          `);
+          databaseInstance.exec(`
+            CREATE INDEX IF NOT EXISTS idx_user_achievements_user ON user_achievements(user_id);
+            CREATE INDEX IF NOT EXISTS idx_user_achievements_achievement ON user_achievements(achievement_id);
+          `);
+        } catch (createError: any) {
+          logError('db:migration', createError, { context: 'create user_achievements table' });
+        }
+      }
+
+      // Check if push_subscriptions table exists
+      const pushSubscriptionsTableCheck = databaseInstance.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='push_subscriptions'").get() as { name: string } | undefined;
+      if (!pushSubscriptionsTableCheck) {
+        try {
+          databaseInstance.exec(`
+            CREATE TABLE IF NOT EXISTS push_subscriptions (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              user_id INTEGER NOT NULL,
+              endpoint TEXT NOT NULL,
+              p256dh TEXT NOT NULL,
+              auth TEXT NOT NULL,
+              user_agent TEXT,
+              created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+              last_used_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+              FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+              UNIQUE(user_id, endpoint)
+            )
+          `);
+          databaseInstance.exec(`
+            CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user ON push_subscriptions(user_id);
+            CREATE INDEX IF NOT EXISTS idx_push_subscriptions_endpoint ON push_subscriptions(endpoint);
+          `);
+        } catch (createError: any) {
+          logError('db:migration', createError, { context: 'create push_subscriptions table' });
+        }
+      }
+
+      // Add featured_badges and notification_preferences columns to users table if missing
+      try {
+        const usersInfo = databaseInstance.prepare("PRAGMA table_info(users)").all() as Array<{ name: string }>;
+        const usersCols = usersInfo.map((c) => c.name);
+        
+        if (!usersCols.includes('featured_badges')) {
+          databaseInstance.exec(`ALTER TABLE users ADD COLUMN featured_badges TEXT;`);
+        }
+        
+        if (!usersCols.includes('notification_preferences')) {
+          databaseInstance.exec(`ALTER TABLE users ADD COLUMN notification_preferences TEXT;`);
+          // Set default preferences for existing users
+          databaseInstance.exec(`
+            UPDATE users 
+            SET notification_preferences = '{"enabled":true,"dailyReminder":true,"dailyReminderTime":"18:00","streakWarning":true,"achievements":true,"friendActivity":true,"crewActivity":true,"adminMessages":true}'
+            WHERE notification_preferences IS NULL
+          `);
+        }
+      } catch (alterError: any) {
+        logWarning('db:migration', 'Failed to add user columns for achievements/notifications', { error: alterError?.message });
+      }
+
+      // Initialize achievements if needed
+      try {
+        const { initializeAchievements } = require('./achievements');
+        initializeAchievements();
+      } catch (achievementsError: any) {
+        logWarning('db:migration', 'Failed to initialize achievements', { error: achievementsError?.message });
+      }
+
+
       // Mark as complete only after all migrations succeed
       migrationsRun = true;
     } catch (error: any) {

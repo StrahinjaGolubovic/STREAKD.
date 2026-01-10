@@ -48,16 +48,16 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // Don't cache API routes, service worker, or Next.js internal files
-  if (url.pathname.includes('/api/') || 
-      url.pathname.includes('/sw.js') ||
-      url.pathname.startsWith('/_next/static/') ||
-      url.pathname.startsWith('/_next/webpack')) {
+  if (url.pathname.includes('/api/') ||
+    url.pathname.includes('/sw.js') ||
+    url.pathname.startsWith('/_next/static/') ||
+    url.pathname.startsWith('/_next/webpack')) {
     return;
   }
 
   // For HTML pages (navigation requests), use network-first strategy
-  if (event.request.mode === 'navigate' || 
-      (event.request.method === 'GET' && event.request.headers.get('accept')?.includes('text/html'))) {
+  if (event.request.mode === 'navigate' ||
+    (event.request.method === 'GET' && event.request.headers.get('accept')?.includes('text/html'))) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
@@ -119,3 +119,67 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+// Push notification event - handle incoming push notifications
+self.addEventListener('push', (event) => {
+  console.log('Push notification received:', event);
+
+  let notificationData = {
+    title: 'STREAKD.',
+    body: 'You have a new notification',
+    icon: '/android-chrome-192x192.png',
+    badge: '/favicon-48x48.png',
+    data: { url: '/dashboard' }
+  };
+
+  if (event.data) {
+    try {
+      const data = event.data.json();
+      notificationData = { ...notificationData, ...data };
+    } catch (e) {
+      console.error('Error parsing push data:', e);
+    }
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(notificationData.title, {
+      body: notificationData.body,
+      icon: notificationData.icon,
+      badge: notificationData.badge,
+      tag: notificationData.tag || 'default',
+      requireInteraction: notificationData.requireInteraction || false,
+      data: notificationData.data,
+      actions: notificationData.actions || []
+    })
+  );
+});
+
+// Notification click event - handle when user clicks notification
+self.addEventListener('notificationclick', (event) => {
+  console.log('Notification clicked:', event);
+
+  event.notification.close();
+
+  const urlToOpen = event.notification.data?.url || '/dashboard';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        // Check if there's already a window open
+        for (const client of clientList) {
+          if (client.url.includes(urlToOpen) && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // If no window is open, open a new one
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
+  );
+});
+
+// Notification close event - handle when user dismisses notification
+self.addEventListener('notificationclose', (event) => {
+  console.log('Notification closed:', event);
+  // Could track dismissals here if needed
+});

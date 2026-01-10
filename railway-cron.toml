@@ -1,0 +1,12 @@
+# Railway Cron Configuration for STREAKD
+
+# Daily Upload Reminders
+# Sends push notifications every hour from 6am to 11pm to users who haven't uploaded
+[[crons]]
+schedule = "0 6-23 * * *"  # Every hour from 6am to 11pm (Serbia time)
+command = "curl -X GET $RAILWAY_PUBLIC_DOMAIN/api/cron/daily-reminders -H 'Authorization: Bearer $CRON_SECRET'"
+
+# Optional: Cleanup expired push subscriptions (once per day at 3am)
+[[crons]]
+schedule = "0 3 * * *"
+command = "curl -X POST $RAILWAY_PUBLIC_DOMAIN/api/cron/cleanup-subscriptions -H 'Authorization: Bearer $CRON_SECRET'"
