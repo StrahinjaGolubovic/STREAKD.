@@ -20,6 +20,7 @@ interface User {
   profile_picture: string | null;
   total_uploads: number;
   approved_uploads: number;
+  is_premium?: number;
 }
 
 export default function AdminUsers() {
@@ -40,7 +41,7 @@ export default function AdminUsers() {
     isOpen: false,
     title: '',
     message: '',
-    onConfirm: () => {},
+    onConfirm: () => { },
   });
 
   const [editUser, setEditUser] = useState<User | null>(null);
@@ -218,6 +219,27 @@ export default function AdminUsers() {
       } else {
         const data = await response.json().catch(() => ({}));
         showToast(data.error || 'Failed to login as user', 'error');
+      }
+    } catch (err) {
+      showToast('An error occurred', 'error');
+    }
+  }
+
+  async function togglePremium(userId: number, username: string, isPremium: boolean) {
+    try {
+      const endpoint = isPremium ? '/api/admin/premium/revoke' : '/api/admin/premium/grant';
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+
+      if (response.ok) {
+        showToast(`${isPremium ? 'Revoked' : 'Granted'} premium for ${username}`, 'success');
+        fetchUsers();
+      } else {
+        const data = await response.json().catch(() => ({}));
+        showToast(data.error || 'Failed to update premium status', 'error');
       }
     } catch (err) {
       showToast('An error occurred', 'error');
@@ -458,13 +480,13 @@ export default function AdminUsers() {
                         if (!user.last_activity_date) {
                           return <span className="text-xs sm:text-sm text-gray-500">Offline</span>;
                         }
-                        
+
                         // Check if user was active in last 5 minutes
                         const lastActivity = new Date(user.last_activity_date).getTime();
                         const now = Date.now();
                         const fiveMinutes = 5 * 60 * 1000;
                         const isOnline = (now - lastActivity) < fiveMinutes;
-                        
+
                         return (
                           <div className="flex items-center gap-2">
                             <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-500'}`} />
@@ -482,6 +504,20 @@ export default function AdminUsers() {
                           className="px-3 py-1.5 bg-gray-600 text-white rounded text-xs sm:text-sm hover:bg-gray-500 transition-colors"
                         >
                           Edit
+                        </button>
+                        <button
+                          onClick={() =>
+                            showConfirm(
+                              user.is_premium ? 'Revoke Premium' : 'Grant Premium',
+                              `${user.is_premium ? 'Remove' : 'Grant'} premium status for ${user.username}?`,
+                              () => togglePremium(user.id, user.username, !!user.is_premium),
+                              'default'
+                            )
+                          }
+                          className={`px-3 py-1.5 text-white rounded text-xs sm:text-sm transition-colors ${user.is_premium ? 'bg-purple-600 hover:bg-purple-700' : 'bg-purple-600/50 hover:bg-purple-600'
+                            }`}
+                        >
+                          {user.is_premium ? '⭐ Premium' : 'Make Premium'}
                         </button>
                         <button
                           onClick={() =>
@@ -554,9 +590,9 @@ export default function AdminUsers() {
         message={confirmModal.message}
         onConfirm={() => {
           confirmModal.onConfirm();
-          setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+          setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => { } });
         }}
-        onCancel={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} })}
+        onCancel={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => { } })}
         variant={confirmModal.variant}
       />
 

@@ -304,6 +304,12 @@ function initDatabase(database: Database) {
     if (!usersCols.includes('username_color')) {
       database.exec(`ALTER TABLE users ADD COLUMN username_color TEXT;`);
     }
+
+    // Admin column
+    if (!usersCols.includes('is_admin')) {
+      database.exec(`ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT 0;`);
+      database.exec(`UPDATE users SET is_admin = 0 WHERE is_admin IS NULL;`);
+    }
   } catch (error) {
     console.log('Users migration note:', error);
   }

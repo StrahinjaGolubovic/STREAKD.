@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
           COALESCE(u.trophies, 0) as trophies,
           u.created_at,
           u.profile_picture,
+          COALESCE(u.is_premium, 0) as is_premium,
           COALESCE(s.current_streak, 0) as current_streak,
           COALESCE(s.longest_streak, 0) as longest_streak,
           ua.last_seen as last_activity_date,
