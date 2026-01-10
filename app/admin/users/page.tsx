@@ -622,7 +622,7 @@ export default function AdminUsers() {
                   className="w-5 h-5 bg-gray-900 border-2 border-gray-600 rounded text-purple-600 focus:ring-purple-500 focus:ring-2 cursor-pointer"
                 />
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider text-white uppercase bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 rounded shadow-sm">
+                  <span className="px-2 py-0.5 text-[10px] font-bold tracking-widest text-white uppercase bg-gradient-to-r from-primary-600 to-primary-500 rounded shadow-sm border border-primary-400/30" style={{ fontFamily: 'Orbitron, sans-serif' }}>
                     PREMIUM
                   </span>
                   <span className="text-gray-300 group-hover:text-gray-100 transition-colors">

@@ -9,7 +9,6 @@ import { getImageUrl } from '@/lib/image-utils';
 import { formatDateDisplay } from '@/lib/timezone';
 import { getTrophyRank, getRankColorStyle, getRankGradient, getRankBorderStyle } from '@/lib/ranks';
 import PremiumBadge from '@/components/PremiumBadge';
-import PremiumAvatarFrame from '@/components/PremiumAvatarFrame';
 
 interface ProfileData {
   user: {
@@ -253,46 +252,23 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
             {/* Profile Picture - Enhanced with Premium Frame */}
             <div className="relative">
-              {user.is_premium ? (
-                <PremiumAvatarFrame size={160}>
-                  {user.profile_picture && !profilePicBroken ? (
-                    <Image
-                      src={getImageUrl(user.profile_picture) || ''}
-                      alt={user.username}
-                      fill
-                      unoptimized
-                      className="object-cover"
-                      onError={() => setProfilePicBroken(true)}
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-                      <span className="text-gray-300 text-5xl sm:text-6xl font-bold">
-                        {user.username[0].toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                </PremiumAvatarFrame>
+              {user.profile_picture && !profilePicBroken ? (
+                <Image
+                  src={getImageUrl(user.profile_picture) || ''}
+                  alt={user.username}
+                  width={160}
+                  height={160}
+                  unoptimized
+                  className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 object-cover shadow-xl ring-4 ring-gray-700/50"
+                  style={getRankBorderStyle(user.trophies)}
+                  onError={() => setProfilePicBroken(true)}
+                />
               ) : (
-                <>
-                  {user.profile_picture && !profilePicBroken ? (
-                    <Image
-                      src={getImageUrl(user.profile_picture) || ''}
-                      alt={user.username}
-                      width={160}
-                      height={160}
-                      unoptimized
-                      className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 object-cover shadow-xl ring-4 ring-gray-700/50"
-                      style={getRankBorderStyle(user.trophies)}
-                      onError={() => setProfilePicBroken(true)}
-                    />
-                  ) : (
-                    <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border-4 flex items-center justify-center shadow-xl ring-4 ring-gray-700/50" style={getRankBorderStyle(user.trophies)}>
-                      <span className="text-gray-300 text-5xl sm:text-6xl font-bold">
-                        {user.username[0].toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                </>
+                <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border-4 flex items-center justify-center shadow-xl ring-4 ring-gray-700/50" style={getRankBorderStyle(user.trophies)}>
+                  <span className="text-gray-300 text-5xl sm:text-6xl font-bold">
+                    {user.username[0].toUpperCase()}
+                  </span>
+                </div>
               )}
 
               {/* Rank Badge */}
