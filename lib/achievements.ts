@@ -351,7 +351,8 @@ export function checkAndUnlockAchievements(userId: number, trigger: string, data
             // Friend achievements
             const count = friendCount.count;
 
-            if (count === 1 && !hasAchievement(userId, 'first_friend')) {
+            // First friend - unlock for anyone with 1+ friends who doesn't have it yet
+            if (count >= 1 && !hasAchievement(userId, 'first_friend')) {
                 const result = unlockAchievement(userId, 'first_friend');
                 if (result.unlocked && result.achievement) unlockedAchievements.push(result.achievement);
             }
