@@ -112,6 +112,12 @@ export default function AdminDashboard() {
             >
               System
             </Link>
+            <Link
+              href="/admin/premium"
+              className="px-4 py-2 bg-purple-700 text-gray-200 rounded-md hover:bg-purple-600 transition-colors text-sm sm:text-base"
+            >
+              Premium
+            </Link>
           </nav>
         </div>
 
