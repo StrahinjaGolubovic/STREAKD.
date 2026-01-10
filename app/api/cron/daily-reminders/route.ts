@@ -17,7 +17,11 @@ export async function GET(request: NextRequest) {
         }
 
         const today = formatDateSerbia();
-        const currentHour = new Date().getHours(); // Server time, but we'll check Serbia time in preferences
+
+        // Get current hour in Serbia timezone (UTC+1)
+        const now = new Date();
+        const serbiaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Belgrade' }));
+        const currentHour = serbiaTime.getHours();
 
         // Get all users who:
         // 1. Have push subscriptions
