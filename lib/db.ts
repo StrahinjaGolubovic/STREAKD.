@@ -14,10 +14,10 @@ let migrationStartTime = 0;
 // Ensure directories exist (lazy)
 function ensureDirectories() {
   // For Railway, use /data if available, otherwise use ./data
-  const dataDir = process.env.DATABASE_PATH 
+  const dataDir = process.env.DATABASE_PATH
     ? join(process.env.DATABASE_PATH, '..')
     : join(process.cwd(), 'data');
-  
+
   if (!existsSync(dataDir)) {
     mkdirSync(dataDir, { recursive: true });
   }
@@ -54,7 +54,7 @@ function getDb(): Database {
       }
     }
   }
-  
+
   // Run migrations only once to avoid blocking startup
   // Double-check locking pattern to prevent race conditions
   if (!migrationsRun) {
@@ -71,18 +71,18 @@ function getDb(): Database {
         return databaseInstance;
       }
     }
-    
+
     // Acquire lock
     migrationsLock = true;
     migrationStartTime = now;
-    
+
     // Double-check after acquiring lock
     if (migrationsRun) {
       migrationsLock = false;
       migrationStartTime = 0;
       return databaseInstance;
     }
-    
+
     try {
       // Check and add rest_days_available column if needed
       const challengesInfo = databaseInstance.prepare("PRAGMA table_info(weekly_challenges)").all() as Array<{ name: string }>;
@@ -215,11 +215,11 @@ function getDb(): Database {
       try {
         const usersInfo = databaseInstance.prepare("PRAGMA table_info(users)").all() as Array<{ name: string }>;
         const usersCols = usersInfo.map((c) => c.name);
-        
+
         if (!usersCols.includes('featured_badges')) {
           databaseInstance.exec(`ALTER TABLE users ADD COLUMN featured_badges TEXT;`);
         }
-        
+
         if (!usersCols.includes('notification_preferences')) {
           databaseInstance.exec(`ALTER TABLE users ADD COLUMN notification_preferences TEXT;`);
           // Set default preferences for existing users
@@ -253,7 +253,7 @@ function getDb(): Database {
       migrationStartTime = 0;
     }
   }
-  
+
   return databaseInstance;
 }
 
@@ -289,6 +289,20 @@ function initDatabase(database: Database) {
     }
     if (!usersCols.includes('referred_by')) {
       database.exec(`ALTER TABLE users ADD COLUMN referred_by INTEGER;`);
+    }
+    // Premium columns
+    if (!usersCols.includes('is_premium')) {
+      database.exec(`ALTER TABLE users ADD COLUMN is_premium BOOLEAN DEFAULT 0;`);
+      database.exec(`UPDATE users SET is_premium = 0 WHERE is_premium IS NULL;`);
+    }
+    if (!usersCols.includes('premium_granted_at')) {
+      database.exec(`ALTER TABLE users ADD COLUMN premium_granted_at DATETIME;`);
+    }
+    if (!usersCols.includes('premium_granted_by')) {
+      database.exec(`ALTER TABLE users ADD COLUMN premium_granted_by INTEGER;`);
+    }
+    if (!usersCols.includes('username_color')) {
+      database.exec(`ALTER TABLE users ADD COLUMN username_color TEXT;`);
     }
   } catch (error) {
     console.log('Users migration note:', error);
@@ -597,7 +611,7 @@ function initDatabase(database: Database) {
       FOREIGN KEY (related_crew_id) REFERENCES crews(id) ON DELETE SET NULL
     )
   `);
-  
+
   // Add data column to notifications if it doesn't exist (migration)
   try {
     database.exec(`ALTER TABLE notifications ADD COLUMN data TEXT`);

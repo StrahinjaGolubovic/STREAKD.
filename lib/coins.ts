@@ -1,5 +1,6 @@
 import db from './db';
 import { formatDateSerbia, formatDateTimeSerbia } from './timezone';
+import { getPremiumCoinMultiplier } from './premium';
 
 // ============================================================================
 // Types
@@ -38,15 +39,15 @@ function applyCoinDelta(userId: number, delta: number, reason: string): void {
   if (delta === 0) return;
 
   const createdAt = formatDateTimeSerbia();
-  
+
   // Update user balance (never go below 0)
   const current = getUserCoins(userId);
   const newBalance = Math.max(0, current + delta);
   const actualDelta = newBalance - current;
-  
+
   if (actualDelta !== 0) {
     db.prepare('UPDATE users SET coins = ? WHERE id = ?').run(newBalance, userId);
-    
+
     // Log transaction
     db.prepare(`
       INSERT INTO coin_transactions (user_id, delta, reason, created_at)
@@ -62,10 +63,10 @@ export function addCoins(userId: number, amount: number, reason: string): void {
 
 export function deductCoins(userId: number, amount: number, reason: string): boolean {
   if (amount <= 0) return false;
-  
+
   const current = getUserCoins(userId);
   if (current < amount) return false;
-  
+
   applyCoinDelta(userId, -amount, reason);
   return true;
 }
@@ -79,7 +80,7 @@ export function canClaimDailyCoins(userId: number): boolean {
   const row = db
     .prepare('SELECT last_daily_claim FROM users WHERE id = ?')
     .get(userId) as { last_daily_claim: string | null } | undefined;
-  
+
   return row?.last_daily_claim !== today;
 }
 
@@ -87,13 +88,15 @@ export function claimDailyCoins(userId: number): { success: boolean; amount?: nu
   if (!canClaimDailyCoins(userId)) {
     return { success: false, message: 'Already claimed today' };
   }
-  
+
   const today = formatDateSerbia();
-  const amount = Math.floor(Math.random() * 26) + 75; // 75-100 coins
-  
+  const baseAmount = Math.floor(Math.random() * 26) + 75; // 75-100 coins
+  const multiplier = getPremiumCoinMultiplier(userId); // 1.5 for premium, 1.0 for regular
+  const amount = Math.floor(baseAmount * multiplier); // 112-150 for premium, 75-100 for regular
+
   addCoins(userId, amount, 'daily_claim');
   db.prepare('UPDATE users SET last_daily_claim = ? WHERE id = ?').run(today, userId);
-  
+
   return { success: true, amount };
 }
 
@@ -107,30 +110,30 @@ export function getShopItems(): ShopItem[] {
     .all() as ShopItem[];
 }
 
-export function purchaseShopItem(userId: number, itemId: number): { 
-  success: boolean; 
+export function purchaseShopItem(userId: number, itemId: number): {
+  success: boolean;
   message?: string;
   item?: ShopItem;
 } {
   const item = db
     .prepare('SELECT * FROM shop_items WHERE id = ? AND enabled = 1')
     .get(itemId) as ShopItem | undefined;
-  
+
   if (!item) {
     return { success: false, message: 'Item not found or unavailable' };
   }
-  
+
   const userCoins = getUserCoins(userId);
   if (userCoins < item.price) {
     return { success: false, message: 'Not enough coins' };
   }
-  
+
   // Deduct coins
   const deducted = deductCoins(userId, item.price, `shop_purchase:${item.name}`);
   if (!deducted) {
     return { success: false, message: 'Failed to deduct coins' };
   }
-  
+
   // Apply item effect
   if (item.item_type === 'rest_day') {
     // Add 1 rest day to current active challenge
@@ -144,7 +147,7 @@ export function purchaseShopItem(userId: number, itemId: number): {
           LIMIT 1
         `)
         .get(userId) as { id: number; rest_days_available: number } | undefined;
-      
+
       if (challenge) {
         const newRestDays = (challenge.rest_days_available ?? 3) + 1;
         db.prepare('UPDATE weekly_challenges SET rest_days_available = ? WHERE id = ?')
@@ -154,7 +157,7 @@ export function purchaseShopItem(userId: number, itemId: number): {
       console.error('Error applying rest day:', error);
     }
   }
-  
+
   return { success: true, item };
 }
 
@@ -163,7 +166,7 @@ export function initializeShopItems(): void {
   const count = db
     .prepare('SELECT COUNT(*) as count FROM shop_items')
     .get() as { count: number };
-  
+
   if (count.count === 0) {
     // Insert default shop items
     const createdAt = formatDateTimeSerbia();
@@ -205,9 +208,9 @@ export function checkAndRewardReferral(referredUserId: number): void {
       WHERE referred_id = ? AND reward_claimed = 0
     `)
     .get(referredUserId) as { referrer_id: number; reward_claimed: number } | undefined;
-  
+
   if (!referral) return;
-  
+
   // Check if referred user has at least one approved upload
   const approvedUpload = db
     .prepare(`
@@ -216,7 +219,7 @@ export function checkAndRewardReferral(referredUserId: number): void {
       LIMIT 1
     `)
     .get(referredUserId);
-  
+
   if (approvedUpload) {
     // Reward BOTH the referrer AND the referred user (150 coins each)
     const claimedAt = formatDateTimeSerbia();

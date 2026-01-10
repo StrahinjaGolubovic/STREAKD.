@@ -14,6 +14,7 @@ import { formatDateSerbia, formatDateTimeSerbia } from './timezone';
 import { addDaysYMD, diffDaysYMD } from './streak-core';
 import { syncWeeklyBonus, challengeQualifiesForBonus } from './trophy-core';
 import { logWarning } from './logger';
+import { getPremiumRestDayLimit } from './premium';
 
 // ============================================================================
 // Types
@@ -147,7 +148,7 @@ export function computeChallengeProgress(challengeId: number): ChallengeProgress
         rejectedDays++;
       }
     }
-    
+
     // Rest days always count as completed (if no upload on that day)
     if (isRestDay && !upload) {
       completedDays++;
@@ -190,9 +191,9 @@ export function evaluateChallenge(challengeId: number): {
   }
 
   const progress = computeChallengeProgress(challengeId);
-  
+
   let newStatus: ChallengeStatus;
-  
+
   if (progress.pendingDays > 0) {
     // Can't finalize yet - still have pending uploads
     newStatus = 'pending_evaluation';
@@ -298,18 +299,19 @@ export function handleWeekRollover(
     evaluateChallengeNoBonus(previousChallenge.id);
   }
 
-  // Create new challenge
+  // Create new challenge with premium-aware rest days
   const createdAt = formatDateTimeSerbia();
-  
+  const restDayLimit = getPremiumRestDayLimit(userId); // 5 for premium, 3 for regular
+
   let result;
   try {
     result = db
       .prepare(`
         INSERT INTO weekly_challenges 
         (user_id, start_date, end_date, status, rest_days_available, created_at)
-        VALUES (?, ?, ?, 'active', 3, ?)
+        VALUES (?, ?, ?, 'active', ?, ?)
       `)
-      .run(userId, newWeekStart, newWeekEnd, createdAt);
+      .run(userId, newWeekStart, newWeekEnd, restDayLimit, createdAt);
   } catch {
     // Fallback without rest_days_available column
     result = db
@@ -328,7 +330,7 @@ export function handleWeekRollover(
   // Ensure rest_days_available exists
   return {
     ...newChallenge,
-    rest_days_available: newChallenge.rest_days_available ?? 3,
+    rest_days_available: newChallenge.rest_days_available ?? restDayLimit,
   };
 }
 
