@@ -10,7 +10,7 @@ export async function GET(
   try {
     const { username: usernameParam } = await params;
     const username = decodeURIComponent(usernameParam);
-    
+
     // Get user by username with crew info
     // Also check crew_members table in case crew_id is NULL (for old crews)
     const user = db.prepare(`
@@ -24,7 +24,9 @@ export async function GET(
         c.name as crew_name,
         c.tag as crew_tag,
         COALESCE(c.tag_color, '#0ea5e9') as crew_tag_color,
-        u.created_at
+        u.created_at,
+        COALESCE(u.is_premium, 0) as is_premium,
+        u.username_color
       FROM users u
       LEFT JOIN crew_members cm ON u.id = cm.user_id
       LEFT JOIN crews c ON COALESCE(u.crew_id, cm.crew_id) = c.id
@@ -40,6 +42,8 @@ export async function GET(
       crew_tag: string | null;
       crew_tag_color: string;
       created_at: string;
+      is_premium: number;
+      username_color: string | null;
     } | undefined;
 
     if (!user) {
@@ -68,7 +72,7 @@ export async function GET(
     // Allow friends to view private profiles
     if (user.profile_private && !isOwnProfile) {
       let isFriend = false;
-      
+
       if (currentUserId) {
         // Check if current user is friends with the profile owner
         const friendship = db.prepare(`
@@ -77,14 +81,14 @@ export async function GET(
              OR (user_id = ? AND friend_id = ?)
           LIMIT 1
         `).get(currentUserId, user.id, user.id, currentUserId);
-        
+
         isFriend = !!friendship;
       }
-      
+
       if (!isFriend) {
-        return NextResponse.json({ 
+        return NextResponse.json({
           error: 'This user has privated their account',
-          isPrivate: true 
+          isPrivate: true
         }, { status: 403 });
       }
     }
@@ -148,15 +152,15 @@ export async function GET(
 
     const recentUploads = activeChallenge
       ? (db
-          .prepare(
-            `SELECT id, upload_date, photo_path, verification_status, created_at
+        .prepare(
+          `SELECT id, upload_date, photo_path, verification_status, created_at
              FROM daily_uploads
              WHERE challenge_id = ?
                AND verification_status = 'approved'
              ORDER BY upload_date DESC
              LIMIT 7`
-          )
-          .all(activeChallenge.id) as Array<{
+        )
+        .all(activeChallenge.id) as Array<{
           id: number;
           upload_date: string;
           photo_path: string;
@@ -186,13 +190,15 @@ export async function GET(
         trophies: user.trophies,
         profile_picture: user.profile_picture,
         profile_private: user.profile_private ? true : false,
-        crew: user.crew_name ? { 
-          id: user.crew_id, 
+        crew: user.crew_name ? {
+          id: user.crew_id,
           name: user.crew_name,
           tag: user.crew_tag,
           tag_color: user.crew_tag_color || '#0ea5e9',
         } : null,
         created_at: user.created_at,
+        is_premium: user.is_premium === 1,
+        username_color: user.username_color,
       },
       streak: {
         current_streak: streak?.current_streak ?? 0,

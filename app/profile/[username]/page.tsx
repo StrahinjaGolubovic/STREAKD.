@@ -8,6 +8,8 @@ import { ToastContainer, Toast } from '@/components/Toast';
 import { getImageUrl } from '@/lib/image-utils';
 import { formatDateDisplay } from '@/lib/timezone';
 import { getTrophyRank, getRankColorStyle, getRankGradient, getRankBorderStyle } from '@/lib/ranks';
+import PremiumBadge from '@/components/PremiumBadge';
+import PremiumAvatarFrame from '@/components/PremiumAvatarFrame';
 
 interface ProfileData {
   user: {
@@ -18,6 +20,8 @@ interface ProfileData {
     profile_private: boolean;
     crew: { id: number; name: string; tag: string | null; tag_color: string } | null;
     created_at: string;
+    is_premium?: boolean;
+    username_color?: string | null;
   };
   streak: {
     current_streak: number;
@@ -150,7 +154,7 @@ export default function ProfilePage() {
 
   async function handleInviteToCrew() {
     if (!profileData) return;
-    
+
     setInvitingToCrew(true);
     try {
       const response = await fetch('/api/crews/invite', {
@@ -246,35 +250,58 @@ export default function ProfilePage() {
       <main className="max-w-5xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8">
         {/* Profile Header - Enhanced */}
         <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-6 sm:p-8 mb-6">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-              {/* Profile Picture - Enhanced */}
-              <div className="relative">
-                {user.profile_picture && !profilePicBroken ? (
-                  <Image
-                    src={getImageUrl(user.profile_picture) || ''}
-                    alt={user.username}
-                    width={160}
-                    height={160}
-                    unoptimized
-                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 object-cover shadow-xl ring-4 ring-gray-700/50"
-                    style={getRankBorderStyle(user.trophies)}
-                    onError={() => setProfilePicBroken(true)}
-                  />
-                ) : (
-                  <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border-4 flex items-center justify-center shadow-xl ring-4 ring-gray-700/50" style={getRankBorderStyle(user.trophies)}>
-                    <span className="text-gray-300 text-5xl sm:text-6xl font-bold">
-                      {user.username[0].toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                
-                {/* Rank Badge */}
-                <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 bg-gray-900 px-4 py-1.5 rounded-full border-2 shadow-lg`} style={getRankBorderStyle(user.trophies)}>
-                  <span className="text-sm font-bold rank-shine" style={{ ...getRankColorStyle(user.trophies), fontFamily: 'var(--font-orbitron), sans-serif' }}>
-                    {getTrophyRank(user.trophies)}
-                  </span>
-                </div>
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+            {/* Profile Picture - Enhanced with Premium Frame */}
+            <div className="relative">
+              {user.is_premium ? (
+                <PremiumAvatarFrame size={160}>
+                  {user.profile_picture && !profilePicBroken ? (
+                    <Image
+                      src={getImageUrl(user.profile_picture) || ''}
+                      alt={user.username}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                      onError={() => setProfilePicBroken(true)}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
+                      <span className="text-gray-300 text-5xl sm:text-6xl font-bold">
+                        {user.username[0].toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </PremiumAvatarFrame>
+              ) : (
+                <>
+                  {user.profile_picture && !profilePicBroken ? (
+                    <Image
+                      src={getImageUrl(user.profile_picture) || ''}
+                      alt={user.username}
+                      width={160}
+                      height={160}
+                      unoptimized
+                      className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 object-cover shadow-xl ring-4 ring-gray-700/50"
+                      style={getRankBorderStyle(user.trophies)}
+                      onError={() => setProfilePicBroken(true)}
+                    />
+                  ) : (
+                    <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border-4 flex items-center justify-center shadow-xl ring-4 ring-gray-700/50" style={getRankBorderStyle(user.trophies)}>
+                      <span className="text-gray-300 text-5xl sm:text-6xl font-bold">
+                        {user.username[0].toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Rank Badge */}
+              <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 bg-gray-900 px-4 py-1.5 rounded-full border-2 shadow-lg`} style={getRankBorderStyle(user.trophies)}>
+                <span className="text-sm font-bold rank-shine" style={{ ...getRankColorStyle(user.trophies), fontFamily: 'var(--font-orbitron), sans-serif' }}>
+                  {getTrophyRank(user.trophies)}
+                </span>
               </div>
+            </div>
 
             {/* Profile Info */}
             <div className="flex-1 text-center sm:text-left">
@@ -318,9 +345,21 @@ export default function ProfilePage() {
                 ) : (
                   <>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-100">
-                        @{user.username}
-                      </h1>
+                      <div className="flex items-center gap-2 justify-center sm:justify-start">
+                        <h1
+                          className="text-2xl sm:text-3xl md:text-4xl font-bold"
+                          style={user.is_premium && user.username_color ? {
+                            background: user.username_color,
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                            textShadow: '0 0 20px rgba(102, 126, 234, 0.3)'
+                          } : { color: '#f3f4f6' }}
+                        >
+                          @{user.username}
+                        </h1>
+                        {user.is_premium && <PremiumBadge size="medium" showText={false} />}
+                      </div>
                       {user.crew && (
                         user.crew.tag ? (
                           <div className="flex justify-center sm:justify-start">
