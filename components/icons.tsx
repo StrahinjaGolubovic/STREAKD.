@@ -249,6 +249,38 @@ export const IronStrengthIcon = ({ className = '', size = 24 }: IconProps) => (
 
 // Helper function to get icon by name
 export const getAchievementIcon = (iconName: string, props?: IconProps) => {
+    // Map emojis to icon names (for backward compatibility until database is cleared)
+    const emojiToIconMap: Record<string, string> = {
+        '🎯': 'target',
+        '🔥': 'flame',
+        '💪': 'muscle',
+        '⭐': 'star',
+        '💯': 'hundred',
+        '📸': 'camera',
+        '📷': 'camera',
+        '🎬': 'video',
+        '🏆': 'trophy',
+        '✨': 'sparkles',
+        '💎': 'diamond',
+        '🥉': 'medal_bronze',
+        '🥈': 'medal_silver',
+        '🥇': 'medal_gold',
+        '💰': 'coins',
+        '👋': 'hand_wave',
+        '👥': 'users',
+        '🤝': 'handshake',
+        '👨‍✈️': 'shield',
+        '🔔': 'bell',
+        '🌅': 'sunrise',
+        '🦉': 'moon',
+        '🏋️': 'dumbbell',
+        '🔄': 'refresh',
+        '👑': 'iron',
+    };
+
+    // Convert emoji to icon name if needed
+    const mappedIconName = emojiToIconMap[iconName] || iconName;
+
     const iconMap: Record<string, React.FC<IconProps>> = {
         target: TargetIcon,
         flame: FlameIcon,
@@ -281,6 +313,6 @@ export const getAchievementIcon = (iconName: string, props?: IconProps) => {
         iron: IronStrengthIcon,
     };
 
-    const IconComponent = iconMap[iconName] || TargetIcon;
+    const IconComponent = iconMap[mappedIconName] || TargetIcon;
     return <IconComponent {...props} />;
 };

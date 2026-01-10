@@ -104,7 +104,7 @@ export default function ShopPage() {
                 style={{ objectFit: 'contain' }}
               />
             </Link>
-            
+
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-900/50 to-amber-900/50 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl border border-yellow-600/40 shadow-lg">
                 <div className="w-6 h-6 sm:w-8 sm:h-8 bg-yellow-500/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -149,11 +149,10 @@ export default function ShopPage() {
         {/* Message */}
         {message && (
           <div
-            className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${
-              message.type === 'success'
+            className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${message.type === 'success'
                 ? 'bg-green-900/30 border border-green-700/50 text-green-300'
                 : 'bg-red-900/30 border border-red-700/50 text-red-300'
-            }`}
+              }`}
           >
             <span className="text-2xl">{message.type === 'success' ? '✅' : '❌'}</span>
             <span className="font-medium">{message.text}</span>
@@ -164,7 +163,9 @@ export default function ShopPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
           {items.length === 0 ? (
             <div className="col-span-full text-center py-16">
-              <div className="text-6xl mb-4">🏪</div>
+              <svg className="w-24 h-24 mx-auto mb-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
               <p className="text-gray-400 text-lg">No items available at the moment</p>
             </div>
           ) : (
@@ -174,17 +175,18 @@ export default function ShopPage() {
                 className="group relative bg-gradient-to-br from-gray-800 to-gray-800/50 border border-gray-700 rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:border-primary-500/50 hover:shadow-xl hover:shadow-primary-500/10 transition-all duration-300"
               >
                 {/* Item Icon/Badge */}
-                <div className={`absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform ${
-                  item.item_type === 'rest_day' 
-                    ? 'border-2 border-blue-700/30' 
+                <div className={`absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform ${item.item_type === 'rest_day'
+                    ? 'border-2 border-blue-700/30'
                     : 'bg-gradient-to-br from-primary-500 to-purple-600'
-                }`} style={item.item_type === 'rest_day' ? { backgroundColor: 'rgba(30, 58, 138, 0.5)' } : {}}>
+                  }`} style={item.item_type === 'rest_day' ? { backgroundColor: 'rgba(30, 58, 138, 0.5)' } : {}}>
                   {item.item_type === 'rest_day' ? (
                     <svg className="w-7 h-7 sm:w-8 sm:h-8 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                     </svg>
                   ) : (
-                    <span className="text-xl sm:text-2xl">🎁</span>
+                    <svg className="w-8 h-8 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                    </svg>
                   )}
                 </div>
 
@@ -216,13 +218,12 @@ export default function ShopPage() {
                 <button
                   onClick={() => purchaseItem(item.id)}
                   disabled={purchasing === item.id || userCoins < item.price}
-                  className={`w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base transition-all duration-200 touch-manipulation ${
-                    userCoins < item.price
+                  className={`w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base transition-all duration-200 touch-manipulation ${userCoins < item.price
                       ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                       : purchasing === item.id
-                      ? 'bg-primary-600 text-white cursor-wait'
-                      : 'bg-gradient-to-r from-primary-500 to-purple-600 text-white hover:from-primary-600 hover:to-purple-700 shadow-lg hover:shadow-xl'
-                  }`}
+                        ? 'bg-primary-600 text-white cursor-wait'
+                        : 'bg-gradient-to-r from-primary-500 to-purple-600 text-white hover:from-primary-600 hover:to-purple-700 shadow-lg hover:shadow-xl'
+                    }`}
                 >
                   {purchasing === item.id ? (
                     <span className="flex items-center justify-center gap-2">

@@ -161,7 +161,7 @@ export default function AchievementUnlockModal({ achievement, onClose }: Achieve
                                     onClick={handleClose}
                                     className="w-full bg-gradient-to-r from-primary-500 to-cyan-500 hover:from-primary-600 hover:to-cyan-600 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105"
                                 >
-                                    Awesome! 🎊
+                                    Awesome!
                                 </motion.button>
 
                                 {/* Auto-close hint */}
