@@ -1,15 +1,23 @@
 import { NextResponse } from 'next/server';
-import { verifyAuth } from '@/lib/auth';
+import { verifyToken } from '@/lib/auth';
 import { getCosmeticsWithOwnership } from '@/lib/cosmetics';
+import { cookies } from 'next/headers';
 
 export async function GET(request: Request) {
     try {
-        const authResult = await verifyAuth(request);
-        if (!authResult.valid || !authResult.userId) {
+        const cookieStore = await cookies();
+        const token = cookieStore.get('token')?.value;
+
+        if (!token) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const cosmetics = getCosmeticsWithOwnership(authResult.userId);
+        const decoded = verifyToken(token);
+        if (!decoded) {
+            return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+        }
+
+        const cosmetics = getCosmeticsWithOwnership(decoded.id);
 
         // Parse JSON data fields for easier frontend consumption
         const cosmeticsWithParsedData = cosmetics.map(cosmetic => ({
