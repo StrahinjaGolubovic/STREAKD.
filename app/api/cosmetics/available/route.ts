@@ -17,7 +17,7 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
         }
 
-        const cosmetics = getCosmeticsWithOwnership(decoded.id);
+        const cosmetics = getCosmeticsWithOwnership(decoded.userId);
 
         // Parse JSON data fields for easier frontend consumption
         const cosmeticsWithParsedData = cosmetics.map(cosmetic => ({
