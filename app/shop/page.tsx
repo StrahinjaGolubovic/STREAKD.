@@ -473,9 +473,12 @@ export default function ShopPage() {
                   ) : userCoins < item.price ? (
                     'Not Enough Coins'
                   ) : (
-              ))
-            )}
+                    'Purchase Now'
+                  )}
+                </button>
               </div>
+            ))
+          )}
         </div>
 
         {/* Cosmetics Section */}
@@ -492,8 +495,8 @@ export default function ShopPage() {
             <button
               onClick={() => setSelectedTab('avatar_frame')}
               className={`flex-1 min-w-[100px] px-4 py-3 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base transition-all touch-manipulation ${selectedTab === 'avatar_frame'
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
+                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
               style={{ fontFamily: 'Orbitron, sans-serif' }}
             >
@@ -502,8 +505,8 @@ export default function ShopPage() {
             <button
               onClick={() => setSelectedTab('name_color')}
               className={`flex-1 min-w-[100px] px-4 py-3 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base transition-all touch-manipulation ${selectedTab === 'name_color'
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
+                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
               style={{ fontFamily: 'Orbitron, sans-serif' }}
             >
@@ -512,8 +515,8 @@ export default function ShopPage() {
             <button
               onClick={() => setSelectedTab('chat_badge')}
               className={`flex-1 min-w-[100px] px-4 py-3 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base transition-all touch-manipulation ${selectedTab === 'chat_badge'
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
+                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
               style={{ fontFamily: 'Orbitron, sans-serif' }}
             >
@@ -633,10 +636,10 @@ export default function ShopPage() {
                         onClick={() => purchaseCosmetic(cosmetic.id)}
                         disabled={purchasing === cosmetic.id || userCoins < cosmetic.price}
                         className={`w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base transition-all duration-200 touch-manipulation ${userCoins < cosmetic.price
-                            ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                            : purchasing === cosmetic.id
-                              ? 'bg-purple-600 text-white cursor-wait'
-                              : 'bg-gradient-to-r from-purple-500 to-pink-600 text-white hover:from-purple-600 hover:to-pink-700 shadow-lg hover:shadow-xl'
+                          ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                          : purchasing === cosmetic.id
+                            ? 'bg-purple-600 text-white cursor-wait'
+                            : 'bg-gradient-to-r from-purple-500 to-pink-600 text-white hover:from-purple-600 hover:to-pink-700 shadow-lg hover:shadow-xl'
                           }`}
                       >
                         {purchasing === cosmetic.id ? (
@@ -718,6 +721,6 @@ export default function ShopPage() {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
