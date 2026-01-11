@@ -490,49 +490,95 @@ export default function ShopPage() {
             <p className="text-gray-400 text-sm sm:text-base px-4">Customize your profile with exclusive items</p>
           </div>
 
-          {/* Compact Horizontal Tabs */}
+          {/* Premium Tabs with Icons */}
           <div className="flex gap-2 sm:gap-3 mb-6 justify-center">
             <button
               onClick={() => setSelectedTab('avatar_frame')}
-              className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-semibold text-xs sm:text-sm transition-all touch-manipulation ${selectedTab === 'avatar_frame'
+              className={`flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all touch-manipulation ${selectedTab === 'avatar_frame'
                   ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
                   : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'
                 }`}
             >
-              🖼️ Frames
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>Frames</span>
             </button>
             <button
               onClick={() => setSelectedTab('name_color')}
-              className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-semibold text-xs sm:text-sm transition-all touch-manipulation ${selectedTab === 'name_color'
+              className={`flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all touch-manipulation ${selectedTab === 'name_color'
                   ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
                   : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'
                 }`}
             >
-              🎨 Colors
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+              </svg>
+              <span>Colors</span>
             </button>
             <button
               onClick={() => setSelectedTab('chat_badge')}
-              className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-semibold text-xs sm:text-sm transition-all touch-manipulation ${selectedTab === 'chat_badge'
+              className={`flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm transition-all touch-manipulation ${selectedTab === 'chat_badge'
                   ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
                   : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'
                 }`}
             >
-              🏅 Badges
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+              </svg>
+              <span>Badges</span>
             </button>
           </div>
 
-          {/* Cosmetics Grid - Matching Shop Items Style */}
+          {/* Cosmetics Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {cosmetics
               .filter(c => c.type === selectedTab)
               .map((cosmetic) => {
-                const rarityColors = {
-                  common: { border: 'border-gray-600', badge: 'bg-gray-600', text: 'text-gray-300' },
-                  rare: { border: 'border-blue-500', badge: 'bg-blue-500', text: 'text-blue-300' },
-                  epic: { border: 'border-purple-500', badge: 'bg-purple-500', text: 'text-purple-300' },
-                  legendary: { border: 'border-yellow-500', badge: 'bg-yellow-500', text: 'text-yellow-300' }
+                const rarityConfig = {
+                  common: {
+                    border: 'border-gray-600',
+                    badge: 'from-gray-600 to-gray-700',
+                    glow: 'shadow-gray-500/20',
+                    icon: (
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                      </svg>
+                    )
+                  },
+                  rare: {
+                    border: 'border-blue-500',
+                    badge: 'from-blue-500 to-blue-600',
+                    glow: 'shadow-blue-500/30',
+                    icon: (
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    )
+                  },
+                  epic: {
+                    border: 'border-purple-500',
+                    badge: 'from-purple-500 to-purple-600',
+                    glow: 'shadow-purple-500/30',
+                    icon: (
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clipRule="evenodd" />
+                      </svg>
+                    )
+                  },
+                  legendary: {
+                    border: 'border-yellow-500',
+                    badge: 'from-yellow-500 to-yellow-600',
+                    glow: 'shadow-yellow-500/40',
+                    icon: (
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    )
+                  }
                 };
-                const rarity = rarityColors[cosmetic.rarity];
+                const rarity = rarityConfig[cosmetic.rarity];
 
                 return (
                   <div
@@ -541,14 +587,14 @@ export default function ShopPage() {
                       } rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:border-primary-500/50 hover:shadow-xl hover:shadow-primary-500/10 transition-all duration-300`}
                   >
                     {/* Rarity Badge - Top Right */}
-                    <div className={`absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-14 sm:h-14 rounded-full ${rarity.badge} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform border-2 border-gray-900`}>
-                      <span className="text-white text-xs sm:text-sm font-bold uppercase">{cosmetic.rarity[0]}</span>
+                    <div className={`absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br ${rarity.badge} flex items-center justify-center shadow-lg ${rarity.glow} group-hover:scale-110 transition-transform border-2 border-gray-900`}>
+                      {rarity.icon}
                     </div>
 
                     {/* Equipped Indicator */}
                     {cosmetic.equipped && (
                       <div className="absolute top-3 left-3 sm:top-4 sm:left-4">
-                        <div className="flex items-center gap-1.5 bg-green-600/20 text-green-400 border border-green-500/50 rounded-full px-2 py-0.5 text-xs font-semibold">
+                        <div className="flex items-center gap-1.5 bg-green-600/20 text-green-400 border border-green-500/50 rounded-full px-2 py-0.5 text-xs font-semibold backdrop-blur-sm">
                           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
@@ -561,7 +607,7 @@ export default function ShopPage() {
                     <div className="mb-4 flex items-center justify-center h-20 sm:h-24 mt-2">
                       {cosmetic.type === 'avatar_frame' && (
                         <div
-                          className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center"
+                          className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform"
                           style={cosmetic.data.gradient ? {
                             background: cosmetic.data.gradient,
                             padding: `${cosmetic.data.borderWidth || 3}px`
@@ -569,14 +615,16 @@ export default function ShopPage() {
                             border: `${cosmetic.data.borderWidth || 3}px ${cosmetic.data.borderStyle || 'solid'} ${cosmetic.data.borderColor}`,
                           }}
                         >
-                          <div className="w-full h-full rounded-full bg-gray-700 flex items-center justify-center text-xl">
-                            👤
+                          <div className="w-full h-full rounded-full bg-gray-700 flex items-center justify-center">
+                            <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
                           </div>
                         </div>
                       )}
                       {cosmetic.type === 'name_color' && (
                         <div
-                          className="text-xl sm:text-2xl font-bold"
+                          className="text-xl sm:text-2xl font-bold group-hover:scale-105 transition-transform"
                           style={cosmetic.data.gradient ? {
                             background: cosmetic.data.gradient,
                             WebkitBackgroundClip: 'text',
@@ -590,13 +638,13 @@ export default function ShopPage() {
                         </div>
                       )}
                       {cosmetic.type === 'chat_badge' && (
-                        <div className="text-3xl sm:text-4xl">
+                        <div className="text-3xl sm:text-4xl group-hover:scale-105 transition-transform">
                           {cosmetic.data.icon}
                         </div>
                       )}
                     </div>
 
-                    {/* Title */}
+                    {/* Title & Description */}
                     <div className="mb-3 sm:mb-4">
                       <h3 className="text-lg sm:text-xl font-bold text-white mb-1.5 sm:mb-2 group-hover:text-primary-400 transition-colors">
                         {cosmetic.name}
@@ -624,7 +672,7 @@ export default function ShopPage() {
                     {/* Action Button */}
                     {cosmetic.owned ? (
                       cosmetic.equipped ? (
-                        <div className="w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base bg-green-600/20 text-green-400 border border-green-500/50 text-center">
+                        <div className="w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base bg-green-600/20 text-green-400 border border-green-500/50 text-center backdrop-blur-sm">
                           ✓ Equipped
                         </div>
                       ) : (
