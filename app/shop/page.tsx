@@ -140,8 +140,8 @@ export default function ShopPage() {
       <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Hero Section */}
         <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 bg-clip-text text-transparent">
-            Coin Shop
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 bg-clip-text text-transparent" style={{ fontFamily: 'Orbitron, sans-serif' }}>
+            SHOP
           </h1>
           <p className="text-gray-400 text-base sm:text-lg px-4">Spend your coins on exclusive items and power-ups</p>
         </div>
@@ -245,7 +245,7 @@ export default function ShopPage() {
                   {/* Price */}
                   <div className="text-center">
                     <div className="flex items-center gap-2 justify-center mb-1">
-                      <span className="text-lg sm:text-lg md:text-xl font-semibold text-gray-500 line-through">$5.00</span>
+                      <span className="text-lg sm:text-lg md:text-xl font-semibold text-gray-500 line-through" style={{ fontFamily: 'Orbitron, sans-serif' }}>$5.00</span>
                       <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clipRule="evenodd" />
                       </svg>
