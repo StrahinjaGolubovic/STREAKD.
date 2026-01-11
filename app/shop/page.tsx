@@ -14,12 +14,27 @@ interface ShopItem {
   enabled: number;
 }
 
+interface Cosmetic {
+  id: number;
+  name: string;
+  description: string | null;
+  type: 'avatar_frame' | 'name_color' | 'chat_badge';
+  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  price: number;
+  data: any;
+  owned: boolean;
+  equipped: boolean;
+}
+
 export default function ShopPage() {
   const router = useRouter();
   const [items, setItems] = useState<ShopItem[]>([]);
+  const [cosmetics, setCosmetics] = useState<Cosmetic[]>([]);
+  const [selectedTab, setSelectedTab] = useState<'avatar_frame' | 'name_color' | 'chat_badge'>('avatar_frame');
   const [userCoins, setUserCoins] = useState(0);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState<number | null>(null);
+  const [equipping, setEquipping] = useState<number | null>(null);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
@@ -32,6 +47,12 @@ export default function ShopPage() {
       if (itemsRes.ok) {
         const data = await itemsRes.json();
         setItems(data.items || []);
+      }
+
+      const cosmeticsRes = await fetch('/api/cosmetics/available');
+      if (cosmeticsRes.ok) {
+        const data = await cosmeticsRes.json();
+        setCosmetics(data.cosmetics || []);
       }
 
       const dashRes = await fetch('/api/dashboard');
@@ -76,6 +97,76 @@ export default function ShopPage() {
       setTimeout(() => setMessage(null), 3000);
     } finally {
       setPurchasing(null);
+    }
+  }
+
+  async function purchaseCosmetic(cosmeticId: number) {
+    setPurchasing(cosmeticId);
+    setMessage(null);
+
+    try {
+      const res = await fetch('/api/cosmetics/purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cosmeticId }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage({ text: data.message || 'Purchase successful!', type: 'success' });
+        setUserCoins(data.newBalance);
+        // Refresh cosmetics
+        const cosmeticsRes = await fetch('/api/cosmetics/available');
+        if (cosmeticsRes.ok) {
+          const cosmeticsData = await cosmeticsRes.json();
+          setCosmetics(cosmeticsData.cosmetics || []);
+        }
+        setTimeout(() => setMessage(null), 3000);
+      } else {
+        setMessage({ text: data.error || 'Purchase failed', type: 'error' });
+        setTimeout(() => setMessage(null), 3000);
+      }
+    } catch (error) {
+      console.error('Purchase error:', error);
+      setMessage({ text: 'An error occurred', type: 'error' });
+      setTimeout(() => setMessage(null), 3000);
+    } finally {
+      setPurchasing(null);
+    }
+  }
+
+  async function equipCosmetic(cosmeticId: number) {
+    setEquipping(cosmeticId);
+
+    try {
+      const res = await fetch('/api/cosmetics/equip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cosmeticId }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage({ text: data.message || 'Equipped successfully!', type: 'success' });
+        // Refresh cosmetics
+        const cosmeticsRes = await fetch('/api/cosmetics/available');
+        if (cosmeticsRes.ok) {
+          const cosmeticsData = await cosmeticsRes.json();
+          setCosmetics(cosmeticsData.cosmetics || []);
+        }
+        setTimeout(() => setMessage(null), 3000);
+      } else {
+        setMessage({ text: data.error || 'Equip failed', type: 'error' });
+        setTimeout(() => setMessage(null), 3000);
+      }
+    } catch (error) {
+      console.error('Equip error:', error);
+      setMessage({ text: 'An error occurred', type: 'error' });
+      setTimeout(() => setMessage(null), 3000);
+    } finally {
+      setEquipping(null);
     }
   }
 
@@ -382,11 +473,198 @@ export default function ShopPage() {
                   ) : userCoins < item.price ? (
                     'Not Enough Coins'
                   ) : (
-                    'Purchase Now'
-                  )}
-                </button>
+              ))
+            )}
               </div>
-            ))
+        </div>
+
+        {/* Cosmetics Section */}
+        <div className="mb-8 sm:mb-12">
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent" style={{ fontFamily: 'Orbitron, sans-serif' }}>
+              COSMETICS
+            </h2>
+            <p className="text-gray-400 text-sm sm:text-base px-4">Customize your profile with exclusive cosmetics</p>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex gap-2 sm:gap-3 mb-6 overflow-x-auto scrollbar-hide">
+            <button
+              onClick={() => setSelectedTab('avatar_frame')}
+              className={`flex-1 min-w-[100px] px-4 py-3 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base transition-all touch-manipulation ${selectedTab === 'avatar_frame'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                }`}
+              style={{ fontFamily: 'Orbitron, sans-serif' }}
+            >
+              🖼️ Frames
+            </button>
+            <button
+              onClick={() => setSelectedTab('name_color')}
+              className={`flex-1 min-w-[100px] px-4 py-3 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base transition-all touch-manipulation ${selectedTab === 'name_color'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                }`}
+              style={{ fontFamily: 'Orbitron, sans-serif' }}
+            >
+              🎨 Colors
+            </button>
+            <button
+              onClick={() => setSelectedTab('chat_badge')}
+              className={`flex-1 min-w-[100px] px-4 py-3 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base transition-all touch-manipulation ${selectedTab === 'chat_badge'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                }`}
+              style={{ fontFamily: 'Orbitron, sans-serif' }}
+            >
+              🏅 Badges
+            </button>
+          </div>
+
+          {/* Cosmetics Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {cosmetics
+              .filter(c => c.type === selectedTab)
+              .map((cosmetic) => {
+                const rarityColors = {
+                  common: { border: 'border-gray-500', text: 'text-gray-400', bg: 'bg-gray-500/10' },
+                  rare: { border: 'border-blue-500', text: 'text-blue-400', bg: 'bg-blue-500/10' },
+                  epic: { border: 'border-purple-500', text: 'text-purple-400', bg: 'bg-purple-500/10' },
+                  legendary: { border: 'border-yellow-500', text: 'text-yellow-400', bg: 'bg-yellow-500/10' }
+                };
+                const rarity = rarityColors[cosmetic.rarity];
+
+                return (
+                  <div
+                    key={cosmetic.id}
+                    className={`relative bg-gradient-to-br from-gray-800 to-gray-800/50 border-2 ${rarity.border} rounded-xl sm:rounded-2xl p-4 sm:p-5 hover:shadow-xl transition-all duration-300 group`}
+                  >
+                    {/* Rarity Badge */}
+                    <div className={`absolute -top-2 -right-2 sm:-top-3 sm:-right-3 px-2.5 py-1 sm:px-3 sm:py-1.5 ${rarity.bg} ${rarity.text} border ${rarity.border} rounded-full text-xs font-bold uppercase shadow-lg`}>
+                      {cosmetic.rarity}
+                    </div>
+
+                    {/* Equipped Badge */}
+                    {cosmetic.equipped && (
+                      <div className="absolute -top-2 -left-2 sm:-top-3 sm:-left-3 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-green-500/20 text-green-400 border border-green-500 rounded-full text-xs font-bold uppercase shadow-lg">
+                        ✓ Equipped
+                      </div>
+                    )}
+
+                    {/* Preview */}
+                    <div className="mb-4 flex items-center justify-center h-20 sm:h-24">
+                      {cosmetic.type === 'avatar_frame' && (
+                        <div
+                          className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center"
+                          style={cosmetic.data.gradient ? {
+                            background: cosmetic.data.gradient,
+                            padding: `${cosmetic.data.borderWidth || 3}px`
+                          } : {
+                            border: `${cosmetic.data.borderWidth || 3}px ${cosmetic.data.borderStyle || 'solid'} ${cosmetic.data.borderColor}`,
+                          }}
+                        >
+                          <div className="w-full h-full rounded-full bg-gray-700 flex items-center justify-center text-2xl">
+                            👤
+                          </div>
+                        </div>
+                      )}
+                      {cosmetic.type === 'name_color' && (
+                        <div
+                          className="text-2xl sm:text-3xl font-bold"
+                          style={cosmetic.data.gradient ? {
+                            background: cosmetic.data.gradient,
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text'
+                          } : {
+                            color: cosmetic.data.color
+                          }}
+                        >
+                          Username
+                        </div>
+                      )}
+                      {cosmetic.type === 'chat_badge' && (
+                        <div className="text-4xl sm:text-5xl">
+                          {cosmetic.data.icon}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="mb-4">
+                      <h3 className="text-base sm:text-lg font-bold text-white mb-1 group-hover:text-purple-400 transition-colors">
+                        {cosmetic.name}
+                      </h3>
+                      {cosmetic.description && (
+                        <p className="text-gray-400 text-xs sm:text-sm">{cosmetic.description}</p>
+                      )}
+                    </div>
+
+                    {/* Price */}
+                    <div className="flex items-center gap-1.5 sm:gap-2 bg-yellow-900/30 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-yellow-600/30 mb-3">
+                      <Image
+                        src="/streakd_coins.png"
+                        alt="Coins"
+                        width={20}
+                        height={20}
+                        unoptimized
+                        className="h-4 w-4 sm:h-5 sm:w-5"
+                      />
+                      <span className="font-bold text-sm sm:text-base text-yellow-200">{cosmetic.price}</span>
+                    </div>
+
+                    {/* Action Button */}
+                    {cosmetic.owned ? (
+                      cosmetic.equipped ? (
+                        <div className="w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base bg-green-600/20 text-green-400 border border-green-500/50 text-center">
+                          ✓ Equipped
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => equipCosmetic(cosmetic.id)}
+                          disabled={equipping === cosmetic.id}
+                          className="w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base bg-gradient-to-r from-blue-500 to-cyan-600 text-white hover:from-blue-600 hover:to-cyan-700 shadow-lg hover:shadow-xl transition-all duration-200 touch-manipulation disabled:opacity-50"
+                        >
+                          {equipping === cosmetic.id ? 'Equipping...' : 'Equip'}
+                        </button>
+                      )
+                    ) : (
+                      <button
+                        onClick={() => purchaseCosmetic(cosmetic.id)}
+                        disabled={purchasing === cosmetic.id || userCoins < cosmetic.price}
+                        className={`w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base transition-all duration-200 touch-manipulation ${userCoins < cosmetic.price
+                            ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                            : purchasing === cosmetic.id
+                              ? 'bg-purple-600 text-white cursor-wait'
+                              : 'bg-gradient-to-r from-purple-500 to-pink-600 text-white hover:from-purple-600 hover:to-pink-700 shadow-lg hover:shadow-xl'
+                          }`}
+                      >
+                        {purchasing === cosmetic.id ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Purchasing...
+                          </span>
+                        ) : userCoins < cosmetic.price ? (
+                          'Not Enough Coins'
+                        ) : (
+                          'Purchase'
+                        )}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+          </div>
+
+          {/* Empty State */}
+          {cosmetics.filter(c => c.type === selectedTab).length === 0 && (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">🎨</div>
+              <p className="text-gray-400 text-lg">No cosmetics available in this category yet</p>
+            </div>
           )}
         </div>
 

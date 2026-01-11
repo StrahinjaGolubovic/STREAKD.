@@ -241,6 +241,13 @@ function getDb(): Database {
         logWarning('db:migration', 'Failed to initialize achievements', { error: achievementsError?.message });
       }
 
+      // Initialize cosmetics if needed
+      try {
+        const { initializeCosmetics } = require('./cosmetics');
+        initializeCosmetics();
+      } catch (cosmeticsError: any) {
+        logWarning('db:migration', 'Failed to initialize cosmetics', { error: cosmeticsError?.message });
+      }
 
       // Mark as complete only after all migrations succeed
       migrationsRun = true;
@@ -664,6 +671,49 @@ function initDatabase(database: Database) {
     )
   `);
 
+  // Cosmetics table - available cosmetic items
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS cosmetics (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT,
+      type TEXT NOT NULL CHECK(type IN ('avatar_frame', 'name_color', 'chat_badge')),
+      rarity TEXT NOT NULL CHECK(rarity IN ('common', 'rare', 'epic', 'legendary')),
+      price INTEGER NOT NULL,
+      data TEXT NOT NULL,
+      requirements TEXT,
+      is_premium_only INTEGER DEFAULT 0,
+      is_active INTEGER DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // User cosmetics table - tracks owned cosmetics
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS user_cosmetics (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      cosmetic_id INTEGER NOT NULL,
+      purchased_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (cosmetic_id) REFERENCES cosmetics(id) ON DELETE CASCADE,
+      UNIQUE(user_id, cosmetic_id)
+    )
+  `);
+
+  // User equipped cosmetics table - tracks currently equipped items
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS user_equipped_cosmetics (
+      user_id INTEGER NOT NULL,
+      cosmetic_type TEXT NOT NULL,
+      cosmetic_id INTEGER NOT NULL,
+      equipped_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (user_id, cosmetic_type),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (cosmetic_id) REFERENCES cosmetics(id) ON DELETE CASCADE
+    )
+  `);
+
   // App settings (key/value)
   database.exec(`
     CREATE TABLE IF NOT EXISTS app_settings (
@@ -721,6 +771,11 @@ function initDatabase(database: Database) {
     CREATE INDEX IF NOT EXISTS idx_rest_days_challenge ON rest_days(challenge_id);
     CREATE INDEX IF NOT EXISTS idx_rest_days_user ON rest_days(user_id);
     CREATE INDEX IF NOT EXISTS idx_rest_days_date ON rest_days(rest_date);
+    CREATE INDEX IF NOT EXISTS idx_cosmetics_type ON cosmetics(type);
+    CREATE INDEX IF NOT EXISTS idx_cosmetics_rarity ON cosmetics(rarity);
+    CREATE INDEX IF NOT EXISTS idx_user_cosmetics_user ON user_cosmetics(user_id);
+    CREATE INDEX IF NOT EXISTS idx_user_cosmetics_cosmetic ON user_cosmetics(cosmetic_id);
+    CREATE INDEX IF NOT EXISTS idx_user_equipped_cosmetics_user ON user_equipped_cosmetics(user_id);
   `);
 
   // Nudge templates table (for premium custom nudges)
