@@ -487,75 +487,78 @@ export default function ShopPage() {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent" style={{ fontFamily: 'Orbitron, sans-serif' }}>
               COSMETICS
             </h2>
-            <p className="text-gray-400 text-sm sm:text-base px-4">Customize your profile with exclusive cosmetics</p>
+            <p className="text-gray-400 text-sm sm:text-base px-4">Customize your profile with exclusive items</p>
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-2 sm:gap-3 mb-6 overflow-x-auto scrollbar-hide">
+          {/* Compact Horizontal Tabs */}
+          <div className="flex gap-2 sm:gap-3 mb-6 justify-center">
             <button
               onClick={() => setSelectedTab('avatar_frame')}
-              className={`flex-1 min-w-[100px] px-4 py-3 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base transition-all touch-manipulation ${selectedTab === 'avatar_frame'
-                ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-semibold text-xs sm:text-sm transition-all touch-manipulation ${selectedTab === 'avatar_frame'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'
                 }`}
-              style={{ fontFamily: 'Orbitron, sans-serif' }}
             >
               🖼️ Frames
             </button>
             <button
               onClick={() => setSelectedTab('name_color')}
-              className={`flex-1 min-w-[100px] px-4 py-3 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base transition-all touch-manipulation ${selectedTab === 'name_color'
-                ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-semibold text-xs sm:text-sm transition-all touch-manipulation ${selectedTab === 'name_color'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'
                 }`}
-              style={{ fontFamily: 'Orbitron, sans-serif' }}
             >
               🎨 Colors
             </button>
             <button
               onClick={() => setSelectedTab('chat_badge')}
-              className={`flex-1 min-w-[100px] px-4 py-3 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base transition-all touch-manipulation ${selectedTab === 'chat_badge'
-                ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-semibold text-xs sm:text-sm transition-all touch-manipulation ${selectedTab === 'chat_badge'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700'
                 }`}
-              style={{ fontFamily: 'Orbitron, sans-serif' }}
             >
               🏅 Badges
             </button>
           </div>
 
-          {/* Cosmetics Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {/* Cosmetics Grid - Matching Shop Items Style */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {cosmetics
               .filter(c => c.type === selectedTab)
               .map((cosmetic) => {
                 const rarityColors = {
-                  common: { border: 'border-gray-500', text: 'text-gray-400', bg: 'bg-gray-500/10' },
-                  rare: { border: 'border-blue-500', text: 'text-blue-400', bg: 'bg-blue-500/10' },
-                  epic: { border: 'border-purple-500', text: 'text-purple-400', bg: 'bg-purple-500/10' },
-                  legendary: { border: 'border-yellow-500', text: 'text-yellow-400', bg: 'bg-yellow-500/10' }
+                  common: { border: 'border-gray-600', badge: 'bg-gray-600', text: 'text-gray-300' },
+                  rare: { border: 'border-blue-500', badge: 'bg-blue-500', text: 'text-blue-300' },
+                  epic: { border: 'border-purple-500', badge: 'bg-purple-500', text: 'text-purple-300' },
+                  legendary: { border: 'border-yellow-500', badge: 'bg-yellow-500', text: 'text-yellow-300' }
                 };
                 const rarity = rarityColors[cosmetic.rarity];
 
                 return (
                   <div
                     key={cosmetic.id}
-                    className={`relative bg-gradient-to-br from-gray-800 to-gray-800/50 border-2 ${rarity.border} rounded-xl sm:rounded-2xl p-4 sm:p-5 hover:shadow-xl transition-all duration-300 group`}
+                    className={`group relative bg-gradient-to-br from-gray-800 to-gray-800/50 border ${cosmetic.equipped ? rarity.border : 'border-gray-700'
+                      } rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:border-primary-500/50 hover:shadow-xl hover:shadow-primary-500/10 transition-all duration-300`}
                   >
-                    {/* Rarity Badge */}
-                    <div className={`absolute -top-2 -right-2 sm:-top-3 sm:-right-3 px-2.5 py-1 sm:px-3 sm:py-1.5 ${rarity.bg} ${rarity.text} border ${rarity.border} rounded-full text-xs font-bold uppercase shadow-lg`}>
-                      {cosmetic.rarity}
+                    {/* Rarity Badge - Top Right */}
+                    <div className={`absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-12 h-12 sm:w-14 sm:h-14 rounded-full ${rarity.badge} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform border-2 border-gray-900`}>
+                      <span className="text-white text-xs sm:text-sm font-bold uppercase">{cosmetic.rarity[0]}</span>
                     </div>
 
-                    {/* Equipped Badge */}
+                    {/* Equipped Indicator */}
                     {cosmetic.equipped && (
-                      <div className="absolute -top-2 -left-2 sm:-top-3 sm:-left-3 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-green-500/20 text-green-400 border border-green-500 rounded-full text-xs font-bold uppercase shadow-lg">
-                        ✓ Equipped
+                      <div className="absolute top-3 left-3 sm:top-4 sm:left-4">
+                        <div className="flex items-center gap-1.5 bg-green-600/20 text-green-400 border border-green-500/50 rounded-full px-2 py-0.5 text-xs font-semibold">
+                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          Equipped
+                        </div>
                       </div>
                     )}
 
-                    {/* Preview */}
-                    <div className="mb-4 flex items-center justify-center h-20 sm:h-24">
+                    {/* Preview Area */}
+                    <div className="mb-4 flex items-center justify-center h-20 sm:h-24 mt-2">
                       {cosmetic.type === 'avatar_frame' && (
                         <div
                           className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center"
@@ -566,14 +569,14 @@ export default function ShopPage() {
                             border: `${cosmetic.data.borderWidth || 3}px ${cosmetic.data.borderStyle || 'solid'} ${cosmetic.data.borderColor}`,
                           }}
                         >
-                          <div className="w-full h-full rounded-full bg-gray-700 flex items-center justify-center text-2xl">
+                          <div className="w-full h-full rounded-full bg-gray-700 flex items-center justify-center text-xl">
                             👤
                           </div>
                         </div>
                       )}
                       {cosmetic.type === 'name_color' && (
                         <div
-                          className="text-2xl sm:text-3xl font-bold"
+                          className="text-xl sm:text-2xl font-bold"
                           style={cosmetic.data.gradient ? {
                             background: cosmetic.data.gradient,
                             WebkitBackgroundClip: 'text',
@@ -583,37 +586,39 @@ export default function ShopPage() {
                             color: cosmetic.data.color
                           }}
                         >
-                          Username
+                          {cosmetic.name.split(' ')[0]}
                         </div>
                       )}
                       {cosmetic.type === 'chat_badge' && (
-                        <div className="text-4xl sm:text-5xl">
+                        <div className="text-3xl sm:text-4xl">
                           {cosmetic.data.icon}
                         </div>
                       )}
                     </div>
 
-                    {/* Info */}
-                    <div className="mb-4">
-                      <h3 className="text-base sm:text-lg font-bold text-white mb-1 group-hover:text-purple-400 transition-colors">
+                    {/* Title */}
+                    <div className="mb-3 sm:mb-4">
+                      <h3 className="text-lg sm:text-xl font-bold text-white mb-1.5 sm:mb-2 group-hover:text-primary-400 transition-colors">
                         {cosmetic.name}
                       </h3>
                       {cosmetic.description && (
-                        <p className="text-gray-400 text-xs sm:text-sm">{cosmetic.description}</p>
+                        <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">{cosmetic.description}</p>
                       )}
                     </div>
 
                     {/* Price */}
-                    <div className="flex items-center gap-1.5 sm:gap-2 bg-yellow-900/30 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-yellow-600/30 mb-3">
-                      <Image
-                        src="/streakd_coins.png"
-                        alt="Coins"
-                        width={20}
-                        height={20}
-                        unoptimized
-                        className="h-4 w-4 sm:h-5 sm:w-5"
-                      />
-                      <span className="font-bold text-sm sm:text-base text-yellow-200">{cosmetic.price}</span>
+                    <div className="flex items-center justify-between mb-3 sm:mb-4">
+                      <div className="flex items-center gap-1.5 sm:gap-2 bg-yellow-900/30 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-yellow-600/30">
+                        <Image
+                          src="/streakd_coins.png"
+                          alt="Coins"
+                          width={20}
+                          height={20}
+                          unoptimized
+                          className="h-4 w-4 sm:h-5 sm:w-5"
+                        />
+                        <span className="font-bold text-sm sm:text-base text-yellow-200">{cosmetic.price}</span>
+                      </div>
                     </div>
 
                     {/* Action Button */}
@@ -636,10 +641,10 @@ export default function ShopPage() {
                         onClick={() => purchaseCosmetic(cosmetic.id)}
                         disabled={purchasing === cosmetic.id || userCoins < cosmetic.price}
                         className={`w-full py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base transition-all duration-200 touch-manipulation ${userCoins < cosmetic.price
-                          ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                          : purchasing === cosmetic.id
-                            ? 'bg-purple-600 text-white cursor-wait'
-                            : 'bg-gradient-to-r from-purple-500 to-pink-600 text-white hover:from-purple-600 hover:to-pink-700 shadow-lg hover:shadow-xl'
+                            ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                            : purchasing === cosmetic.id
+                              ? 'bg-primary-600 text-white cursor-wait'
+                              : 'bg-gradient-to-r from-primary-500 to-purple-600 text-white hover:from-primary-600 hover:to-purple-700 shadow-lg hover:shadow-xl'
                           }`}
                       >
                         {purchasing === cosmetic.id ? (
@@ -653,7 +658,7 @@ export default function ShopPage() {
                         ) : userCoins < cosmetic.price ? (
                           'Not Enough Coins'
                         ) : (
-                          'Purchase'
+                          'Purchase Now'
                         )}
                       </button>
                     )}
@@ -664,8 +669,10 @@ export default function ShopPage() {
 
           {/* Empty State */}
           {cosmetics.filter(c => c.type === selectedTab).length === 0 && (
-            <div className="text-center py-16">
-              <div className="text-6xl mb-4">🎨</div>
+            <div className="col-span-full text-center py-16">
+              <svg className="w-24 h-24 mx-auto mb-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+              </svg>
               <p className="text-gray-400 text-lg">No cosmetics available in this category yet</p>
             </div>
           )}
