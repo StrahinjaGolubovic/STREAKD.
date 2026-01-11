@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { fetchWithRetry, throttle } from '@/lib/api-client';
 import { getImageUrl } from '@/lib/image-utils';
+import { UsernameDisplay } from '@/components/UsernameDisplay';
 
 interface ChatMessage {
   id: number;
@@ -12,6 +13,8 @@ interface ChatMessage {
   message: string;
   created_at: string;
   profile_picture?: string | null;
+  equipped_name_color_data?: any | null;
+  equipped_badge_data?: any | null;
 }
 
 interface ChatProps {
@@ -77,7 +80,7 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation(); // Prevent form from causing page scroll
-    
+
     if (!newMessage.trim() || sending) return;
 
     setSending(true);
@@ -99,7 +102,7 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
       const parts = formatter.formatToParts(now);
       const getPart = (type: string) => parts.find(p => p.type === type)?.value || '00';
       const clientTime = `${getPart('year')}-${getPart('month')}-${getPart('day')} ${getPart('hour')}:${getPart('minute')}:${getPart('second')}`;
-      
+
       const response = await fetch('/api/chat/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -197,7 +200,7 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
         return `${hour}:${minute}`;
       }
     }
-    
+
     // Fallback: try to parse as Date (shouldn't happen with SQLite format)
     const date = new Date(dateString);
     const hours = date.getHours().toString().padStart(2, '0');
@@ -245,7 +248,7 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
             const profilePicture = msg.profile_picture || (isOwnMessage ? currentUserProfilePicture : null);
             const avatarSrc = profilePicture ? (getImageUrl(profilePicture) || '') : '';
             const showAvatar = !!avatarSrc && !brokenAvatars.has(msg.id);
-            
+
             return (
               <div
                 key={msg.id}
@@ -281,17 +284,19 @@ export function Chat({ currentUserId, currentUsername, currentUserProfilePicture
                 {/* Message Content */}
                 <div className={`flex-1 min-w-0 ${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col`}>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs sm:text-sm font-semibold text-gray-300">
-                      {msg.username}
-                    </span>
+                    <UsernameDisplay
+                      username={msg.username}
+                      colorData={msg.equipped_name_color_data}
+                      badge={msg.equipped_badge_data}
+                      className="text-xs sm:text-sm"
+                    />
                     <span className="text-xs text-gray-500">{formatTime(msg.created_at)}</span>
                   </div>
                   <div
-                    className={`rounded-lg px-3 sm:px-4 py-2 max-w-[85%] sm:max-w-[75%] break-words ${
-                      isOwnMessage
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-gray-700 text-gray-100'
-                    }`}
+                    className={`rounded-lg px-3 sm:px-4 py-2 max-w-[85%] sm:max-w-[75%] break-words ${isOwnMessage
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-700 text-gray-100'
+                      }`}
                   >
                     <p className="text-sm sm:text-base whitespace-pre-wrap">{msg.message}</p>
                   </div>
