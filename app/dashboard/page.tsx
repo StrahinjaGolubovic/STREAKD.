@@ -772,6 +772,8 @@ export default function DashboardPage() {
 
   const progressPercentage = data.progress.totalDays > 0 ? (data.progress.completedDays / data.progress.totalDays) * 100 : 0;
   const restDaysAvailable = data.challenge?.rest_days_available ?? 3;
+  // Calculate max rest days: if user has more than 3, they're premium (max 5), otherwise regular (max 3)
+  const maxRestDays = restDaysAvailable > 3 ? 5 : 3;
 
   return (
     <div className="bg-gray-900">
@@ -846,7 +848,7 @@ export default function DashboardPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                   </svg>
                   <span className="text-sm font-bold text-blue-200">
-                    {restDaysAvailable}/3
+                    {restDaysAvailable}/{maxRestDays}
                   </span>
                   <span className="text-xs text-blue-300 font-medium hidden md:inline">Rest Days</span>
                   <svg className={`w-4 h-4 text-blue-300 transition-transform ${restDaysExpandedDesktop ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1229,7 +1231,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-base font-semibold text-blue-200">
-                          {restDaysAvailable}/3
+                          {restDaysAvailable}/{maxRestDays}
                         </span>
                         <svg className={`w-4 h-4 text-blue-300 transition-transform ${restDaysExpandedMobile ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
